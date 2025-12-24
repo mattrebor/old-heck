@@ -28,6 +28,7 @@ export default function GamePlayPage() {
           tricks: 0,
           met: false,
           score: 0,
+          blindBid: false,
         })),
       }
     : null;
@@ -56,16 +57,17 @@ export default function GamePlayPage() {
         tricks: 0,
         met: false,
         score: 0,
+        blindBid: false,
       })),
     };
   }
 
-  function handleUpdateBid(playerIndex: number, bid: number) {
+  function handleUpdateBid(playerIndex: number, bid: number, blindBid: boolean) {
     if (!currentRound) return;
 
     const updatedScores = currentRound.scores.map((ps, i) => {
       if (i === playerIndex) {
-        return { ...ps, bid };
+        return { ...ps, bid, blindBid };
       }
       return ps;
     });
@@ -95,7 +97,7 @@ export default function GamePlayPage() {
       if (i === playerIndex) {
         // Use bid value for tricks in both cases (for scoring calculation)
         const tricks = ps.bid;
-        const score = calculateOldHeckScore(tricks, madeBid);
+        const score = calculateOldHeckScore(tricks, madeBid, ps.blindBid);
         return { ...ps, tricks, met: madeBid, score };
       }
       return ps;

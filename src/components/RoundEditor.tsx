@@ -26,8 +26,17 @@ export default function RoundEditor({
               </span>
 
               <div className="flex flex-col gap-2">
-                <div className="font-bold text-xl text-gray-800">{ps.name}</div>
-                <div className="text-base text-gray-600 font-semibold">Bid: {ps.bid} tricks</div>
+                <div className="flex items-center gap-3">
+                  <span className="font-bold text-xl text-gray-800">{ps.name}</span>
+                  {ps.blindBid && (
+                    <span className="px-3 py-1 bg-purple-600 text-white rounded-lg text-sm font-bold">
+                      ⚡ BLIND 2X
+                    </span>
+                  )}
+                </div>
+                <div className="text-base text-gray-600 font-semibold">
+                  Bid: {ps.bid} tricks {ps.blindBid && <span className="text-purple-600 font-bold">(Blind)</span>}
+                </div>
               </div>
 
               <div className="flex gap-4 ml-6">

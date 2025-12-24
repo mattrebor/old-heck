@@ -9,6 +9,7 @@ export type PlayerScore = {
   tricks: number;
   met: boolean;
   score: number;
+  blindBid: boolean;
 };
 
 export type Round = {
