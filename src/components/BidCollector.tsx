@@ -95,7 +95,7 @@ export default function BidCollector({
                     </span>
                   )}
                 </div>
-                <label className="flex items-center gap-3 cursor-pointer">
+                <label className="flex items-center gap-4 cursor-pointer">
                   <span className="text-base font-semibold text-gray-700">Blind Bid?</span>
                   <input
                     type="checkbox"
@@ -107,7 +107,7 @@ export default function BidCollector({
               </div>
 
               {blindBidDecisions[i] && (
-                <div className="flex items-center gap-3 mt-3 pt-3 border-t-2 border-purple-400">
+                <div className="flex items-center gap-6 mt-4 pt-4 border-t-2 border-purple-400">
                   <span className="text-base font-semibold text-purple-700">Enter your blind bid:</span>
                   <input
                     type="number"

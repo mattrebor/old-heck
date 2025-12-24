@@ -40,7 +40,7 @@ export default function RoundEditor({
               </div>
 
               <div className="flex gap-4 ml-6">
-                <label className="flex items-center gap-3 cursor-pointer px-5 py-3 rounded-xl bg-card-result-successBg hover:bg-card-result-success hover:text-white border-2 border-card-result-success transition-all">
+                <label className="flex items-center gap-4 cursor-pointer px-5 py-3 rounded-xl bg-card-result-successBg hover:bg-card-result-success hover:text-white border-2 border-card-result-success transition-all">
                   <input
                     type="radio"
                     name={`player-${i}`}
@@ -50,7 +50,7 @@ export default function RoundEditor({
                   />
                   <span className="text-base font-bold">✓ Made it</span>
                 </label>
-                <label className="flex items-center gap-3 cursor-pointer px-5 py-3 rounded-xl bg-card-result-dangerBg hover:bg-card-result-danger hover:text-white border-2 border-card-result-danger transition-all">
+                <label className="flex items-center gap-4 cursor-pointer px-5 py-3 rounded-xl bg-card-result-dangerBg hover:bg-card-result-danger hover:text-white border-2 border-card-result-danger transition-all">
                   <input
                     type="radio"
                     name={`player-${i}`}
