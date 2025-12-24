@@ -6,11 +6,11 @@ A React-based scoring application for the card game "Old Heck" (also known as "O
 
 - **Game Setup**: Configure number of decks and players
 - **Two-Phase Round Play**:
-  - Phase 1: Collect bids from all players
-  - Phase 2: Record actual tricks taken and auto-calculate results
+  - Phase 1: Collect bids from all players (including zero bids)
+  - Phase 2: Simple radio buttons - "Made it" or "Missed it" for each player
 - **Automatic Score Calculation**: Scores calculated using the Old Heck formula
-  - Met bid (bid === tricks taken): `(tricks × tricks) + 1` points
-  - Missed bid: `-(tricks × tricks)` points
+  - Made bid: `(bid × bid) + 1` points
+  - Missed bid: `-(bid × bid)` points
 - **Running Totals**: View cumulative scores throughout the game
 - **Game History**: Save completed games to Firebase and view later
 - **Responsive Design**: Built with Tailwind CSS
@@ -82,25 +82,28 @@ npm run dev
 
 ### Playing a Game
 
-Each round has two phases:
+The app provides a seamless flow with automatic progression between rounds:
 
-**Phase 1: Bidding**
-1. Click "Start Round X" to begin a new round
-2. Each player enters their bid (how many tricks they think they'll take)
-3. **Important:** The total of all bids cannot equal the number of tricks available (the app will enforce this rule)
+**Phase 1: Bidding** (Blue Interface)
+1. Round starts automatically (first round begins immediately, subsequent rounds auto-start after completion)
+2. Each player enters their bid (0 or more tricks they think they'll take)
+3. **Important:** The total of all bids cannot equal the number of tricks available (the app enforces this rule)
 4. Click "Start Round →" when all bids are entered correctly
+5. Game automatically transitions to results phase
 
-**Phase 2: Results**
+**Phase 2: Results** (Green Interface)
 1. Play the round physically with cards
-2. Enter how many tricks each player actually took
-3. The app automatically calculates if players met their bid (bid === tricks taken)
-4. Scores are calculated automatically
-5. Click "Complete Round" to finish
+2. For each player, select "Made it" or "Missed it" using radio buttons
+3. Scores are calculated automatically:
+   - Made bid: `(bid × bid) + 1` points
+   - Missed bid: `-(bid × bid)` points
+4. Round auto-completes 1.5 seconds after all players are marked
+5. Next round automatically starts (or you can click "Complete Round Now" to skip the delay)
 
-**Between Rounds**
-- View running totals at the bottom
-- Continue with more rounds or save the game
-- Click "Save Game" when finished playing
+**After All Rounds**
+- View running totals throughout the game
+- When max rounds are reached, click "Save Game" to finish
+- Game data is saved to Firebase for later viewing
 
 ### Viewing Game History
 
@@ -147,12 +150,12 @@ Old Heck (Oh Hell) is a trick-taking card game where:
   - This ensures at least one player will fail to make their bid
   - The last player to bid (often the dealer) must adjust their bid if needed
 - **Playing:** Players play the round with actual cards to see who takes tricks
-- **Scoring:**
-  - If you take **exactly** the number of tricks you bid: `(tricks × tricks) + 1` points
-  - If you take a different number than you bid: `-(tricks × tricks)` points
+- **Scoring:** Based on your bid, regardless of how many tricks you actually took
+  - Made your bid (took exactly what you bid): `(bid × bid) + 1` points
+  - Missed your bid (took any other number): `-(bid × bid)` points
 - **Example:** If you bid 3 tricks:
-  - Take exactly 3 tricks: `(3 × 3) + 1 = 10` points ✓
-  - Take 2 or 4 tricks: `-(3 × 3) = -9` points ✗
+  - Make your bid: `(3 × 3) + 1 = +10` points ✓
+  - Miss your bid: `-(3 × 3) = -9` points ✗
 - The maximum number of rounds is based on: `(52 × decks) ÷ players`
 
 ## License

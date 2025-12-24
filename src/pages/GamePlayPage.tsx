@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { db } from "../firebase";
@@ -16,10 +16,27 @@ export default function GamePlayPage() {
   const navigate = useNavigate();
   const setup = location.state as GameSetup;
 
+  // Initialize first round automatically
+  const initialRound = setup
+    ? {
+        roundNumber: 1,
+        scores: setup.players.map((name) => ({
+          name,
+          bid: -1, // -1 means bid not entered yet
+          tricks: 0,
+          met: false,
+          score: 0,
+        })),
+      }
+    : null;
+
   const [completedRounds, setCompletedRounds] = useState<Round[]>([]);
-  const [currentRound, setCurrentRound] = useState<Round | null>(null);
-  const [currentPhase, setCurrentPhase] = useState<RoundPhase>("completed");
+  const [currentRound, setCurrentRound] = useState<Round | null>(initialRound);
+  const [currentPhase, setCurrentPhase] = useState<RoundPhase>(
+    initialRound ? "bidding" : "completed"
+  );
   const [saving, setSaving] = useState(false);
+  const autoCompleteTimerRef = useRef<number | null>(null);
 
   // Redirect if no setup provided
   if (!setup) {
@@ -32,18 +49,12 @@ export default function GamePlayPage() {
       roundNumber,
       scores: setup.players.map((name) => ({
         name,
-        bid: 0,
+        bid: -1, // -1 means bid not entered yet
         tricks: 0,
         met: false,
         score: 0,
       })),
     };
-  }
-
-  function handleStartNewRound() {
-    const roundNumber = completedRounds.length + 1;
-    setCurrentRound(createNewRound(roundNumber));
-    setCurrentPhase("bidding");
   }
 
   function handleUpdateBid(playerIndex: number, bid: number) {
@@ -60,37 +71,74 @@ export default function GamePlayPage() {
   }
 
   function handleBidsComplete() {
+    if (!currentRound) return;
+
+    // Reset tricks to -1 (not entered yet) for results phase
+    const scoresWithResetTricks = currentRound.scores.map((ps) => ({
+      ...ps,
+      tricks: -1,
+      met: false,
+      score: 0,
+    }));
+
+    setCurrentRound({ ...currentRound, scores: scoresWithResetTricks });
     setCurrentPhase("results");
   }
 
-  function handleUpdateTricks(playerIndex: number, tricks: number) {
+  function handleUpdateResult(playerIndex: number, madeBid: boolean) {
     if (!currentRound) return;
 
     const updatedScores = currentRound.scores.map((ps, i) => {
       if (i === playerIndex) {
-        const met = ps.bid === tricks;
-        const score = calculateOldHeckScore(tricks, met);
-        return { ...ps, tricks, met, score };
+        // Use bid value for tricks in both cases (for scoring calculation)
+        const tricks = ps.bid;
+        const score = calculateOldHeckScore(tricks, madeBid);
+        return { ...ps, tricks, met: madeBid, score };
       }
       return ps;
     });
 
-    setCurrentRound({ ...currentRound, scores: updatedScores });
+    const updatedRound = { ...currentRound, scores: updatedScores };
+    setCurrentRound(updatedRound);
+
+    // Clear any existing timer
+    if (autoCompleteTimerRef.current) {
+      clearTimeout(autoCompleteTimerRef.current);
+    }
+
+    // Auto-complete round when all players have answered
+    const allPlayersAnswered = updatedScores.every((ps) => ps.tricks >= 0);
+
+    if (allPlayersAnswered) {
+      autoCompleteTimerRef.current = window.setTimeout(() => {
+        handleCompleteRound();
+        autoCompleteTimerRef.current = null;
+      }, 1500); // Brief delay to review scores
+    }
   }
 
   function handleCompleteRound() {
     if (!currentRound) return;
 
-    // Verify all tricks are entered
-    const allTricksEntered = currentRound.scores.every((ps) => ps.tricks >= 0);
-    if (!allTricksEntered) {
-      alert("Please enter tricks for all players");
-      return;
+    // Safety check - should never happen since button is disabled
+    const allPlayersMarked = currentRound.scores.every((ps) => ps.tricks >= 0);
+    if (!allPlayersMarked) {
+      return; // Silently ignore if called when not ready
     }
 
-    setCompletedRounds([...completedRounds, currentRound]);
+    const newCompletedRounds = [...completedRounds, currentRound];
+    setCompletedRounds(newCompletedRounds);
     setCurrentRound(null);
     setCurrentPhase("completed");
+
+    // Auto-start next round if not at max
+    const nextRoundNumber = newCompletedRounds.length + 1;
+    if (nextRoundNumber <= setup.maxRounds) {
+      setTimeout(() => {
+        setCurrentRound(createNewRound(nextRoundNumber));
+        setCurrentPhase("bidding");
+      }, 500); // Brief delay for user to see completion
+    }
   }
 
   async function handleSaveGame() {
@@ -117,7 +165,6 @@ export default function GamePlayPage() {
   }
 
   const nextRoundNumber = completedRounds.length + 1;
-  const canAddMoreRounds = nextRoundNumber <= setup.maxRounds && !currentRound;
 
   return (
     <div className="max-w-4xl mx-auto p-4">
@@ -182,20 +229,25 @@ export default function GamePlayPage() {
       {/* Current Round - Results Phase */}
       {currentRound && currentPhase === "results" && (
         <div>
-          <RoundEditor round={currentRound} onUpdate={handleUpdateTricks} />
+          <RoundEditor round={currentRound} onUpdate={handleUpdateResult} />
+          <div className="mb-4 text-sm text-gray-600">
+            {currentRound.scores.every((ps) => ps.tricks >= 0)
+              ? "All players marked! Round will auto-complete in a moment..."
+              : "Mark all players to continue. Round will auto-complete when done."}
+          </div>
           <button
-            onClick={handleCompleteRound}
-            className="mb-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            onClick={() => {
+              if (autoCompleteTimerRef.current) {
+                clearTimeout(autoCompleteTimerRef.current);
+                autoCompleteTimerRef.current = null;
+              }
+              handleCompleteRound();
+            }}
+            disabled={!currentRound.scores.every((ps) => ps.tricks >= 0)}
+            className="mb-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            Complete Round
+            Complete Round Now
           </button>
-        </div>
-      )}
-
-      {/* No rounds yet */}
-      {completedRounds.length === 0 && !currentRound && (
-        <div className="text-center py-8 text-gray-500">
-          <p className="mb-4">No rounds yet. Click "Start Round 1" to begin!</p>
         </div>
       )}
 
@@ -204,15 +256,6 @@ export default function GamePlayPage() {
 
       {/* Action Buttons */}
       <div className="mt-6 flex gap-3 flex-wrap">
-        {canAddMoreRounds && (
-          <button
-            onClick={handleStartNewRound}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Start Round {nextRoundNumber}
-          </button>
-        )}
-
         {completedRounds.length > 0 && !currentRound && (
           <button
             onClick={handleSaveGame}
@@ -238,10 +281,15 @@ export default function GamePlayPage() {
         </div>
       )}
 
-      {/* In progress warning */}
-      {currentRound && (
+      {/* In progress info */}
+      {currentRound && currentPhase === "bidding" && (
         <div className="mt-4 bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-800">
-          Complete the current round before starting a new one or saving the game.
+          Game will automatically continue to results phase once all bids are entered.
+        </div>
+      )}
+      {currentRound && currentPhase === "results" && (
+        <div className="mt-4 bg-green-50 border border-green-200 rounded p-3 text-sm text-green-800">
+          Next round will start automatically after completing this one.
         </div>
       )}
     </div>

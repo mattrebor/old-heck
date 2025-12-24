@@ -12,7 +12,7 @@ export default function BidCollector({
   onComplete: () => void;
 }) {
   const allBidsEntered = round.scores.every((ps) => ps.bid >= 0);
-  const totalBids = round.scores.reduce((sum, ps) => sum + ps.bid, 0);
+  const totalBids = round.scores.reduce((sum, ps) => sum + (ps.bid >= 0 ? ps.bid : 0), 0);
   const bidsEqualTricks = totalBids === tricksAvailable;
   const canProceed = allBidsEntered && !bidsEqualTricks;
 
@@ -41,11 +41,11 @@ export default function BidCollector({
             min={0}
             placeholder="Bid"
             className="border-2 border-blue-300 rounded px-3 py-2 focus:border-blue-500 focus:outline-none"
-            value={ps.bid || ""}
+            value={ps.bid >= 0 ? ps.bid : ""}
             onChange={(e) => onUpdate(i, Number(e.target.value))}
           />
           <span className="text-sm text-gray-600">
-            {ps.bid > 0 ? `Bid: ${ps.bid}` : ""}
+            {ps.bid >= 0 ? `Bid: ${ps.bid}` : ""}
           </span>
         </div>
       ))}
