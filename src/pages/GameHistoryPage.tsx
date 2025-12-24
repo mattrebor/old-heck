@@ -68,15 +68,22 @@ export default function GameHistoryPage() {
 
       {game.rounds.map((r) => (
         <div key={r.roundNumber} className="border rounded p-4 mb-3">
-          <h3 className="font-semibold">Round {r.roundNumber}</h3>
-          {r.scores.map((s, i) => (
-            <div key={i} className="flex justify-between">
-              <span>
-                {s.name} ({s.tricks} {s.met ? "✓" : "✗"})
-              </span>
-              <span className="font-mono">{s.score}</span>
-            </div>
-          ))}
+          <h3 className="font-semibold mb-2">Round {r.roundNumber}</h3>
+          <div className="space-y-1">
+            {r.scores.map((s, i) => (
+              <div key={i} className="grid grid-cols-5 gap-2 text-sm">
+                <span className="font-medium">{s.name}</span>
+                <span className="text-gray-600">Bid: {s.bid}</span>
+                <span className="text-gray-600">Took: {s.tricks}</span>
+                <span
+                  className={`${s.met ? "text-green-700" : "text-red-600"}`}
+                >
+                  {s.met ? "✓ Met" : "✗ Missed"}
+                </span>
+                <span className="font-mono text-right">{s.score}</span>
+              </div>
+            ))}
+          </div>
         </div>
       ))}
     </div>

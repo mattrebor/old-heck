@@ -1,73 +1,152 @@
-# React + TypeScript + Vite
+# Old Heck - Card Game Scoring App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React-based scoring application for the card game "Old Heck" (also known as "Oh Hell" or "Oh Heck"). Track scores across multiple rounds with automatic calculation based on tricks taken and bids met.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Game Setup**: Configure number of decks and players
+- **Two-Phase Round Play**:
+  - Phase 1: Collect bids from all players
+  - Phase 2: Record actual tricks taken and auto-calculate results
+- **Automatic Score Calculation**: Scores calculated using the Old Heck formula
+  - Met bid (bid === tricks taken): `(tricks × tricks) + 1` points
+  - Missed bid: `-(tricks × tricks)` points
+- **Running Totals**: View cumulative scores throughout the game
+- **Game History**: Save completed games to Firebase and view later
+- **Responsive Design**: Built with Tailwind CSS
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **React 19** - UI framework
+- **TypeScript** - Type safety
+- **Vite** - Build tool and dev server
+- **Firebase/Firestore** - Cloud database for game storage
+- **React Router** - Client-side routing
+- **Tailwind CSS** - Styling
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Prerequisites
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Node.js 20.19+ or 22.12+
+- Firebase project with Firestore enabled
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Installation
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. Clone the repository
+```bash
+git clone <your-repo-url>
+cd old-heck
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+2. Install dependencies
+```bash
+npm install
 ```
+
+3. Set up Firebase configuration
+```bash
+cp .env.example .env.local
+```
+
+4. Edit `.env.local` with your Firebase credentials:
+```env
+VITE_FIREBASE_API_KEY=your-api-key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project.firebasestorage.app
+VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+VITE_FIREBASE_APP_ID=your-app-id
+```
+
+5. Start the development server
+```bash
+npm run dev
+```
+
+### Firebase Setup
+
+1. Create a Firebase project at [console.firebase.google.com](https://console.firebase.google.com)
+2. Enable Firestore Database
+3. Create a web app in your Firebase project
+4. Copy the configuration values to `.env.local`
+
+## Usage
+
+### Starting a New Game
+
+1. Navigate to the home page
+2. Set the number of decks (default: 1)
+3. Add or remove players (minimum 2)
+4. Click "Start Game"
+
+### Playing a Game
+
+Each round has two phases:
+
+**Phase 1: Bidding**
+1. Click "Start Round X" to begin a new round
+2. Each player enters their bid (how many tricks they think they'll take)
+3. Click "Start Round →" when all bids are entered
+
+**Phase 2: Results**
+1. Play the round physically with cards
+2. Enter how many tricks each player actually took
+3. The app automatically calculates if players met their bid (bid === tricks taken)
+4. Scores are calculated automatically
+5. Click "Complete Round" to finish
+
+**Between Rounds**
+- View running totals at the bottom
+- Continue with more rounds or save the game
+- Click "Save Game" when finished playing
+
+### Viewing Game History
+
+- After saving, you'll be redirected to the game history page
+- Navigate directly to `/game/{gameId}` to view any saved game
+- Click "← Home" to start a new game
+
+## Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+
+## Project Structure
+
+```
+src/
+├── components/       # Reusable React components
+│   ├── Header.tsx
+│   ├── RoundEditor.tsx
+│   └── Totals.tsx
+├── pages/           # Route-level page components
+│   ├── GameSetupPage.tsx
+│   ├── GamePlayPage.tsx
+│   └── GameHistoryPage.tsx
+├── utils/           # Utility functions
+│   └── rounds.ts
+├── types.ts         # TypeScript type definitions
+├── scoring.ts       # Game scoring logic
+├── firebase.ts      # Firebase configuration
+└── App.tsx          # Main app with routing
+```
+
+## Game Rules
+
+Old Heck (Oh Hell) is a trick-taking card game where:
+- **Bidding:** At the start of each round, players bid how many tricks they think they'll take
+- **Playing:** Players play the round with actual cards to see who takes tricks
+- **Scoring:**
+  - If you take **exactly** the number of tricks you bid: `(tricks × tricks) + 1` points
+  - If you take a different number than you bid: `-(tricks × tricks)` points
+- **Example:** If you bid 3 tricks:
+  - Take exactly 3 tricks: `(3 × 3) + 1 = 10` points ✓
+  - Take 2 or 4 tricks: `-(3 × 3) = -9` points ✗
+- The maximum number of rounds is based on: `(52 × decks) ÷ players`
+
+## License
+
+MIT

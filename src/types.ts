@@ -2,6 +2,7 @@ import type { Timestamp } from "firebase/firestore";
 
 export type PlayerScore = {
   name: string;
+  bid: number;
   tricks: number;
   met: boolean;
   score: number;
