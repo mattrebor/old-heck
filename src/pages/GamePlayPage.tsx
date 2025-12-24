@@ -4,6 +4,7 @@ import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { db } from "../firebase";
 import type { GameSetup, Round, Game } from "../types";
 import { calculateOldHeckScore } from "../scoring";
+import { assignSuit } from "../utils/suits";
 import Header from "../components/Header";
 import BidCollector from "../components/BidCollector";
 import RoundEditor from "../components/RoundEditor";
@@ -20,8 +21,9 @@ export default function GamePlayPage() {
   const initialRound = setup
     ? {
         roundNumber: 1,
-        scores: setup.players.map((name) => ({
+        scores: setup.players.map((name, index) => ({
           name,
+          suit: assignSuit(index),
           bid: -1, // -1 means bid not entered yet
           tricks: 0,
           met: false,
@@ -47,8 +49,9 @@ export default function GamePlayPage() {
   function createNewRound(roundNumber: number): Round {
     return {
       roundNumber,
-      scores: setup.players.map((name) => ({
+      scores: setup.players.map((name, index) => ({
         name,
+        suit: assignSuit(index),
         bid: -1, // -1 means bid not entered yet
         tricks: 0,
         met: false,
@@ -167,20 +170,20 @@ export default function GamePlayPage() {
   const nextRoundNumber = completedRounds.length + 1;
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
+    <div className="max-w-4xl mx-auto p-6">
       <Header />
 
-      <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
-        <div className="text-sm">
-          <strong>Players:</strong> {setup.players.join(", ")}
+      <div className="bg-gradient-to-r from-card-bid-100 to-card-accent-purple/20 border-3 border-card-bid-400 rounded-xl p-6 mb-8 shadow-card">
+        <div className="text-base font-semibold mb-2">
+          <strong className="text-card-bid-700">Players:</strong> <span className="text-gray-800">{setup.players.join(", ")}</span>
         </div>
-        <div className="text-sm">
-          <strong>Decks:</strong> {setup.decks} · <strong>Max Rounds:</strong>{" "}
-          {setup.maxRounds}
+        <div className="text-base font-semibold mb-2">
+          <strong className="text-card-bid-700">Decks:</strong> <span className="text-gray-800">{setup.decks}</span> · <strong className="text-card-bid-700">Max Rounds:</strong>{" "}
+          <span className="text-gray-800">{setup.maxRounds}</span>
         </div>
-        <div className="text-sm">
-          <strong>Completed Rounds:</strong> {completedRounds.length} /{" "}
-          {setup.maxRounds}
+        <div className="text-base font-semibold">
+          <strong className="text-card-bid-700">Completed Rounds:</strong> <span className="text-gray-800">{completedRounds.length} /{" "}
+          {setup.maxRounds}</span>
         </div>
       </div>
 
@@ -230,10 +233,10 @@ export default function GamePlayPage() {
       {currentRound && currentPhase === "results" && (
         <div>
           <RoundEditor round={currentRound} onUpdate={handleUpdateResult} />
-          <div className="mb-4 text-sm text-gray-600">
+          <div className="mb-6 p-5 bg-card-felt-100 border-2 border-card-felt-400 rounded-xl text-base text-gray-700 font-semibold">
             {currentRound.scores.every((ps) => ps.tricks >= 0)
-              ? "All players marked! Round will auto-complete in a moment..."
-              : "Mark all players to continue. Round will auto-complete when done."}
+              ? "✅ All players marked! Round will auto-complete in a moment..."
+              : "⏳ Mark all players to continue. Round will auto-complete when done."}
           </div>
           <button
             onClick={() => {
@@ -244,7 +247,7 @@ export default function GamePlayPage() {
               handleCompleteRound();
             }}
             disabled={!currentRound.scores.every((ps) => ps.tricks >= 0)}
-            className="mb-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="mb-6 bg-gradient-to-r from-card-result-success to-card-result-successLight text-white px-8 py-4 rounded-xl text-lg font-bold hover:shadow-card-hover hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all w-full"
           >
             Complete Round Now
           </button>
@@ -255,41 +258,41 @@ export default function GamePlayPage() {
       {completedRounds.length > 0 && <Totals rounds={completedRounds} />}
 
       {/* Action Buttons */}
-      <div className="mt-6 flex gap-3 flex-wrap">
+      <div className="mt-8 flex gap-4 flex-wrap">
         {completedRounds.length > 0 && !currentRound && (
           <button
             onClick={handleSaveGame}
             disabled={saving}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:bg-gray-400"
+            className="bg-gradient-to-r from-card-felt-green to-card-felt-400 text-white px-8 py-4 rounded-xl text-lg font-bold hover:shadow-card-hover hover:scale-105 disabled:bg-gray-400 disabled:hover:scale-100 transition-all flex-1 min-w-[200px]"
           >
-            {saving ? "Saving..." : "Save Game"}
+            {saving ? "💾 Saving..." : "💾 Save Game"}
           </button>
         )}
 
         <button
           onClick={() => navigate("/")}
-          className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+          className="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:shadow-card-hover hover:scale-105 transition-all flex-1 min-w-[200px]"
         >
-          Cancel
+          ❌ Cancel
         </button>
       </div>
 
       {/* Max rounds warning */}
       {nextRoundNumber > setup.maxRounds && !currentRound && (
-        <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded p-3 text-sm text-yellow-800">
-          Maximum rounds ({setup.maxRounds}) reached. Save the game to finish.
+        <div className="mt-6 bg-gradient-to-r from-yellow-100 to-yellow-200 border-3 border-yellow-500 rounded-xl p-5 text-base text-yellow-900 font-semibold">
+          ⚠️ Maximum rounds ({setup.maxRounds}) reached. Save the game to finish.
         </div>
       )}
 
       {/* In progress info */}
       {currentRound && currentPhase === "bidding" && (
-        <div className="mt-4 bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-800">
-          Game will automatically continue to results phase once all bids are entered.
+        <div className="mt-6 bg-gradient-to-r from-card-bid-100 to-card-bid-200 border-3 border-card-bid-400 rounded-xl p-5 text-base text-card-bid-800 font-semibold">
+          ℹ️ Game will automatically continue to results phase once all bids are entered.
         </div>
       )}
       {currentRound && currentPhase === "results" && (
-        <div className="mt-4 bg-green-50 border border-green-200 rounded p-3 text-sm text-green-800">
-          Next round will start automatically after completing this one.
+        <div className="mt-6 bg-gradient-to-r from-card-felt-100 to-card-felt-200 border-3 border-card-felt-400 rounded-xl p-5 text-base text-card-felt-dark font-semibold">
+          ℹ️ Next round will start automatically after completing this one.
         </div>
       )}
     </div>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { calculateMaxRounds } from "../utils/rounds";
+import { assignSuit, getSuitColor } from "../utils/suits";
 import type { GameSetup } from "../types";
 
 export default function GameSetupPage() {
@@ -26,46 +27,57 @@ export default function GameSetupPage() {
   }
 
   return (
-    <div className="max-w-xl mx-auto p-4">
+    <div className="max-w-xl mx-auto p-6">
       <Header />
 
-      <label className="block mb-3">
-        <span className="text-sm">Number of decks</span>
-        <input
-          type="number"
-          min={1}
-          value={decks}
-          onChange={(e) => setDecks(Number(e.target.value))}
-          className="border rounded px-2 py-1 w-full"
-        />
-      </label>
+      <div className="bg-gradient-to-br from-card-felt-200 to-card-felt-300 rounded-2xl p-8 shadow-card-hover mb-8 border-4 border-card-felt-green">
+        <h2 className="text-3xl font-bold text-card-felt-dark mb-8 flex items-center gap-3">
+          <span className="text-5xl">🃏</span>
+          Set Up Your Game
+        </h2>
 
-      <div className="mb-4">
-        <p className="text-sm mb-1">Players</p>
-        {players.map((p, i) => (
+        <label className="block mb-8">
+          <span className="text-base font-bold text-gray-800 mb-3 block">Number of decks</span>
           <input
-            key={i}
-            value={p}
-            onChange={(e) => updatePlayer(i, e.target.value)}
-            className="border rounded px-2 py-1 w-full mb-2"
+            type="number"
+            min={1}
+            value={decks}
+            onChange={(e) => setDecks(Number(e.target.value))}
+            className="border-3 border-card-felt-400 rounded-xl px-5 py-4 w-full text-lg font-semibold focus:border-card-accent-gold focus:outline-none focus:ring-4 focus:ring-card-accent-gold/30 transition-all bg-white"
           />
-        ))}
+        </label>
+
+        <div className="mb-8">
+          <p className="text-base font-bold text-gray-800 mb-4">Players</p>
+          {players.map((p, i) => (
+            <div key={i} className="flex items-center gap-4 mb-4">
+              <span className={`text-4xl ${getSuitColor(assignSuit(i))}`}>
+                {assignSuit(i)}
+              </span>
+              <input
+                value={p}
+                onChange={(e) => updatePlayer(i, e.target.value)}
+                className="border-3 border-card-felt-400 rounded-xl px-5 py-4 w-full text-lg font-semibold focus:border-card-accent-gold focus:outline-none focus:ring-4 focus:ring-card-accent-gold/30 transition-all bg-white"
+              />
+            </div>
+          ))}
+          <button
+            onClick={() =>
+              setPlayers([...players, `Player ${players.length + 1}`])
+            }
+            className="text-card-bid-600 text-base font-bold hover:text-card-bid-700 mt-3 px-4 py-2 hover:bg-white/50 rounded-lg transition-all"
+          >
+            + Add player
+          </button>
+        </div>
+
         <button
-          onClick={() =>
-            setPlayers([...players, `Player ${players.length + 1}`])
-          }
-          className="text-blue-600 text-sm"
+          onClick={startGame}
+          className="bg-gradient-to-r from-card-felt-green to-card-felt-400 text-white px-8 py-5 rounded-xl text-xl font-bold shadow-card-hover hover:shadow-2xl hover:scale-105 transition-all w-full"
         >
-          + Add player
+          🎮 Start Game
         </button>
       </div>
-
-      <button
-        onClick={startGame}
-        className="bg-green-600 text-white px-4 py-2 rounded"
-      >
-        Start Game
-      </button>
     </div>
   );
 }

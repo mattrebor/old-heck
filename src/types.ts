@@ -1,7 +1,10 @@
 import type { Timestamp } from "firebase/firestore";
 
+export type Suit = '♠' | '♥' | '♦' | '♣';
+
 export type PlayerScore = {
   name: string;
+  suit: Suit;
   bid: number;
   tricks: number;
   met: boolean;
