@@ -1,0 +1,26 @@
+import type { Timestamp } from "firebase/firestore";
+
+export type PlayerScore = {
+  name: string;
+  tricks: number;
+  met: boolean;
+  score: number;
+};
+
+export type Round = {
+  roundNumber: number;
+  scores: PlayerScore[];
+};
+
+export type GameSetup = {
+  players: string[];
+  decks: number;
+  maxRounds: number;
+};
+
+export type Game = {
+  id?: string;
+  createdAt: Timestamp;
+  setup: GameSetup;
+  rounds: Round[];
+};
