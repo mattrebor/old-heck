@@ -87,7 +87,8 @@ Each round has two phases:
 **Phase 1: Bidding**
 1. Click "Start Round X" to begin a new round
 2. Each player enters their bid (how many tricks they think they'll take)
-3. Click "Start Round →" when all bids are entered
+3. **Important:** The total of all bids cannot equal the number of tricks available (the app will enforce this rule)
+4. Click "Start Round →" when all bids are entered correctly
 
 **Phase 2: Results**
 1. Play the round physically with cards
@@ -137,7 +138,14 @@ src/
 ## Game Rules
 
 Old Heck (Oh Hell) is a trick-taking card game where:
+- **Rounds & Tricks:** Each round number equals the number of tricks available
+  - Round 1: 1 trick available (1 card dealt per player)
+  - Round 2: 2 tricks available (2 cards dealt per player)
+  - And so on...
 - **Bidding:** At the start of each round, players bid how many tricks they think they'll take
+  - **Important Rule:** The total of all bids cannot equal the number of tricks available
+  - This ensures at least one player will fail to make their bid
+  - The last player to bid (often the dealer) must adjust their bid if needed
 - **Playing:** Players play the round with actual cards to see who takes tricks
 - **Scoring:**
   - If you take **exactly** the number of tricks you bid: `(tricks × tricks) + 1` points

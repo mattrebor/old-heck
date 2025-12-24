@@ -173,6 +173,7 @@ export default function GamePlayPage() {
       {currentRound && currentPhase === "bidding" && (
         <BidCollector
           round={currentRound}
+          tricksAvailable={currentRound.roundNumber}
           onUpdate={handleUpdateBid}
           onComplete={handleBidsComplete}
         />
