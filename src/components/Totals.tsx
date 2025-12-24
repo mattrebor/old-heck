@@ -24,8 +24,8 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
   const maxScore = Math.max(...Object.values(totals));
 
   return (
-    <div className="bg-gradient-to-br from-card-felt-300 to-card-felt-200 rounded-2xl p-8 mt-8 border-4 border-card-felt-green shadow-card-hover">
-      <h3 className="font-bold text-3xl mb-6 text-card-felt-dark flex items-center gap-3">
+    <div className="bg-gradient-to-br from-felt-300 to-felt-200 rounded-2xl p-8 mt-8 border-4 border-felt-500 shadow-card-hover">
+      <h3 className="font-bold text-3xl mb-6 text-felt-600 flex items-center gap-3">
         <span className="text-4xl">📊</span>
         Score Breakdown
       </h3>
@@ -33,7 +33,7 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
       <div className="overflow-x-auto bg-white rounded-xl shadow-card">
         <table className="w-full">
           <thead>
-            <tr className="bg-card-felt-green">
+            <tr className="bg-felt-500">
               <th className="text-left p-5 text-white font-bold text-lg first:rounded-tl-xl">
                 Round
               </th>
@@ -51,7 +51,7 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
           </thead>
           <tbody>
             {rounds.map((round, idx) => (
-              <tr key={round.roundNumber} className={`border-t border-gray-200 hover:bg-gray-50 transition-colors ${idx === rounds.length - 1 ? 'border-b-2 border-card-felt-400' : ''}`}>
+              <tr key={round.roundNumber} className={`border-t border-gray-200 hover:bg-gray-50 transition-colors ${idx === rounds.length - 1 ? 'border-b-2 border-felt-400' : ''}`}>
                 <td className="p-5 font-bold text-gray-700">
                   Round {round.roundNumber}
                 </td>
@@ -63,7 +63,7 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
                     <td key={name} className="p-5 text-center">
                       <div className="flex flex-col items-center gap-1">
                         <span className={`font-mono text-xl font-bold ${
-                          playerScore.score < 0 ? 'text-card-result-danger' : 'text-card-result-success'
+                          playerScore.score < 0 ? 'text-danger-500' : 'text-success-500'
                         }`}>
                           {playerScore.score > 0 ? '+' : ''}{playerScore.score}
                         </span>
@@ -77,7 +77,7 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
                 })}
               </tr>
             ))}
-            <tr className="bg-gradient-to-r from-card-felt-400 to-card-felt-300">
+            <tr className="bg-gradient-to-r from-felt-400 to-felt-300">
               <td className="p-5 font-bold text-white text-lg first:rounded-bl-xl">
                 TOTAL
               </td>
@@ -85,12 +85,12 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
                 const isWinner = totals[name] === maxScore;
                 return (
                   <td key={name} className={`p-5 text-center last:rounded-br-xl ${
-                    isWinner ? 'bg-gradient-to-br from-card-accent-gold to-card-accent-orange' : ''
+                    isWinner ? 'bg-gradient-to-br from-gold-500 to-orange-500' : ''
                   }`}>
                     <div className="flex flex-col items-center gap-1">
                       {isWinner && <span className="text-2xl">👑</span>}
                       <span className={`font-mono text-2xl font-bold ${
-                        isWinner ? 'text-white' : totals[name] < 0 ? 'text-card-result-danger' : 'text-white'
+                        isWinner ? 'text-white' : totals[name] < 0 ? 'text-danger-500' : 'text-white'
                       }`}>
                         {totals[name]}
                       </span>

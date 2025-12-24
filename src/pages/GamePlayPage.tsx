@@ -175,16 +175,16 @@ export default function GamePlayPage() {
     <div className="max-w-4xl mx-auto p-6">
       <Header />
 
-      <div className="bg-gradient-to-r from-card-bid-100 to-card-accent-purple/20 border-3 border-card-bid-400 rounded-xl p-6 mb-8 shadow-card">
+      <div className="bg-gradient-to-r from-bid-100 to-accent-500/20 border-3 border-bid-400 rounded-xl p-6 mb-8 shadow-card">
         <div className="text-base font-semibold mb-2">
-          <strong className="text-card-bid-700">Players:</strong> <span className="text-gray-800">{setup.players.join(", ")}</span>
+          <strong className="text-bid-700">Players:</strong> <span className="text-gray-800">{setup.players.join(", ")}</span>
         </div>
         <div className="text-base font-semibold mb-2">
-          <strong className="text-card-bid-700">Decks:</strong> <span className="text-gray-800">{setup.decks}</span> · <strong className="text-card-bid-700">Max Rounds:</strong>{" "}
+          <strong className="text-bid-700">Decks:</strong> <span className="text-gray-800">{setup.decks}</span> · <strong className="text-bid-700">Max Rounds:</strong>{" "}
           <span className="text-gray-800">{setup.maxRounds}</span>
         </div>
         <div className="text-base font-semibold">
-          <strong className="text-card-bid-700">Completed Rounds:</strong> <span className="text-gray-800">{completedRounds.length} /{" "}
+          <strong className="text-bid-700">Completed Rounds:</strong> <span className="text-gray-800">{completedRounds.length} /{" "}
           {setup.maxRounds}</span>
         </div>
       </div>
@@ -235,7 +235,7 @@ export default function GamePlayPage() {
       {currentRound && currentPhase === "results" && (
         <div>
           <RoundEditor round={currentRound} onUpdate={handleUpdateResult} />
-          <div className="mb-6 p-5 bg-card-felt-100 border-2 border-card-felt-400 rounded-xl text-base text-gray-700 font-semibold">
+          <div className="mb-6 p-5 bg-felt-100 border-2 border-felt-400 rounded-xl text-base text-gray-700 font-semibold">
             {currentRound.scores.every((ps) => ps.tricks >= 0)
               ? "✅ All players marked! Round will auto-complete in a moment..."
               : "⏳ Mark all players to continue. Round will auto-complete when done."}
@@ -249,7 +249,7 @@ export default function GamePlayPage() {
               handleCompleteRound();
             }}
             disabled={!currentRound.scores.every((ps) => ps.tricks >= 0)}
-            className="mb-6 bg-gradient-to-r from-card-result-success to-card-result-successLight text-white px-8 py-4 rounded-xl text-lg font-bold hover:shadow-card-hover hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all w-full"
+            className="mb-6 bg-gradient-to-r from-success-500 to-success-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:shadow-card-hover hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all w-full"
           >
             Complete Round Now
           </button>
@@ -265,7 +265,7 @@ export default function GamePlayPage() {
           <button
             onClick={handleSaveGame}
             disabled={saving}
-            className="bg-gradient-to-r from-card-felt-green to-card-felt-400 text-white px-8 py-4 rounded-xl text-lg font-bold hover:shadow-card-hover hover:scale-105 disabled:bg-gray-400 disabled:hover:scale-100 transition-all flex-1 min-w-[200px]"
+            className="bg-gradient-to-r from-felt-500 to-felt-400 text-white px-8 py-4 rounded-xl text-lg font-bold hover:shadow-card-hover hover:scale-105 disabled:bg-gray-400 disabled:hover:scale-100 transition-all flex-1 min-w-[200px]"
           >
             {saving ? "💾 Saving..." : "💾 Save Game"}
           </button>
@@ -288,12 +288,12 @@ export default function GamePlayPage() {
 
       {/* In progress info */}
       {currentRound && currentPhase === "bidding" && (
-        <div className="mt-6 bg-gradient-to-r from-card-bid-100 to-card-bid-200 border-3 border-card-bid-400 rounded-xl p-5 text-base text-card-bid-800 font-semibold">
+        <div className="mt-6 bg-gradient-to-r from-bid-100 to-bid-200 border-3 border-bid-400 rounded-xl p-5 text-base text-bid-800 font-semibold">
           ℹ️ Game will automatically continue to results phase once all bids are entered.
         </div>
       )}
       {currentRound && currentPhase === "results" && (
-        <div className="mt-6 bg-gradient-to-r from-card-felt-100 to-card-felt-200 border-3 border-card-felt-400 rounded-xl p-5 text-base text-card-felt-dark font-semibold">
+        <div className="mt-6 bg-gradient-to-r from-felt-100 to-felt-200 border-3 border-felt-400 rounded-xl p-5 text-base text-felt-600 font-semibold">
           ℹ️ Next round will start automatically after completing this one.
         </div>
       )}

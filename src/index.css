@@ -2,50 +2,50 @@
 
 @theme {
   /* Font family */
-  --font-family-sans: Quicksand, ui-sans-serif, system-ui, sans-serif;
+  --font-sans: Quicksand, ui-sans-serif, system-ui, sans-serif;
 
-  /* Card felt green palette */
-  --color-card-felt-50: #ecfdf5;
-  --color-card-felt-100: #d1fae5;
-  --color-card-felt-200: #a7f3d0;
-  --color-card-felt-300: #6ee7b7;
-  --color-card-felt-400: #34d399;
-  --color-card-felt-green: #10b981;
-  --color-card-felt-dark: #059669;
+  /* Custom color scales - using Tailwind v4 flat naming */
+  --color-felt-50: #ecfdf5;
+  --color-felt-100: #d1fae5;
+  --color-felt-200: #a7f3d0;
+  --color-felt-300: #6ee7b7;
+  --color-felt-400: #34d399;
+  --color-felt-500: #10b981;
+  --color-felt-600: #059669;
+  --color-felt-700: #047857;
+  --color-felt-800: #065f46;
+  --color-felt-900: #064e3b;
 
-  /* Bidding phase - blue/purple tones */
-  --color-card-bid-50: #eef2ff;
-  --color-card-bid-100: #e0e7ff;
-  --color-card-bid-200: #c7d2fe;
-  --color-card-bid-300: #a5b4fc;
-  --color-card-bid-400: #818cf8;
-  --color-card-bid-500: #6366f1;
-  --color-card-bid-600: #4f46e5;
-  --color-card-bid-700: #4338ca;
-  --color-card-bid-800: #3730a3;
+  --color-bid-50: #eef2ff;
+  --color-bid-100: #e0e7ff;
+  --color-bid-200: #c7d2fe;
+  --color-bid-300: #a5b4fc;
+  --color-bid-400: #818cf8;
+  --color-bid-500: #6366f1;
+  --color-bid-600: #4f46e5;
+  --color-bid-700: #4338ca;
+  --color-bid-800: #3730a3;
+  --color-bid-900: #312e81;
 
-  /* Results phase - success/danger colors */
-  --color-card-result-success: #10b981;
-  --color-card-result-successLight: #34d399;
-  --color-card-result-successBg: #d1fae5;
-  --color-card-result-danger: #ef4444;
-  --color-card-result-dangerLight: #f87171;
-  --color-card-result-dangerBg: #fee2e2;
+  --color-success-50: #d1fae5;
+  --color-success-500: #10b981;
+  --color-success-600: #059669;
 
-  /* Accent colors */
-  --color-card-accent-gold: #f59e0b;
-  --color-card-accent-orange: #fb923c;
-  --color-card-accent-purple: #a855f7;
-  --color-card-accent-pink: #ec4899;
-  --color-card-accent-cyan: #06b6d4;
+  --color-danger-50: #fee2e2;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+
+  --color-gold-500: #f59e0b;
+  --color-gold-600: #d97706;
+
+  --color-orange-500: #fb923c;
+  --color-orange-600: #ea580c;
+
+  --color-accent-500: #a855f7;
 
   /* Box shadows */
   --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-card-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-
-  /* Border widths */
-  --width-border-3: 3px;
-  --width-border-4: 4px;
 }
 
 @layer base {

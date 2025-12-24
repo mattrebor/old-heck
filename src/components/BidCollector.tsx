@@ -58,7 +58,7 @@ export default function BidCollector({
   // PHASE 1: Blind Bid Declaration and Entry (Combined)
   if (biddingPhase === 'blind-declaration-and-entry') {
     return (
-      <div className="border-4 border-card-accent-purple rounded-2xl p-8 mb-8 bg-gradient-to-br from-purple-100 to-purple-200 shadow-card-hover">
+      <div className="border-4 border-accent-500 rounded-2xl p-8 mb-8 bg-gradient-to-br from-purple-100 to-purple-200 shadow-card-hover">
         <h3 className="font-bold text-3xl mb-6 text-purple-700 flex items-center gap-3">
           <span className="text-4xl">👁️</span>
           Round {round.roundNumber} - Blind Bid Phase
@@ -136,15 +136,15 @@ export default function BidCollector({
 
   // PHASE 2: Regular Bid Entry (non-blind bidders)
   return (
-    <div className="border-4 border-card-bid-500 rounded-2xl p-8 mb-8 bg-gradient-to-br from-card-bid-100 to-card-bid-200 shadow-card-hover">
-      <h3 className="font-bold text-3xl mb-6 text-card-bid-700 flex items-center gap-3">
+    <div className="border-4 border-bid-500 rounded-2xl p-8 mb-8 bg-gradient-to-br from-bid-100 to-bid-200 shadow-card-hover">
+      <h3 className="font-bold text-3xl mb-6 text-bid-700 flex items-center gap-3">
         <span className="text-4xl">🎴</span>
         Round {round.roundNumber} - Place Your Bids
       </h3>
-      <p className="text-base text-card-bid-600 mb-6 font-semibold">
+      <p className="text-base text-bid-600 mb-6 font-semibold">
         {hasBlindBidders ? "Remaining players, enter your bids:" : "Each player, enter how many tricks you bid to take:"}
       </p>
-      <div className="mb-6 p-5 bg-card-bid-300 rounded-xl border-2 border-card-bid-500">
+      <div className="mb-6 p-5 bg-bid-300 rounded-xl border-2 border-bid-500">
         <div className="text-base text-white font-bold">
           <strong>Tricks available:</strong> {tricksAvailable} ·
           <strong className="ml-2">Total bids:</strong> {totalBids}
@@ -193,7 +193,7 @@ export default function BidCollector({
         return (
           <div
             key={i}
-            className="grid grid-cols-[auto_1fr_auto] gap-4 items-center mb-5 p-5 bg-white rounded-xl border-3 border-card-bid-300 hover:border-card-accent-gold hover:shadow-card transition-all"
+            className="grid grid-cols-[auto_1fr_auto] gap-4 items-center mb-5 p-5 bg-white rounded-xl border-3 border-bid-300 hover:border-gold-500 hover:shadow-card transition-all"
           >
             <div className="flex items-center gap-3">
               <span className={`text-4xl ${getSuitColor(ps.suit)}`}>
@@ -205,7 +205,7 @@ export default function BidCollector({
               type="number"
               min={0}
               placeholder="Bid"
-              className="border-3 border-card-bid-400 rounded-xl px-5 py-3 w-28 text-center text-xl font-bold focus:border-card-accent-gold focus:outline-none focus:ring-4 focus:ring-card-accent-gold/30 bg-card-bid-50 transition-all"
+              className="border-3 border-bid-400 rounded-xl px-5 py-3 w-28 text-center text-xl font-bold focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-500/30 bg-bid-50 transition-all"
               value={ps.bid >= 0 ? ps.bid : ""}
               onChange={(e) => handleRegularBidChange(i, Number(e.target.value))}
             />
@@ -221,7 +221,7 @@ export default function BidCollector({
       <button
         onClick={onComplete}
         disabled={!canProceed}
-        className="mt-6 bg-gradient-to-r from-card-bid-600 to-card-bid-400 text-white px-8 py-5 rounded-xl text-xl font-bold shadow-card-hover hover:shadow-2xl hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all w-full"
+        className="mt-6 bg-gradient-to-r from-bid-600 to-bid-400 text-white px-8 py-5 rounded-xl text-xl font-bold shadow-card-hover hover:shadow-2xl hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all w-full"
       >
         {!allBidsEntered
           ? "Enter all bids to continue"

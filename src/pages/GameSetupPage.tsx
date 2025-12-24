@@ -30,8 +30,8 @@ export default function GameSetupPage() {
     <div className="max-w-xl mx-auto p-6">
       <Header />
 
-      <div className="bg-gradient-to-br from-card-felt-200 to-card-felt-300 rounded-2xl p-8 shadow-card-hover mb-8 border-4 border-card-felt-green">
-        <h2 className="text-3xl font-bold text-card-felt-dark mb-8 flex items-center gap-3">
+      <div className="bg-gradient-to-br from-felt-200 to-felt-300 rounded-2xl p-8 shadow-card-hover mb-8 border-4 border-felt-500">
+        <h2 className="text-3xl font-bold text-felt-600 mb-8 flex items-center gap-3">
           <span className="text-5xl">🃏</span>
           Set Up Your Game
         </h2>
@@ -43,7 +43,7 @@ export default function GameSetupPage() {
             min={1}
             value={decks}
             onChange={(e) => setDecks(Number(e.target.value))}
-            className="border-3 border-card-felt-400 rounded-xl px-5 py-4 w-full text-lg font-semibold focus:border-card-accent-gold focus:outline-none focus:ring-4 focus:ring-card-accent-gold/30 transition-all bg-white"
+            className="border-3 border-felt-400 rounded-xl px-5 py-4 w-full text-lg font-semibold focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-500/30 transition-all bg-white"
           />
         </label>
 
@@ -57,7 +57,7 @@ export default function GameSetupPage() {
               <input
                 value={p}
                 onChange={(e) => updatePlayer(i, e.target.value)}
-                className="border-3 border-card-felt-400 rounded-xl px-5 py-4 w-full text-lg font-semibold focus:border-card-accent-gold focus:outline-none focus:ring-4 focus:ring-card-accent-gold/30 transition-all bg-white"
+                className="border-3 border-felt-400 rounded-xl px-5 py-4 w-full text-lg font-semibold focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-500/30 transition-all bg-white"
               />
             </div>
           ))}
@@ -65,7 +65,7 @@ export default function GameSetupPage() {
             onClick={() =>
               setPlayers([...players, `Player ${players.length + 1}`])
             }
-            className="text-card-bid-600 text-base font-bold hover:text-card-bid-700 mt-3 px-4 py-2 hover:bg-white/50 rounded-lg transition-all"
+            className="text-bid-600 text-base font-bold hover:text-bid-700 mt-3 px-4 py-2 hover:bg-white/50 rounded-lg transition-all"
           >
             + Add player
           </button>
@@ -73,7 +73,7 @@ export default function GameSetupPage() {
 
         <button
           onClick={startGame}
-          className="bg-gradient-to-r from-card-felt-green to-card-felt-400 text-white px-8 py-5 rounded-xl text-xl font-bold shadow-card-hover hover:shadow-2xl hover:scale-105 transition-all w-full"
+          className="bg-gradient-to-r from-felt-500 to-felt-400 text-white px-8 py-5 rounded-xl text-xl font-bold shadow-card-hover hover:shadow-2xl hover:scale-105 transition-all w-full"
         >
           🎮 Start Game
         </button>
