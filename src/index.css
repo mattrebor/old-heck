@@ -1,23 +1,81 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-body {
-  background: linear-gradient(135deg, #d1fae5 0%, #e0e7ff 50%, #fae8ff 100%);
-  background-attachment: fixed;
-  min-height: 100vh;
+@theme {
+  /* Font family */
+  --font-family-sans: Quicksand, ui-sans-serif, system-ui, sans-serif;
+
+  /* Card felt green palette */
+  --color-card-felt-50: #ecfdf5;
+  --color-card-felt-100: #d1fae5;
+  --color-card-felt-200: #a7f3d0;
+  --color-card-felt-300: #6ee7b7;
+  --color-card-felt-400: #34d399;
+  --color-card-felt-green: #10b981;
+  --color-card-felt-dark: #059669;
+
+  /* Bidding phase - blue/purple tones */
+  --color-card-bid-50: #eef2ff;
+  --color-card-bid-100: #e0e7ff;
+  --color-card-bid-200: #c7d2fe;
+  --color-card-bid-300: #a5b4fc;
+  --color-card-bid-400: #818cf8;
+  --color-card-bid-500: #6366f1;
+  --color-card-bid-600: #4f46e5;
+  --color-card-bid-700: #4338ca;
+  --color-card-bid-800: #3730a3;
+
+  /* Results phase - success/danger colors */
+  --color-card-result-success: #10b981;
+  --color-card-result-successLight: #34d399;
+  --color-card-result-successBg: #d1fae5;
+  --color-card-result-danger: #ef4444;
+  --color-card-result-dangerLight: #f87171;
+  --color-card-result-dangerBg: #fee2e2;
+
+  /* Accent colors */
+  --color-card-accent-gold: #f59e0b;
+  --color-card-accent-orange: #fb923c;
+  --color-card-accent-purple: #a855f7;
+  --color-card-accent-pink: #ec4899;
+  --color-card-accent-cyan: #06b6d4;
+
+  /* Box shadows */
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-card-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+  /* Border widths */
+  --width-border-3: 3px;
+  --width-border-4: 4px;
 }
 
-/* Subtle pattern overlay */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.627 0l.83.828-1.415 1.415L51.8 0h2.827zM5.373 0l-.83.828L5.96 2.243 8.2 0H5.374zM48.97 0l3.657 3.657-1.414 1.414L46.143 0h2.828zM11.03 0L7.372 3.657 8.787 5.07 13.857 0H11.03zm32.284 0L49.8 6.485 48.384 7.9l-7.9-7.9h2.83zM16.686 0L10.2 6.485 11.616 7.9l7.9-7.9h-2.83z' fill='%23000000' fill-opacity='0.02' fill-rule='evenodd'/%3E%3C/svg%3E");
-  opacity: 0.4;
-  pointer-events: none;
-  z-index: -1;
+@layer base {
+  body {
+    background: linear-gradient(135deg, #d1fae5 0%, #e0e7ff 50%, #fae8ff 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
+  /* Subtle pattern overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.627 0l.83.828-1.415 1.415L51.8 0h2.827zM5.373 0l-.83.828L5.96 2.243 8.2 0H5.374zM48.97 0l3.657 3.657-1.414 1.414L46.143 0h2.828zM11.03 0L7.372 3.657 8.787 5.07 13.857 0H11.03zm32.284 0L49.8 6.485 48.384 7.9l-7.9-7.9h2.83zM16.686 0L10.2 6.485 11.616 7.9l7.9-7.9h-2.83z' fill='%23000000' fill-opacity='0.02' fill-rule='evenodd'/%3E%3C/svg%3E");
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: -1;
+  }
+}
+
+@layer utilities {
+  .border-3 {
+    border-width: 3px;
+  }
+
+  .border-4 {
+    border-width: 4px;
+  }
 }
