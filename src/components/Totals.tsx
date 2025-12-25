@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import type { Round, Suit } from "../types";
 import { getSuitColor } from "../utils/suits";
+import PlayerAvatar from "./PlayerAvatar";
 
 export default function Totals({ rounds }: { rounds: Round[] }) {
   const [expandedRounds, setExpandedRounds] = useState<Set<number>>(new Set());
@@ -59,10 +60,7 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <span className={`text-2xl ${getSuitColor(playerSuits[name])}`}>
-                      {playerSuits[name]}
-                    </span>
-                    <span className="font-semibold text-gray-900">{name}</span>
+                    <PlayerAvatar name={name} size="md" showName={true} />
                     {isWinner && <span className="text-xl">👑</span>}
                   </div>
                   <span className={`font-mono text-xl font-bold ${
@@ -98,12 +96,7 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
 
                     return (
                       <div key={name} className="flex items-center justify-between pb-3 border-b last:border-b-0 border-gray-200">
-                        <div className="flex items-center gap-2">
-                          <span className={`text-xl ${getSuitColor(playerSuits[name])}`}>
-                            {playerSuits[name]}
-                          </span>
-                          <span className="font-medium text-gray-700">{name}</span>
-                        </div>
+                        <PlayerAvatar name={name} size="md" showName={true} />
                         <div className="flex items-center gap-3">
                           <div className="text-xs text-gray-600 flex flex-col items-end gap-1">
                             {playerScore.blindBid && (
@@ -128,16 +121,14 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
                 </div>
               ) : (
                 <div className="px-3 py-2">
-                  <div className="flex items-center justify-around gap-2 text-xs">
+                  <div className="flex items-center justify-around gap-2">
                     {players.map((name) => {
                       const playerScore = round.scores.find(s => s.name === name);
                       if (!playerScore) return null;
 
                       return (
                         <div key={name} className="flex flex-col items-center gap-1">
-                          <span className={`text-base ${getSuitColor(playerSuits[name])}`}>
-                            {playerSuits[name]}
-                          </span>
+                          <PlayerAvatar name={name} size="sm" />
                           <span className={`font-mono text-sm font-bold ${
                             playerScore.score < 0 ? 'text-danger-500' : 'text-success-500'
                           }`}>
