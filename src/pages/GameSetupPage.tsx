@@ -12,6 +12,7 @@ export default function GameSetupPage() {
   const { user, signInWithGoogle, loading } = useAuth();
   const [decks, setDecks] = useState<number | "">(1);
   const [players, setPlayers] = useState<string[]>(["Player 1", "Player 2"]);
+  const [firstPlayerIndex, setFirstPlayerIndex] = useState<number>(0);
 
   function updatePlayer(index: number, name: string) {
     const copy = [...players];
@@ -36,6 +37,7 @@ export default function GameSetupPage() {
       decks: deckCount,
       players: trimmedPlayers,
       maxRounds: calculateMaxRounds(deckCount, players.length),
+      firstPlayerIndex,
     };
 
     try {
@@ -151,6 +153,25 @@ export default function GameSetupPage() {
           >
             + Add player
           </button>
+        </div>
+
+        <div className="mb-8">
+          <label className="block">
+            <span className="text-base font-bold text-gray-800 mb-3 block">
+              Who starts first?
+            </span>
+            <select
+              value={firstPlayerIndex}
+              onChange={(e) => setFirstPlayerIndex(Number(e.target.value))}
+              className="border-3 border-felt-400 rounded-xl px-5 py-4 w-full text-lg font-semibold focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-500/30 transition-all bg-white"
+            >
+              {players.map((player, index) => (
+                <option key={index} value={index}>
+                  {player || `Player ${index + 1}`}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
 
         <button

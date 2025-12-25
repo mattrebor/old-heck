@@ -21,6 +21,7 @@ export type GameSetup = {
   players: string[];
   decks: number;
   maxRounds: number;
+  firstPlayerIndex: number;
 };
 
 export type Game = {

@@ -39,6 +39,11 @@ export default function BidCollector({
     const updated = [...blindBidDecisions];
     updated[index] = !updated[index];
     setBlindBidDecisions(updated);
+
+    // Clear the bid if unchecking blind bid
+    if (!updated[index] && round.scores[index].bid >= 0) {
+      onUpdate(index, -1, false);
+    }
   }
 
   function handleBlindBidChange(index: number, bid: number) {

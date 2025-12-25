@@ -27,6 +27,7 @@ export default function GamePlayPage() {
   const [showEditSetup, setShowEditSetup] = useState(false);
   const [editPlayers, setEditPlayers] = useState<string[]>([]);
   const [editDecks, setEditDecks] = useState<number | "">(1);
+  const [editFirstPlayerIndex, setEditFirstPlayerIndex] = useState<number>(0);
   const autoCompleteTimerRef = useRef<number | null>(null);
 
   // Load game from Firestore on mount
@@ -111,12 +112,12 @@ export default function GamePlayPage() {
     gameSetup: GameSetup,
     roundNumber: number
   ): Round {
-    // Rotate the first bidder each round
-    const firstBidderIndex = (roundNumber - 1) % gameSetup.players.length;
+    // Rotate the first bidder each round, starting from the selected first player
+    const firstBidderIndex = (gameSetup.firstPlayerIndex + (roundNumber - 1)) % gameSetup.players.length;
 
     return {
       roundNumber,
-      scores: gameSetup.players.map((name, _index) => ({
+      scores: gameSetup.players.map((name) => ({
         name,
         bid: -1, // -1 means bid not entered yet
         tricks: 0,
@@ -309,6 +310,7 @@ export default function GamePlayPage() {
     if (!setup) return;
     setEditPlayers([...setup.players]);
     setEditDecks(setup.decks);
+    setEditFirstPlayerIndex(setup.firstPlayerIndex || 0);
     setShowEditSetup(true);
   }
 
@@ -345,6 +347,7 @@ export default function GamePlayPage() {
         decks: deckCount,
         players: trimmedPlayers,
         maxRounds,
+        firstPlayerIndex: editFirstPlayerIndex,
       };
 
       // Create new first round with updated players
@@ -443,7 +446,7 @@ export default function GamePlayPage() {
                 onClick={() => setShowEndGameDialog(true)}
                 className="text-xs font-semibold text-red-600 hover:text-red-700 hover:underline transition-colors"
               >
-                End Game Early
+                ⏹ End Game Early
               </button>
             )}
           </div>
@@ -597,6 +600,25 @@ export default function GamePlayPage() {
                 >
                   + Add player
                 </button>
+              </div>
+
+              <div className="mt-4">
+                <label className="block">
+                  <span className="text-base font-bold text-gray-800 mb-2 block">
+                    Who starts first?
+                  </span>
+                  <select
+                    value={editFirstPlayerIndex}
+                    onChange={(e) => setEditFirstPlayerIndex(Number(e.target.value))}
+                    className="border-3 border-felt-400 rounded-xl px-4 py-3 w-full text-base font-semibold focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-500/30 transition-all bg-white"
+                  >
+                    {editPlayers.map((player, index) => (
+                      <option key={index} value={index}>
+                        {player || `Player ${index + 1}`}
+                      </option>
+                    ))}
+                  </select>
+                </label>
               </div>
             </div>
 
