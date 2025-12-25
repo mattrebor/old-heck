@@ -1,7 +1,21 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, updateDoc, doc, getDoc, setDoc, deleteField, Timestamp } from "firebase/firestore";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as firebaseSignOut } from "firebase/auth";
+import {
+  getFirestore,
+  updateDoc,
+  doc,
+  getDoc,
+  setDoc,
+  deleteField,
+  Timestamp,
+} from "firebase/firestore";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut as firebaseSignOut,
+} from "firebase/auth";
 import type { Game, GameSetup } from "./types";
+import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -10,19 +24,21 @@ const firebaseConfig = {
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 export const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
+export const analytics = getAnalytics(app);
 
 /**
  * Generate a short 8-character alphanumeric game ID
  */
 function generateGameId(): string {
-  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
+  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
   for (let i = 0; i < 8; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
   }
@@ -45,7 +61,7 @@ export async function createGame(
   const game: Partial<Game> = {
     createdAt: Timestamp.now(),
     updatedAt: Timestamp.now(),
-    status: 'in_progress',
+    status: "in_progress",
     setup,
     rounds: [],
     ...(createdBy && { createdBy }),
@@ -60,7 +76,10 @@ export async function createGame(
  * Update game state in Firestore
  * Converts undefined values to deleteField() to remove them from the document
  */
-export async function updateGameRound(gameId: string, updates: Partial<Game>): Promise<void> {
+export async function updateGameRound(
+  gameId: string,
+  updates: Partial<Game>
+): Promise<void> {
   const gameRef = doc(db, "games", gameId);
 
   // Convert undefined values to deleteField()
@@ -95,7 +114,7 @@ export async function loadGame(gameId: string): Promise<Game | null> {
 export async function markGameComplete(gameId: string): Promise<void> {
   const gameRef = doc(db, "games", gameId);
   await updateDoc(gameRef, {
-    status: 'completed',
+    status: "completed",
     updatedAt: Timestamp.now(),
   });
 }
