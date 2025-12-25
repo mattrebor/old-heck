@@ -25,6 +25,9 @@ export default function GamePlayPage() {
   const [playersExpanded, setPlayersExpanded] = useState(false);
   const [showEndGameDialog, setShowEndGameDialog] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [showEditSetup, setShowEditSetup] = useState(false);
+  const [editPlayers, setEditPlayers] = useState<string[]>([]);
+  const [editDecks, setEditDecks] = useState<number | "">(1);
   const autoCompleteTimerRef = useRef<number | null>(null);
 
   // Load game from Firestore on mount
@@ -286,6 +289,76 @@ export default function GamePlayPage() {
     }
   }
 
+  // Check if setup can be edited (round 1, bidding phase, no bids entered)
+  const canEditSetup =
+    completedRounds.length === 0 &&
+    currentRound?.roundNumber === 1 &&
+    currentPhase === "bidding" &&
+    currentRound?.scores.every(s => s.bid === -1);
+
+  function openEditSetup() {
+    if (!setup) return;
+    setEditPlayers([...setup.players]);
+    setEditDecks(setup.decks);
+    setShowEditSetup(true);
+  }
+
+  function updateEditPlayer(index: number, name: string) {
+    const copy = [...editPlayers];
+    copy[index] = name;
+    setEditPlayers(copy);
+  }
+
+  async function saveSetupChanges() {
+    if (!gameId || !setup) return;
+
+    // Validate player names
+    const trimmedPlayers = editPlayers.map(p => p.trim());
+    if (trimmedPlayers.some(p => p === "")) {
+      alert("All player names must be filled in.");
+      return;
+    }
+
+    const deckCount = typeof editDecks === "number" ? editDecks : 1;
+    if (deckCount < 1) {
+      alert("Number of decks must be at least 1.");
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+
+      // Import calculateMaxRounds
+      const { calculateMaxRounds } = await import("../utils/rounds");
+      const maxRounds = calculateMaxRounds(deckCount, trimmedPlayers.length);
+
+      const newSetup: GameSetup = {
+        decks: deckCount,
+        players: trimmedPlayers,
+        maxRounds,
+      };
+
+      // Create new first round with updated players
+      const newRound = createNewRoundFromSetup(newSetup, 1);
+
+      await updateGameRound(gameId, {
+        setup: newSetup,
+        inProgressRound: newRound,
+        currentPhase: "bidding",
+      });
+
+      // Update local state
+      setSetup(newSetup);
+      setCurrentRound(newRound);
+      setShowEditSetup(false);
+    } catch (error) {
+      console.error("Error updating setup:", error);
+      alert("Failed to update game setup. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
   const nextRoundNumber = completedRounds.length + 1;
 
   return (
@@ -345,14 +418,24 @@ export default function GamePlayPage() {
               <span className="text-gray-800">{completedRounds.length}/{setup.maxRounds}</span>
             </div>
           </div>
-          {nextRoundNumber <= setup.maxRounds && (
-            <button
-              onClick={() => setShowEndGameDialog(true)}
-              className="text-xs font-semibold text-red-600 hover:text-red-700 hover:underline transition-colors"
-            >
-              End Game Early
-            </button>
-          )}
+          <div className="flex gap-3">
+            {canEditSetup && (
+              <button
+                onClick={openEditSetup}
+                className="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+              >
+                ✏️ Edit Setup
+              </button>
+            )}
+            {nextRoundNumber <= setup.maxRounds && (
+              <button
+                onClick={() => setShowEndGameDialog(true)}
+                className="text-xs font-semibold text-red-600 hover:text-red-700 hover:underline transition-colors"
+              >
+                End Game Early
+              </button>
+            )}
+          </div>
         </div>
         <div className="border-t border-bid-300 pt-2">
           <button
@@ -425,6 +508,89 @@ export default function GamePlayPage() {
       {currentRound && currentPhase === "results" && (
         <div className="mt-6 bg-gradient-to-r from-felt-100 to-felt-200 border-3 border-felt-400 rounded-xl p-5 text-base text-felt-600 font-semibold">
           ℹ️ Next round will start automatically after completing this one.
+        </div>
+      )}
+
+      {/* Edit Setup Dialog */}
+      {showEditSetup && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-2xl p-6 max-w-xl w-full shadow-2xl my-8">
+            <h3 className="text-2xl font-bold text-gray-800 mb-4">
+              Edit Game Setup
+            </h3>
+            <p className="text-gray-600 mb-6 text-sm">
+              You can edit the game setup since no bids have been entered yet.
+            </p>
+
+            <div className="mb-6">
+              <label className="block mb-4">
+                <span className="text-base font-bold text-gray-800 mb-2 block">
+                  Number of decks
+                </span>
+                <input
+                  type="number"
+                  min={1}
+                  value={editDecks}
+                  onChange={(e) =>
+                    setEditDecks(e.target.value === "" ? "" : Number(e.target.value))
+                  }
+                  className="border-3 border-felt-400 rounded-xl px-4 py-3 w-full text-lg font-semibold focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-500/30 transition-all bg-white"
+                />
+              </label>
+
+              <div>
+                <p className="text-base font-bold text-gray-800 mb-3">Players</p>
+                {editPlayers.map((p, i) => {
+                  const isEmpty = p.trim() === "";
+                  return (
+                    <div key={i} className="flex items-center gap-3 mb-3">
+                      <input
+                        value={p}
+                        onChange={(e) => updateEditPlayer(i, e.target.value)}
+                        className={`border-3 ${
+                          isEmpty
+                            ? "border-red-400 focus:border-red-500 focus:ring-red-500/30"
+                            : "border-felt-400 focus:border-gold-500 focus:ring-gold-500/30"
+                        } rounded-xl px-4 py-3 w-full text-base font-semibold focus:outline-none focus:ring-4 transition-all bg-white`}
+                        placeholder="Enter player name"
+                      />
+                      {editPlayers.length > 2 && (
+                        <button
+                          onClick={() => setEditPlayers(editPlayers.filter((_, idx) => idx !== i))}
+                          className="text-red-600 hover:text-red-700 font-bold text-xl px-2"
+                          title="Remove player"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+                <button
+                  onClick={() => setEditPlayers([...editPlayers, `Player ${editPlayers.length + 1}`])}
+                  className="text-bid-600 text-sm font-bold hover:text-bid-700 mt-2 px-3 py-2 hover:bg-white/50 rounded-lg transition-all"
+                >
+                  + Add player
+                </button>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowEditSetup(false)}
+                className="flex-1 px-6 py-3 bg-gray-200 text-gray-800 rounded-xl font-bold hover:bg-gray-300 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveSetupChanges}
+                disabled={isSaving || editPlayers.some(p => p.trim() === "") || typeof editDecks !== "number" || editDecks < 1}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-bold hover:from-blue-600 hover:to-blue-700 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed transition-all"
+              >
+                {isSaving ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
