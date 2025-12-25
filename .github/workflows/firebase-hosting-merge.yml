@@ -13,7 +13,7 @@ jobs:
       name: prod
     steps:
       - name: Verify variable values
-        run: echo "VITE_FIREBASE_API_KEY is: $VITE_FIREBASE_API_KEY"
+        - run: echo "VITE_FIREBASE_API_KEY is: $VITE_FIREBASE_API_KEY"
       - uses: actions/checkout@v4
       - run: npm ci && npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
