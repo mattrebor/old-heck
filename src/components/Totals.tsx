@@ -31,6 +31,16 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
   // Find the winner(s)
   const maxScore = Math.max(...Object.values(totals));
 
+  // Sort players by total score (descending) for mobile view
+  const sortedPlayers = [...players].sort((a, b) => totals[b] - totals[a]);
+
+  // Calculate ranks for each player (players with same score get same rank)
+  const playerRanks: Record<string, number> = {};
+  const sortedScores = [...new Set(Object.values(totals))].sort((a, b) => b - a);
+  players.forEach((name) => {
+    playerRanks[name] = sortedScores.indexOf(totals[name]) + 1;
+  });
+
   return (
     <div className="bg-gradient-to-br from-felt-300 to-felt-200 rounded-2xl p-4 md:p-8 mt-8 border-4 border-felt-500 shadow-card-hover">
       <h3 className="font-bold text-2xl md:text-3xl mb-4 md:mb-6 text-felt-600 flex items-center gap-2 md:gap-3">
@@ -40,12 +50,13 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
 
       {/* Mobile vertical layout */}
       <div className="md:hidden space-y-4">
-        {/* Totals first on mobile */}
+        {/* Totals first on mobile - sorted by score */}
         <div className="bg-gradient-to-r from-felt-400 to-felt-300 rounded-xl p-4 shadow-card">
           <h4 className="font-bold text-white text-lg mb-3">TOTAL SCORES</h4>
           <div className="space-y-2">
-            {players.map((name) => {
+            {sortedPlayers.map((name) => {
               const isWinner = totals[name] === maxScore;
+              const rank = playerRanks[name];
               return (
                 <div
                   key={name}
@@ -56,6 +67,7 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
                   }`}
                 >
                   <div className="flex items-center gap-2">
+                    <span className="font-bold text-gray-700 w-6">#{rank}</span>
                     <PlayerAvatar name={name} size="md" showName={true} />
                     {isWinner && <span className="text-xl">👑</span>}
                   </div>
@@ -317,7 +329,7 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
               );
             })}
             <tr className="bg-gradient-to-r from-felt-400 to-felt-300">
-              <td className="p-5 font-bold text-white text-lg first:rounded-bl-xl">
+              <td className="p-5 font-bold text-white text-lg">
                 TOTAL
               </td>
               {players.map((name) => {
@@ -325,7 +337,7 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
                 return (
                   <td
                     key={name}
-                    className={`p-5 text-center last:rounded-br-xl ${
+                    className={`p-5 text-center ${
                       isWinner
                         ? "bg-gradient-to-br from-gold-500 to-orange-500"
                         : ""
@@ -343,6 +355,33 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
                         {totals[name]}
                       </span>
                     </div>
+                  </td>
+                );
+              })}
+            </tr>
+            <tr className="bg-gradient-to-r from-felt-500 to-felt-400">
+              <td className="p-4 font-bold text-white text-base first:rounded-bl-xl">
+                RANK
+              </td>
+              {players.map((name) => {
+                const rank = playerRanks[name];
+                const isWinner = totals[name] === maxScore;
+                return (
+                  <td
+                    key={name}
+                    className={`p-4 text-center last:rounded-br-xl ${
+                      isWinner
+                        ? "bg-gradient-to-br from-gold-500 to-orange-500"
+                        : ""
+                    }`}
+                  >
+                    <span
+                      className={`font-bold text-xl ${
+                        isWinner ? "text-white" : "text-white"
+                      }`}
+                    >
+                      #{rank}
+                    </span>
                   </td>
                 );
               })}
