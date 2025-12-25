@@ -77,7 +77,7 @@ export default function GamePlayPage() {
 
         // If no round in progress and not at max rounds, start first round
         if (!game.inProgressRound && game.rounds.length === 0) {
-          const firstRound = createNewRoundFromSetup(game.setup, 1);
+          const firstRound = createRound(game.setup, 1);
           setCurrentRound(firstRound);
           setCurrentPhase("bidding");
           setBiddingPhase("blind-declaration-and-entry");
@@ -393,7 +393,7 @@ export default function GamePlayPage() {
       };
 
       // Create new first round with updated players
-      const newRound = createNewRoundFromSetup(newSetup, 1);
+      const newRound = createRound(newSetup, 1);
 
       await updateGameRound(gameId, {
         setup: newSetup,

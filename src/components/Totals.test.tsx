@@ -72,8 +72,8 @@ describe('Totals', () => {
 
     // Latest round (round 2) deltas: Alice +14, Bob -1
     const deltaTexts = screen.getAllByText((content, element) => {
-      return element?.className?.includes('font-bold') &&
-             (content === '+14' || content === '-1');
+      return !!(element?.className?.includes('font-bold') &&
+             (content === '+14' || content === '-1'));
     });
     expect(deltaTexts.length).toBeGreaterThan(0);
   });
@@ -84,7 +84,7 @@ describe('Totals', () => {
     // Delta indicators have specific styling: text-sm font-bold with color classes
     // Round scores have different styling: font-mono
     // Check that no delta-style elements exist (text-sm with green-600/red-600)
-    const deltaTexts = screen.queryAllByText((content, element) => {
+    const deltaTexts = screen.queryAllByText((_content, element) => {
       const className = element?.className || '';
       return className.includes('text-sm') &&
              className.includes('font-bold') &&
