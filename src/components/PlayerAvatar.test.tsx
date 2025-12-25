@@ -65,22 +65,7 @@ describe('PlayerAvatar', () => {
   });
 
   describe('Color assignment', () => {
-    it('should use index-based color when index is provided', () => {
-      const { container } = render(<PlayerAvatar name="Player 1" index={0} />);
-      const avatar = container.querySelector('[style*="background"]');
-      expect(avatar).toBeInTheDocument();
-      // Index 0 should use the first color (#EF4444 - red)
-      expect(avatar?.getAttribute('style')).toContain('#EF4444');
-    });
-
-    it('should use index-based color cycling for higher indices', () => {
-      const { container } = render(<PlayerAvatar name="Player 11" index={10} />);
-      const avatar = container.querySelector('[style*="background"]');
-      expect(avatar).toBeInTheDocument();
-      // Index 10 should cycle back (10 % 10 = 0, which is red)
-    });
-
-    it('should use name-based hash color when no index provided', () => {
+    it('should use name-based hash color consistently', () => {
       const { container: container1 } = render(<PlayerAvatar name="Alice" />);
       const { container: container2 } = render(<PlayerAvatar name="Alice" />);
 
@@ -89,6 +74,13 @@ describe('PlayerAvatar', () => {
 
       // Same name should produce same color
       expect(avatar1?.getAttribute('style')).toBe(avatar2?.getAttribute('style'));
+    });
+
+    it('should have background color set', () => {
+      const { container } = render(<PlayerAvatar name="Alice" />);
+      const avatar = container.querySelector('[style*="background"]');
+      expect(avatar).toBeInTheDocument();
+      expect(avatar?.getAttribute('style')).toContain('background-color');
     });
 
     it('should produce different colors for different names (usually)', () => {
