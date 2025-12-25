@@ -17,7 +17,7 @@ function stringToColor(str: string): string {
   const colors = [
     '#EF4444', // red
     '#F59E0B', // amber
-    '#10B981', // emerald
+    '#84CC16', // lime (changed from emerald to avoid conflict with score breakdown)
     '#3B82F6', // blue
     '#8B5CF6', // violet
     '#EC4899', // pink
