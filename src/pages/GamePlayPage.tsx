@@ -32,7 +32,7 @@ export default function GamePlayPage() {
   const [editFirstPlayerIndex, setEditFirstPlayerIndex] = useState<number>(0);
   const autoCompleteTimerRef = useRef<number | null>(null);
 
-  // Create debounced auto-save function for bid updates
+  // Create debounced auto-save function for bid and result updates
   const debouncedSaveRef = useRef(
     debounce(async (gameId: string, round: Round, phase: "bidding" | "results", biddingPhase?: "blind-declaration-and-entry" | "regular-bid-entry") => {
       try {
@@ -41,9 +41,9 @@ export default function GamePlayPage() {
           currentPhase: phase,
           ...(phase === "bidding" && biddingPhase && { biddingPhase }),
         });
-        console.log("Auto-saved bid update");
+        console.log(`Auto-saved ${phase} update`);
       } catch (error) {
-        console.error("Failed to auto-save bid:", error);
+        console.error(`Failed to auto-save ${phase}:`, error);
       }
     }, 500) // 500ms debounce delay
   );
@@ -217,7 +217,7 @@ export default function GamePlayPage() {
   }
 
   function handleUpdateResult(playerIndex: number, madeBid: boolean) {
-    if (!currentRound) return;
+    if (!currentRound || !gameId) return;
 
     const updatedScores = currentRound.scores.map((ps, i) => {
       if (i === playerIndex) {
@@ -231,6 +231,9 @@ export default function GamePlayPage() {
 
     const updatedRound = { ...currentRound, scores: updatedScores };
     setCurrentRound(updatedRound);
+
+    // Auto-save with debouncing
+    debouncedSaveRef.current(gameId, updatedRound, "results");
 
     // Clear any existing timer
     if (autoCompleteTimerRef.current) {
