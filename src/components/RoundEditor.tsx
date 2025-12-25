@@ -18,60 +18,77 @@ export default function RoundEditor({
         For each player, mark if they made their bid or missed it:
       </p>
       {round.scores.map((ps, i) => (
-        <div key={i} className="mb-5 p-6 bg-white rounded-xl border-3 border-gray-300 hover:border-gold-500 transition-all shadow-card hover:shadow-card-hover">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-5">
-              <span className={`text-5xl ${getSuitColor(ps.suit)}`}>
+        <div
+          key={i}
+          className="mb-5 p-6 bg-white rounded-xl border-3 border-gray-300 hover:border-gold-500 transition-all shadow-card hover:shadow-card-hover"
+        >
+          <div className="flex flex-col gap-4">
+            {/* Player info */}
+            <div className="flex items-center gap-4">
+              <span className={`text-4xl sm:text-5xl ${getSuitColor(ps.suit)}`}>
                 {ps.suit}
               </span>
-
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-3">
-                  <span className="font-bold text-xl text-gray-800">{ps.name}</span>
+              <div className="flex flex-col gap-1 flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-bold text-lg sm:text-xl text-gray-800">
+                    {ps.name}
+                  </span>
                   {ps.blindBid && (
-                    <span className="px-3 py-1 bg-purple-600 text-white rounded-lg text-sm font-bold">
+                    <span className="px-2 py-1 bg-purple-600 text-white rounded-lg text-xs sm:text-sm font-bold">
                       ⚡ BLIND 2X
                     </span>
                   )}
                 </div>
-                <div className="text-base text-gray-600 font-semibold">
-                  Bid: {ps.bid} tricks {ps.blindBid && <span className="text-purple-600 font-bold">(Blind)</span>}
+                <div className="text-sm sm:text-base text-gray-600 font-semibold">
+                  Bid: {ps.bid} books{" "}
+                  {ps.blindBid && (
+                    <span className="text-purple-600 font-bold">(Blind)</span>
+                  )}
                 </div>
-              </div>
-
-              <div className="flex gap-4 ml-6">
-                <label className="flex items-center gap-4 cursor-pointer px-5 py-3 rounded-xl bg-success-50 hover:bg-success-500 hover:text-white border-2 border-success-500 transition-all">
-                  <input
-                    type="radio"
-                    name={`player-${i}`}
-                    checked={ps.met}
-                    onChange={() => onUpdate(i, true)}
-                    className="w-6 h-6 text-success-500"
-                  />
-                  <span className="text-base font-bold">✓ Made it</span>
-                </label>
-                <label className="flex items-center gap-4 cursor-pointer px-5 py-3 rounded-xl bg-danger-50 hover:bg-danger-500 hover:text-white border-2 border-danger-500 transition-all">
-                  <input
-                    type="radio"
-                    name={`player-${i}`}
-                    checked={ps.tricks >= 0 && !ps.met}
-                    onChange={() => onUpdate(i, false)}
-                    className="w-6 h-6 text-danger-500"
-                  />
-                  <span className="text-base font-bold">✗ Missed it</span>
-                </label>
               </div>
             </div>
 
-            <div className="text-right">
-              {ps.tricks >= 0 && (
-                <div className={`font-mono text-5xl font-bold ${
-                  ps.score < 0 ? 'text-danger-500' : 'text-success-500'
-                }`}>
-                  {ps.score > 0 ? '+' : ''}{ps.score}
-                </div>
-              )}
+            {/* Radio buttons - stacked on mobile, side by side on larger screens */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <label className="flex items-center gap-3 cursor-pointer px-4 py-3 rounded-xl bg-success-50 hover:bg-success-500 hover:text-white border-2 border-success-500 transition-all flex-1">
+                <input
+                  type="radio"
+                  name={`player-${i}`}
+                  checked={ps.met}
+                  onChange={() => onUpdate(i, true)}
+                  className="w-5 h-5 sm:w-6 sm:h-6 text-success-500"
+                />
+                <span className="text-sm sm:text-base font-bold">
+                  ✓ Made it
+                </span>
+              </label>
+              <label className="flex items-center gap-3 cursor-pointer px-4 py-3 rounded-xl bg-danger-50 hover:bg-danger-500 hover:text-white border-2 border-danger-500 transition-all flex-1">
+                <input
+                  type="radio"
+                  name={`player-${i}`}
+                  checked={ps.tricks >= 0 && !ps.met}
+                  onChange={() => onUpdate(i, false)}
+                  className="w-5 h-5 sm:w-6 sm:h-6 text-danger-500"
+                />
+                <span className="text-sm sm:text-base font-bold">
+                  ✗ Missed it
+                </span>
+              </label>
             </div>
+
+            {/* Score display */}
+            {ps.tricks >= 0 && (
+              <div className="text-center sm:text-right pt-2 border-t-2 border-gray-200">
+                <div
+                  className={`font-mono text-3xl sm:text-4xl font-bold ${
+                    ps.score < 0 ? "text-danger-500" : "text-success-500"
+                  }`}
+                >
+                  {ps.score > 0 ? "+" : ""}
+                  {ps.score}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       ))}
