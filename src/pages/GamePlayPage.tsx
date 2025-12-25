@@ -239,28 +239,29 @@ export default function GamePlayPage() {
     } finally {
       setIsSaving(false);
     }
+  }
 
-    // Auto-start next round if not at max
-    const nextRoundNumber = newCompletedRounds.length + 1;
-    if (nextRoundNumber <= setup.maxRounds) {
-      setTimeout(async () => {
-        const newRound = createNewRound(nextRoundNumber);
-        setCurrentRound(newRound);
-        setCurrentPhase("bidding");
+  async function handleStartNextRound() {
+    if (!gameId || !setup) return;
 
-        // Save new round to Firestore
-        try {
-          setIsSaving(true);
-          await updateGameRound(gameId, {
-            inProgressRound: newRound,
-            currentPhase: "bidding",
-          });
-        } catch (error) {
-          console.error("Error saving new round:", error);
-        } finally {
-          setIsSaving(false);
-        }
-      }, 500); // Brief delay for user to see completion
+    const nextRoundNumber = completedRounds.length + 1;
+    if (nextRoundNumber > setup.maxRounds) return;
+
+    const newRound = createNewRound(nextRoundNumber);
+    setCurrentRound(newRound);
+    setCurrentPhase("bidding");
+
+    // Save new round to Firestore
+    try {
+      setIsSaving(true);
+      await updateGameRound(gameId, {
+        inProgressRound: newRound,
+        currentPhase: "bidding",
+      });
+    } catch (error) {
+      console.error("Error saving new round:", error);
+    } finally {
+      setIsSaving(false);
     }
   }
 
@@ -509,9 +510,17 @@ export default function GamePlayPage() {
           ℹ️ Game will automatically continue to results phase once all bids are entered.
         </div>
       )}
-      {currentRound && currentPhase === "results" && (
-        <div className="mt-6 bg-gradient-to-r from-felt-100 to-felt-200 border-3 border-felt-400 rounded-xl p-5 text-base text-felt-600 font-semibold">
-          ℹ️ Next round will start automatically after completing this one.
+
+      {/* Start Next Round button */}
+      {!currentRound && currentPhase === "completed" && nextRoundNumber <= setup.maxRounds && (
+        <div className="mt-6">
+          <button
+            onClick={handleStartNextRound}
+            disabled={isSaving}
+            className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-6 rounded-xl text-xl font-bold shadow-card-hover hover:shadow-2xl hover:scale-105 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all"
+          >
+            {isSaving ? "Starting..." : `🎯 Start Round ${nextRoundNumber}`}
+          </button>
         </div>
       )}
 
