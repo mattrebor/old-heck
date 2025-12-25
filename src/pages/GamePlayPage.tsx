@@ -24,6 +24,7 @@ export default function GamePlayPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [playersExpanded, setPlayersExpanded] = useState(false);
   const [showEndGameDialog, setShowEndGameDialog] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const autoCompleteTimerRef = useRef<number | null>(null);
 
   // Load game from Firestore on mount
@@ -316,11 +317,16 @@ export default function GamePlayPage() {
               onClick={() => {
                 const viewUrl = `${window.location.origin}/game/${gameId}/view`;
                 navigator.clipboard.writeText(viewUrl);
-                alert("View-only link copied to clipboard!");
+                setLinkCopied(true);
+                setTimeout(() => setLinkCopied(false), 2000);
               }}
-              className="bg-purple-500 hover:bg-purple-600 text-white px-3 py-1 rounded text-xs font-bold transition-all flex-1 sm:flex-none"
+              className={`${
+                linkCopied
+                  ? "bg-green-500 hover:bg-green-600"
+                  : "bg-purple-500 hover:bg-purple-600"
+              } text-white px-3 py-1 rounded text-xs font-bold transition-all flex-1 sm:flex-none`}
             >
-              📋 Copy
+              {linkCopied ? "✓ Copied!" : "📋 Copy"}
             </button>
           </div>
         </div>
