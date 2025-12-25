@@ -9,7 +9,7 @@ import BidCollector from "../components/BidCollector";
 import RoundEditor from "../components/RoundEditor";
 import Totals from "../components/Totals";
 
-type RoundPhase = "bidding" | "results" | "completed";
+type RoundPhase = "bidding" | "results" | "score-review" | "completed";
 
 export default function GamePlayPage() {
   const { gameId } = useParams<{ gameId: string }>();
@@ -249,7 +249,9 @@ export default function GamePlayPage() {
     setCurrentRound(null);
     setCurrentPhase("completed");
 
-    // Save completed round to Firestore
+    // Save completed round to Firestore and determine next step
+    const nextRoundNumber = newCompletedRounds.length + 1;
+
     try {
       setIsSaving(true);
       await updateGameRound(gameId, {
@@ -259,39 +261,56 @@ export default function GamePlayPage() {
       });
 
       // Check if game is complete
-      const nextRoundNumber = newCompletedRounds.length + 1;
       if (nextRoundNumber > setup.maxRounds) {
         await markGameComplete(gameId);
+      } else if (newCompletedRounds.length === 1) {
+        // After round 1: Auto-start round 2 (skip score review)
+        const newRound = createNewRound(nextRoundNumber);
+        setCurrentRound(newRound);
+        setCurrentPhase("bidding");
+        setBiddingPhase("blind-declaration-and-entry");
+
+        await updateGameRound(gameId, {
+          inProgressRound: newRound,
+          currentPhase: "bidding",
+          biddingPhase: "blind-declaration-and-entry",
+        });
+      } else {
+        // After round 2+: Show score review phase
+        setCurrentPhase("score-review");
+
+        await updateGameRound(gameId, {
+          currentPhase: "score-review",
+        });
       }
     } catch (error) {
       console.error("Error saving completed round:", error);
     } finally {
       setIsSaving(false);
     }
+  }
 
-    // Auto-start next round if not at max
-    const nextRoundNumber = newCompletedRounds.length + 1;
-    if (nextRoundNumber <= setup.maxRounds) {
-      setTimeout(async () => {
-        const newRound = createNewRound(nextRoundNumber);
-        setCurrentRound(newRound);
-        setCurrentPhase("bidding");
-        setBiddingPhase("blind-declaration-and-entry");
+  async function handleStartNextRound() {
+    if (!gameId || !setup) return;
 
-        // Save new round to Firestore
-        try {
-          setIsSaving(true);
-          await updateGameRound(gameId, {
-            inProgressRound: newRound,
-            currentPhase: "bidding",
-            biddingPhase: "blind-declaration-and-entry",
-          });
-        } catch (error) {
-          console.error("Error saving new round:", error);
-        } finally {
-          setIsSaving(false);
-        }
-      }, 500); // Brief delay for user to see completion
+    const nextRoundNumber = completedRounds.length + 1;
+    const newRound = createNewRound(nextRoundNumber);
+
+    setCurrentRound(newRound);
+    setCurrentPhase("bidding");
+    setBiddingPhase("blind-declaration-and-entry");
+
+    try {
+      setIsSaving(true);
+      await updateGameRound(gameId, {
+        inProgressRound: newRound,
+        currentPhase: "bidding",
+        biddingPhase: "blind-declaration-and-entry",
+      });
+    } catch (error) {
+      console.error("Error starting next round:", error);
+    } finally {
+      setIsSaving(false);
     }
   }
 
@@ -525,8 +544,37 @@ export default function GamePlayPage() {
         </div>
       )}
 
+      {/* Score Review Phase - After Round 2+ */}
+      {currentPhase === "score-review" && (
+        <div className="mt-6">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-green-100 to-green-200 border-3 border-green-500 rounded-xl p-5 mb-6">
+            <h2 className="text-2xl font-bold text-green-900 mb-2">
+              ✅ Round {completedRounds.length} Complete!
+            </h2>
+            <p className="text-green-800">
+              Review the scores below and click "Start Next Round" when ready.
+            </p>
+          </div>
+
+          {/* Start Next Round Button */}
+          <button
+            onClick={handleStartNextRound}
+            disabled={isSaving}
+            className="w-full bg-gradient-to-r from-bid-500 to-bid-600 text-white px-6 py-4 rounded-xl text-xl font-bold hover:shadow-card-hover hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed mb-6"
+          >
+            {isSaving ? "💾 Saving..." : "▶️ Start Next Round"}
+          </button>
+        </div>
+      )}
+
       {/* Running Totals */}
-      {completedRounds.length > 0 && <Totals rounds={completedRounds} />}
+      {completedRounds.length > 0 && (
+        <Totals
+          rounds={completedRounds}
+          showDeltas={currentPhase === "score-review"}
+        />
+      )}
 
       {/* Max rounds warning */}
       {nextRoundNumber > setup.maxRounds && !currentRound && (
@@ -545,7 +593,9 @@ export default function GamePlayPage() {
       )}
       {currentRound && currentPhase === "results" && (
         <div className="mt-6 bg-gradient-to-r from-felt-100 to-felt-200 border-3 border-felt-400 rounded-xl p-5 text-base text-felt-600 font-semibold">
-          ℹ️ Next round will start automatically after completing this one.
+          {completedRounds.length === 0
+            ? "ℹ️ Round 2 will start automatically after completing this round."
+            : "ℹ️ You'll review scores before starting the next round."}
         </div>
       )}
 

@@ -37,6 +37,6 @@ export type Game = {
   setup: GameSetup;
   rounds: Round[];
   inProgressRound?: Round;
-  currentPhase?: "bidding" | "results" | "completed";
+  currentPhase?: "bidding" | "results" | "score-review" | "completed";
   biddingPhase?: "blind-declaration-and-entry" | "regular-bid-entry";
 };

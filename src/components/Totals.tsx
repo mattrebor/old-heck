@@ -2,7 +2,13 @@ import React, { useState } from "react";
 import type { Round } from "../types";
 import PlayerAvatar from "./PlayerAvatar";
 
-export default function Totals({ rounds }: { rounds: Round[] }) {
+export default function Totals({
+  rounds,
+  showDeltas = false,
+}: {
+  rounds: Round[];
+  showDeltas?: boolean;
+}) {
   const [expandedRounds, setExpandedRounds] = useState<Set<number>>(new Set());
 
   if (rounds.length === 0) return null;
@@ -41,6 +47,15 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
     playerRanks[name] = sortedScores.indexOf(totals[name]) + 1;
   });
 
+  // Calculate point deltas (points from most recent round)
+  const deltas: Record<string, number> = {};
+  if (showDeltas && rounds.length > 0) {
+    const latestRound = rounds[rounds.length - 1];
+    latestRound.scores.forEach((s) => {
+      deltas[s.name] = s.score;
+    });
+  }
+
   return (
     <div className="bg-gradient-to-br from-felt-300 to-felt-200 rounded-2xl p-4 md:p-8 mt-8 border-4 border-felt-500 shadow-card-hover">
       <h3 className="font-bold text-2xl md:text-3xl mb-4 md:mb-6 text-felt-600 flex items-center gap-2 md:gap-3">
@@ -71,13 +86,30 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
                     <PlayerAvatar name={name} size="md" showName={true} />
                     {isWinner && <span className="text-xl">👑</span>}
                   </div>
-                  <span
-                    className={`font-mono text-xl font-bold ${
-                      totals[name] < 0 ? "text-red-700" : "text-green-700"
-                    }`}
-                  >
-                    {totals[name]}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {/* Delta indicator */}
+                    {showDeltas && (
+                      <span
+                        className={`text-sm font-bold ${
+                          deltas[name] > 0
+                            ? "text-green-600"
+                            : deltas[name] < 0
+                            ? "text-red-600"
+                            : "text-gray-500"
+                        }`}
+                      >
+                        {deltas[name] > 0 ? `+${deltas[name]}` : deltas[name]}
+                      </span>
+                    )}
+                    {/* Total score */}
+                    <span
+                      className={`font-mono text-xl font-bold ${
+                        totals[name] < 0 ? "text-red-700" : "text-green-700"
+                      }`}
+                    >
+                      {totals[name]}
+                    </span>
+                  </div>
                 </div>
               );
             })}

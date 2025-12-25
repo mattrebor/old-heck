@@ -133,6 +133,19 @@ export default function GameViewPage() {
         </div>
       </div>
 
+      {/* Score Review Phase - View Only */}
+      {currentPhase === "score-review" && !currentRound && (
+        <div className="border-4 border-green-400 rounded-xl p-6 mb-6 bg-gradient-to-br from-green-50 to-green-100">
+          <h3 className="font-bold text-xl sm:text-2xl mb-4 text-green-700 flex items-center gap-2 sm:gap-3">
+            <span className="text-2xl sm:text-3xl">📊</span>
+            Round {completedRounds.length} Complete - Reviewing Scores
+          </h3>
+          <p className="text-green-800">
+            The game owner is reviewing scores before starting the next round.
+          </p>
+        </div>
+      )}
+
       {/* Current Round - In Progress */}
       {currentRound && (
         <div className="border-4 border-blue-400 rounded-xl p-6 mb-6 bg-gradient-to-br from-blue-50 to-blue-100">
