@@ -76,7 +76,7 @@ export default function BidCollector({
 
         <div className="mb-6 p-5 bg-purple-300 rounded-xl border-2 border-purple-500">
           <div className="text-base text-purple-900 font-bold">
-            <strong>Tricks available:</strong> {tricksAvailable}
+            <strong>Books available:</strong> {tricksAvailable}
           </div>
         </div>
 
@@ -163,15 +163,15 @@ export default function BidCollector({
       <p className="text-base text-bid-600 mb-6 font-semibold">
         {hasBlindBidders
           ? "Remaining players, enter your bids:"
-          : "Each player, enter how many tricks you bid to take:"}
+          : "Each player, enter how many books you bid to take:"}
       </p>
       <div className="mb-6 p-5 bg-bid-300 rounded-xl border-2 border-bid-500">
         <div className="text-base text-white font-bold">
-          <strong>Tricks available:</strong> {tricksAvailable} ·
+          <strong>Books available:</strong> {tricksAvailable} ·
           <strong className="ml-2">Total bids:</strong> {totalBids}
           {allBidsEntered && bidsEqualTricks && (
             <span className="ml-2 text-yellow-300 font-bold">
-              ⚠ Total bids cannot equal tricks available!
+              ⚠ Total bids cannot equal books available!
             </span>
           )}
         </div>
@@ -242,7 +242,7 @@ export default function BidCollector({
       {bidsEqualTricks && allBidsEntered && (
         <div className="mb-5 p-5 bg-red-100 border-3 border-red-500 rounded-xl text-base text-red-800 font-semibold">
           <strong>Rule violation:</strong> The total of all bids ({totalBids})
-          cannot equal the number of tricks available ({tricksAvailable}). The
+          cannot equal the number of books available ({tricksAvailable}). The
           last player to bid must adjust their bid to ensure someone will fail.
         </div>
       )}
@@ -254,7 +254,7 @@ export default function BidCollector({
         {!allBidsEntered
           ? "Enter all bids to continue"
           : bidsEqualTricks
-          ? "Adjust bids - total cannot equal tricks available"
+          ? "Adjust bids - total cannot equal books available"
           : "Start Round →"}
       </button>
     </div>
