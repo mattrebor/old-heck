@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Round } from "../types";
 import { getSuitColor } from "../utils/suits";
+import PlayerAvatar from "./PlayerAvatar";
 
 export default function BidCollector({
   round,
@@ -92,12 +93,7 @@ export default function BidCollector({
             >
               <div className="flex items-center justify-between mb-3 gap-4">
                 <div className="flex items-center gap-2">
-                  <span className={`text-4xl ${getSuitColor(ps.suit)}`}>
-                    {ps.suit}
-                  </span>
-                  <span className="font-bold text-lg text-gray-800">
-                    {ps.name}
-                  </span>
+                  <PlayerAvatar name={ps.name} size="lg" showName={true} />
                   {blindBidDecisions[i] && (
                     <span className="px-3 py-1 bg-purple-600 text-white rounded-lg text-sm font-bold">
                       ⚡ BLIND 2X
@@ -189,15 +185,10 @@ export default function BidCollector({
             return (
               <div
                 key={i}
-                className="grid grid-cols-[auto_1fr_auto] gap-4 items-center mb-3 p-4 bg-purple-100 rounded-xl border-2 border-purple-400"
+                className="flex items-center justify-between mb-3 p-4 bg-purple-100 rounded-xl border-2 border-purple-400"
               >
-                <span className={`text-3xl ${getSuitColor(ps.suit)}`}>
-                  {ps.suit}
-                </span>
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-base text-gray-800">
-                    {ps.name}
-                  </span>
+                  <PlayerAvatar name={ps.name} size="md" showName={true} />
                   <span className="px-2 py-1 bg-purple-600 text-white rounded text-xs font-bold">
                     ⚡ BLIND
                   </span>
@@ -218,14 +209,9 @@ export default function BidCollector({
         return (
           <div
             key={i}
-            className="grid grid-cols-[auto_1fr_auto] gap-4 items-center mb-5 p-5 bg-white rounded-xl border-3 border-bid-300 hover:border-gold-500 hover:shadow-card transition-all"
+            className="flex items-center justify-between mb-5 p-5 bg-white rounded-xl border-3 border-bid-300 hover:border-gold-500 hover:shadow-card transition-all"
           >
-            <div className="flex items-center gap-3">
-              <span className={`text-4xl ${getSuitColor(ps.suit)}`}>
-                {ps.suit}
-              </span>
-            </div>
-            <span className="font-bold text-lg text-gray-800">{ps.name}</span>
+            <PlayerAvatar name={ps.name} size="lg" showName={true} />
             <input
               type="number"
               min={0}

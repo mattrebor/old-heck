@@ -1,5 +1,6 @@
 import type { Round } from "../types";
 import { getSuitColor } from "../utils/suits";
+import PlayerAvatar from "./PlayerAvatar";
 
 export default function RoundEditor({
   round,
@@ -25,20 +26,13 @@ export default function RoundEditor({
           <div className="flex flex-col gap-4">
             {/* Player info */}
             <div className="flex items-center gap-4">
-              <span className={`text-4xl sm:text-5xl ${getSuitColor(ps.suit)}`}>
-                {ps.suit}
-              </span>
+              <PlayerAvatar name={ps.name} size="lg" showName={true} />
               <div className="flex flex-col gap-1 flex-1">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-bold text-lg sm:text-xl text-gray-800">
-                    {ps.name}
+                {ps.blindBid && (
+                  <span className="px-2 py-1 bg-purple-600 text-white rounded-lg text-xs sm:text-sm font-bold w-fit">
+                    ⚡ BLIND 2X
                   </span>
-                  {ps.blindBid && (
-                    <span className="px-2 py-1 bg-purple-600 text-white rounded-lg text-xs sm:text-sm font-bold">
-                      ⚡ BLIND 2X
-                    </span>
-                  )}
-                </div>
+                )}
                 <div className="text-sm sm:text-base text-gray-600 font-semibold">
                   Bid: {ps.bid} books{" "}
                   {ps.blindBid && (
