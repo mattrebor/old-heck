@@ -151,20 +151,34 @@ export default function BidCollector({
                   </div>
 
                   {blindBidDecisions[i] && (
-                    <div className="flex items-center gap-6 mt-4 pt-4 border-t-2 border-purple-400">
-                      <span className="text-base font-semibold text-purple-700">
+                    <div className="mt-4 pt-4 border-t-2 border-purple-400">
+                      <span className="text-base font-semibold text-purple-700 block mb-3">
                         Enter your blind bid:
                       </span>
-                      <input
-                        type="number"
-                        min={0}
-                        placeholder="Blind Bid"
-                        className="border-3 border-purple-400 rounded-xl px-5 py-3 w-28 text-center text-xl font-bold focus:border-purple-600 focus:outline-none focus:ring-4 focus:ring-purple-600/30 bg-white transition-all"
-                        value={ps.bid >= 0 ? ps.bid : ""}
-                        onChange={(e) =>
-                          handleBlindBidChange(i, e.target.value === "" ? -1 : Number(e.target.value))
-                        }
-                      />
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleBlindBidChange(i, Math.max(0, (ps.bid >= 0 ? ps.bid : 0) - 1))}
+                          className="bg-purple-500 hover:bg-purple-600 text-white font-bold text-2xl w-12 h-12 rounded-xl transition-all"
+                        >
+                          −
+                        </button>
+                        <input
+                          type="number"
+                          min={0}
+                          placeholder="Bid"
+                          className="border-3 border-purple-400 rounded-xl px-5 py-3 w-20 text-center text-xl font-bold focus:border-purple-600 focus:outline-none focus:ring-4 focus:ring-purple-600/30 bg-white transition-all"
+                          value={ps.bid >= 0 ? ps.bid : ""}
+                          onChange={(e) =>
+                            handleBlindBidChange(i, e.target.value === "" ? -1 : Number(e.target.value))
+                          }
+                        />
+                        <button
+                          onClick={() => handleBlindBidChange(i, (ps.bid >= 0 ? ps.bid : 0) + 1)}
+                          className="bg-purple-500 hover:bg-purple-600 text-white font-bold text-2xl w-12 h-12 rounded-xl transition-all"
+                        >
+                          +
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -332,21 +346,45 @@ export default function BidCollector({
                   </span>
                 )}
               </div>
-              <input
-                type="number"
-                min={0}
-                placeholder={canBid ? "Bid" : "Wait"}
-                disabled={!canBid}
-                className={`border-3 rounded-xl px-3 py-3 w-20 text-center text-xl font-bold transition-all ${
-                  canBid
-                    ? "border-bid-400 focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-500/30 bg-bid-50"
-                    : "border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed"
-                }`}
-                value={ps.bid >= 0 ? ps.bid : ""}
-                onChange={(e) =>
-                  handleRegularBidChange(i, e.target.value === "" ? -1 : Number(e.target.value))
-                }
-              />
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleRegularBidChange(i, Math.max(0, (ps.bid >= 0 ? ps.bid : 0) - 1))}
+                  disabled={!canBid}
+                  className={`font-bold text-2xl w-12 h-12 rounded-xl transition-all ${
+                    canBid
+                      ? "bg-bid-500 hover:bg-bid-600 text-white"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }`}
+                >
+                  −
+                </button>
+                <input
+                  type="number"
+                  min={0}
+                  placeholder={canBid ? "Bid" : "Wait"}
+                  disabled={!canBid}
+                  className={`border-3 rounded-xl px-3 py-3 w-20 text-center text-xl font-bold transition-all ${
+                    canBid
+                      ? "border-bid-400 focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-500/30 bg-bid-50"
+                      : "border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed"
+                  }`}
+                  value={ps.bid >= 0 ? ps.bid : ""}
+                  onChange={(e) =>
+                    handleRegularBidChange(i, e.target.value === "" ? -1 : Number(e.target.value))
+                  }
+                />
+                <button
+                  onClick={() => handleRegularBidChange(i, (ps.bid >= 0 ? ps.bid : 0) + 1)}
+                  disabled={!canBid}
+                  className={`font-bold text-2xl w-12 h-12 rounded-xl transition-all ${
+                    canBid
+                      ? "bg-bid-500 hover:bg-bid-600 text-white"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }`}
+                >
+                  +
+                </button>
+              </div>
             </div>
             {bidTooHigh && (
               <div className="mb-3 px-3 py-2 bg-orange-100 border-2 border-orange-400 rounded-lg text-sm text-orange-800 font-semibold">
