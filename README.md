@@ -48,7 +48,8 @@ A modern, mobile-responsive scoring application for the card game "Old Heck" (al
 - **Blind Bids** (2x multiplier):
   - Made bid: `2 × ((bid × bid) + 10)` points
   - Missed bid: `2 × (-(bid × bid))` points
-- **Running Totals**: Expandable score breakdown by round
+- **Running Totals**: Expandable score breakdown by round with player rankings
+- **Player Rankings**: Shows rank (#1, #2, etc.) based on total score; ties handled correctly
 - **Player Avatars**: Color-coded circles with initials for quick identification
 
 ### Mobile Optimization
@@ -58,6 +59,7 @@ A modern, mobile-responsive scoring application for the card game "Old Heck" (al
 - **Aligned player layouts** with consistent badge spacing
 - **Responsive card titles** that scale for narrow displays
 - **Horizontal scrolling** for many players in score breakdown
+- **Leaderboard sorting** on mobile - players ranked by score (leader at top)
 - **Optimized spacing** prevents text overlap on mobile devices
 
 ## Tech Stack
@@ -303,6 +305,12 @@ The app provides a seamless flow with automatic progression between phases:
 - Collapsed view: Shows colored avatars with initials and scores
 - Expanded view: Shows full player names with avatars
 - Horizontal scrolling for games with 8+ players
+
+**Score Breakdown**
+- **Mobile**: Players sorted by rank with leader at top; rank (#1, #2, etc.) shown before each player
+- **Desktop/Tablet**: Horizontal table with TOTAL and RANK rows at bottom
+- Expandable rounds show individual round details
+- Crown 👑 icon displayed for first place
 
 ## Scripts
 
