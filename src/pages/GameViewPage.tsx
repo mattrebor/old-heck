@@ -161,20 +161,22 @@ export default function GameViewPage() {
                 className="flex flex-wrap items-center gap-3 text-sm bg-white p-4 rounded-lg border-2 border-blue-200 justify-between"
               >
                 <PlayerAvatar name={ps.name} size="md" showName={true} />
-                {ps.blindBid && (
-                  <span className="px-2 py-1 bg-purple-600 text-white rounded text-xs font-bold">
-                    ⚡ BLIND
-                  </span>
-                )}
 
-                {/* Show bid if entered */}
-                {ps.bid >= 0 ? (
-                  <span className="text-gray-700 font-semibold">
-                    Bid: {ps.bid}
-                  </span>
-                ) : (
-                  <span className="text-gray-400 italic">Bid: waiting...</span>
-                )}
+                {/* Bid display with blind indicator above */}
+                <div className="flex flex-col items-center gap-1">
+                  {ps.blindBid && (
+                    <span className="px-2 py-0.5 bg-purple-600 text-white rounded text-xs font-bold">
+                      ⚡ BLIND
+                    </span>
+                  )}
+                  {ps.bid >= 0 ? (
+                    <span className="text-gray-700 font-semibold">
+                      Bid: {ps.bid}
+                    </span>
+                  ) : (
+                    <span className="text-gray-400 italic">Bid: waiting...</span>
+                  )}
+                </div>
 
                 {/* Show result if phase is results or completed */}
                 {currentPhase === "results" && ps.tricks >= 0 && (
