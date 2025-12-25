@@ -131,7 +131,7 @@ export default function BidCollector({
                     className="border-3 border-purple-400 rounded-xl px-5 py-3 w-28 text-center text-xl font-bold focus:border-purple-600 focus:outline-none focus:ring-4 focus:ring-purple-600/30 bg-white transition-all"
                     value={ps.bid >= 0 ? ps.bid : ""}
                     onChange={(e) =>
-                      handleBlindBidChange(i, Number(e.target.value))
+                      handleBlindBidChange(i, e.target.value === "" ? -1 : Number(e.target.value))
                     }
                   />
                 </div>
@@ -233,7 +233,7 @@ export default function BidCollector({
               className="border-3 border-bid-400 rounded-xl px-5 py-3 w-28 text-center text-xl font-bold focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-500/30 bg-bid-50 transition-all"
               value={ps.bid >= 0 ? ps.bid : ""}
               onChange={(e) =>
-                handleRegularBidChange(i, Number(e.target.value))
+                handleRegularBidChange(i, e.target.value === "" ? -1 : Number(e.target.value))
               }
             />
           </div>
