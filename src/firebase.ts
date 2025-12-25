@@ -15,7 +15,7 @@ import {
   signInWithPopup,
   signOut as firebaseSignOut,
 } from "firebase/auth";
-import type { Game, GameSetup } from "./types";
+import type { Game, GameSetup, Round } from "./types";
 import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
@@ -107,6 +107,20 @@ export async function loadGame(gameId: string): Promise<Game | null> {
   }
 
   return { id: snap.id, ...snap.data() } as Game;
+}
+
+/**
+ * Update the in-progress round (auto-save during bidding/results phase)
+ */
+export async function updateInProgressRound(
+  gameId: string,
+  round: Round,
+  phase: "bidding" | "results"
+): Promise<void> {
+  await updateGameRound(gameId, {
+    inProgressRound: round,
+    currentPhase: phase,
+  });
 }
 
 /**

@@ -8,8 +8,8 @@
 - ✅ (HIGH) add ability to delete a game on the MyGamesPage
 - ✅ (HIGH) remove unused GameHistoryPage
 - ✅ (HIGH) fix avatar in horizontal score breakdown. it should show name below the avatar instead of next to it
+- ✅ (MEDIUM) save automatically when bids are entered
 
 ## Remaining
-- (MEDIUM) save automatically when bids are entered
 - (MEDIUM) Show score breakdown at the top of the page when blind bid phase
 - (LOW) allow editing blind bid, bids and results

@@ -38,4 +38,5 @@ export type Game = {
   rounds: Round[];
   inProgressRound?: Round;
   currentPhase?: "bidding" | "results" | "completed";
+  biddingPhase?: "blind-declaration-and-entry" | "regular-bid-entry";
 };

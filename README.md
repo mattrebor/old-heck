@@ -6,14 +6,18 @@ A modern, mobile-responsive scoring application for the card game "Old Heck" (al
 
 ### Game Management
 - **Google Authentication**: Secure sign-in to create and manage your games
-- **Auto-Save**: Games automatically save to the cloud after each phase
+- **Auto-Save with Debouncing**: Bids automatically save 500ms after entry; phase transitions save immediately
 - **My Games**: View all your created games with status indicators (in progress/completed)
+- **Delete Games**: Remove unwanted games from your list with confirmation
 - **View-Only Links**: Share live game progress with spectators
 - **End Game Early**: Option to finish games prematurely if needed
+- **Resume Anytime**: Refresh the page at any point and resume exactly where you left off
 
 ### Game Setup
 - **Flexible Configuration**: Set number of decks and add unlimited players
+- **First Player Selection**: Choose which player starts bidding in round 1 (rotates each round)
 - **Player Avatars**: Each player gets a unique colored avatar with initials for easy identification
+- **Editable Setup**: Modify players, decks, and first bidder before any bids are entered
 - **Responsive Design**: Optimized for both desktop and mobile devices
 
 ### Three-Phase Round Play
@@ -25,8 +29,11 @@ A modern, mobile-responsive scoring application for the card game "Old Heck" (al
 
 **Phase 2: Regular Bidding** (Blue Interface)
 - Each player enters their bid (0 or more tricks)
+- **Touch-Friendly Controls**: +/- buttons for easy bid entry without keyboard
 - **Real-time validation**: Total bids cannot equal tricks available (game rule enforcement)
+- **Visual Indicators**: 🎯 First bidder, 👉 Current bidder, ✓ Bid complete
 - Color-coded feedback: Red for over/under bids, Yellow for equal (not allowed)
+- **Auto-save**: Bids save automatically as you enter them (500ms debounce)
 - Automatic progression to results phase
 
 **Phase 3: Results** (Green Interface)
@@ -45,10 +52,13 @@ A modern, mobile-responsive scoring application for the card game "Old Heck" (al
 - **Player Avatars**: Color-coded circles with initials for quick identification
 
 ### Mobile Optimization
-- Hamburger menu for navigation on small screens
-- Responsive card titles that scale for narrow displays
-- Horizontal scrolling for many players
-- Touch-friendly interface elements
+- **Hamburger menu** for navigation on small screens
+- **Touch-friendly bid entry** with large +/- buttons (no keyboard required)
+- **Compact avatars** that scale appropriately for narrow widths
+- **Aligned player layouts** with consistent badge spacing
+- **Responsive card titles** that scale for narrow displays
+- **Horizontal scrolling** for many players in score breakdown
+- **Optimized spacing** prevents text overlap on mobile devices
 
 ## Tech Stack
 
@@ -207,9 +217,10 @@ Workflows are in `.github/workflows/`. Ensure you have:
 1. Click "🎮 New Game" in the header
 2. Set the number of decks (default: 1)
 3. Add or edit player names (minimum 2)
-4. Player avatars update automatically as you type
-5. Click "🎮 Start Game"
-6. Game is created and saved to the cloud instantly
+4. Choose which player starts first (rotates each round)
+5. Player avatars update automatically as you type
+6. Click "🎮 Start Game"
+7. Game is created and saved to the cloud instantly
 
 ### Playing a Game
 
@@ -225,14 +236,20 @@ The app provides a seamless flow with automatic progression between phases:
 
 **Phase 2: Regular Bidding** (Blue Interface)
 
-1. Remaining players (non-blind) enter their bids
-2. Watch the real-time bid tracker:
+1. Remaining players (non-blind) enter their bids in order
+2. Use **+/- buttons** for touch-friendly bid entry (or type numbers)
+3. Watch for visual indicators:
+   - **🎯 Blue badge**: First player to bid this round
+   - **👉 Green badge**: Current player's turn to bid
+   - **✓ Gray badge**: Player has completed their bid
+4. Watch the real-time bid tracker:
    - **Red badge "⚠ Over!"**: Total bids exceed tricks (someone will definitely fail)
    - **Red badge "⚠ Under!"**: Total bids under tricks (someone will definitely fail)
    - **Yellow badge "⚠ Equal!"**: Not allowed per game rules (adjust bids)
-3. All bids must be entered correctly before proceeding
-4. Click "Start Round →" when ready
-5. Game automatically saves and transitions to results phase
+5. **Bids auto-save** as you enter them (500ms after last change)
+6. All bids must be entered correctly before proceeding
+7. Click "Start Round →" when ready
+8. Game automatically saves and transitions to results phase
 
 **Phase 3: Results** (Green Interface)
 
@@ -245,10 +262,12 @@ The app provides a seamless flow with automatic progression between phases:
 7. Repeat until max rounds reached
 
 **Auto-Save Throughout**
-- Every phase transition saves to the cloud automatically
-- Browser refreshes will resume exactly where you left off
-- No manual save button needed
-- "💾 Saving..." indicator shows when syncing
+- **Bid entries**: Auto-save 500ms after last change (debounced for efficiency)
+- **Phase transitions**: Save immediately when moving between phases
+- **Bidding sub-phase**: Tracks whether you're in blind or regular bidding phase
+- **Browser refreshes**: Resume exactly where you left off, including partial bids
+- **No manual save**: Everything persists automatically to Firestore
+- **Visual feedback**: "💾 Saving..." indicator shows when syncing to cloud
 
 ### Sharing and Viewing
 
@@ -260,14 +279,16 @@ The app provides a seamless flow with automatic progression between phases:
 
 **My Games Page**
 - Click "📋 My Games" in the header to see all your games
-- Games show status: "🎮 In Progress" or "🏁 Completed"
+- Games show status: "▶ In Progress" or "✓ Completed"
 - Click games to resume playing or view final scores
-- Most recent games appear first
+- **Delete unwanted games** with the 🗑️ button (requires confirmation)
+- Most recent games appear first (sorted by last update)
 
 **End Game Early**
-- Click "End Game Early" button in game info section
+- Click "⏹ End Game Early" button in game info section
 - Confirm in the dialog
 - Game is marked as completed with current scores
+- Clears any in-progress round
 - Useful for time-limited sessions
 
 ### Mobile Experience
@@ -309,7 +330,8 @@ src/
 │   └── AuthContext.tsx  # Authentication state
 ├── utils/               # Utility functions
 │   ├── rounds.ts        # Round calculations
-│   └── suits.ts         # Player suit assignment
+│   ├── suits.ts         # Player suit assignment
+│   └── debounce.ts      # Debounce utility for auto-save
 ├── types.ts             # TypeScript type definitions
 ├── scoring.ts           # Game scoring logic
 ├── firebase.ts          # Firebase configuration

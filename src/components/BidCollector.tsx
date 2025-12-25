@@ -7,15 +7,19 @@ export default function BidCollector({
   tricksAvailable,
   onUpdate,
   onComplete,
+  initialPhase = "blind-declaration-and-entry",
+  onPhaseChange,
 }: {
   round: Round;
   tricksAvailable: number;
   onUpdate: (playerIndex: number, bid: number, blindBid: boolean) => void;
   onComplete: () => void;
+  initialPhase?: "blind-declaration-and-entry" | "regular-bid-entry";
+  onPhaseChange?: (phase: "blind-declaration-and-entry" | "regular-bid-entry") => void;
 }) {
   const [biddingPhase, setBiddingPhase] = useState<
     "blind-declaration-and-entry" | "regular-bid-entry"
-  >("blind-declaration-and-entry");
+  >(initialPhase);
   const [blindBidDecisions, setBlindBidDecisions] = useState<boolean[]>(
     round.scores.map((ps) => ps.blindBid)
   );
@@ -59,6 +63,7 @@ export default function BidCollector({
     });
 
     setBiddingPhase("regular-bid-entry");
+    onPhaseChange?.("regular-bid-entry");
   }
 
   function handleRegularBidChange(index: number, bid: number) {

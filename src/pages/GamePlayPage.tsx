@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { loadGame, updateGameRound, markGameComplete } from "../firebase";
 import type { GameSetup, Round } from "../types";
 import { calculateOldHeckScore } from "../scoring";
+import { debounce } from "../utils/debounce";
 import Header from "../components/Header";
 import BidCollector from "../components/BidCollector";
 import RoundEditor from "../components/RoundEditor";
@@ -18,6 +19,7 @@ export default function GamePlayPage() {
   const [completedRounds, setCompletedRounds] = useState<Round[]>([]);
   const [currentRound, setCurrentRound] = useState<Round | null>(null);
   const [currentPhase, setCurrentPhase] = useState<RoundPhase>("completed");
+  const [biddingPhase, setBiddingPhase] = useState<"blind-declaration-and-entry" | "regular-bid-entry">("blind-declaration-and-entry");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -29,6 +31,22 @@ export default function GamePlayPage() {
   const [editDecks, setEditDecks] = useState<number | "">(1);
   const [editFirstPlayerIndex, setEditFirstPlayerIndex] = useState<number>(0);
   const autoCompleteTimerRef = useRef<number | null>(null);
+
+  // Create debounced auto-save function for bid updates
+  const debouncedSaveRef = useRef(
+    debounce(async (gameId: string, round: Round, phase: "bidding" | "results", biddingPhase?: "blind-declaration-and-entry" | "regular-bid-entry") => {
+      try {
+        await updateGameRound(gameId, {
+          inProgressRound: round,
+          currentPhase: phase,
+          ...(phase === "bidding" && biddingPhase && { biddingPhase }),
+        });
+        console.log("Auto-saved bid update");
+      } catch (error) {
+        console.error("Failed to auto-save bid:", error);
+      }
+    }, 500) // 500ms debounce delay
+  );
 
   // Load game from Firestore on mount
   useEffect(() => {
@@ -51,17 +69,20 @@ export default function GamePlayPage() {
         setCompletedRounds(game.rounds || []);
         setCurrentRound(game.inProgressRound || null);
         setCurrentPhase(game.currentPhase || "completed");
+        setBiddingPhase(game.biddingPhase || "blind-declaration-and-entry");
 
         // If no round in progress and not at max rounds, start first round
         if (!game.inProgressRound && game.rounds.length === 0) {
           const firstRound = createNewRoundFromSetup(game.setup, 1);
           setCurrentRound(firstRound);
           setCurrentPhase("bidding");
+          setBiddingPhase("blind-declaration-and-entry");
 
           // Save initial round to Firestore
           await updateGameRound(gameId, {
             inProgressRound: firstRound,
             currentPhase: "bidding",
+            biddingPhase: "blind-declaration-and-entry",
           });
         }
 
@@ -139,7 +160,7 @@ export default function GamePlayPage() {
     bid: number,
     blindBid: boolean
   ) {
-    if (!currentRound) return;
+    if (!currentRound || !gameId) return;
 
     const updatedScores = currentRound.scores.map((ps, i) => {
       if (i === playerIndex) {
@@ -148,7 +169,22 @@ export default function GamePlayPage() {
       return ps;
     });
 
-    setCurrentRound({ ...currentRound, scores: updatedScores });
+    const updatedRound = { ...currentRound, scores: updatedScores };
+    setCurrentRound(updatedRound);
+
+    // Auto-save with debouncing
+    debouncedSaveRef.current(gameId, updatedRound, currentPhase as "bidding" | "results", biddingPhase);
+  }
+
+  function handleBiddingPhaseChange(phase: "blind-declaration-and-entry" | "regular-bid-entry") {
+    setBiddingPhase(phase);
+
+    // Immediately save the phase change (not debounced)
+    if (gameId && currentRound) {
+      updateGameRound(gameId, {
+        biddingPhase: phase,
+      }).catch(err => console.error("Failed to save bidding phase:", err));
+    }
   }
 
   async function handleBidsComplete() {
@@ -253,6 +289,7 @@ export default function GamePlayPage() {
         const newRound = createNewRound(nextRoundNumber);
         setCurrentRound(newRound);
         setCurrentPhase("bidding");
+        setBiddingPhase("blind-declaration-and-entry");
 
         // Save new round to Firestore
         try {
@@ -260,6 +297,7 @@ export default function GamePlayPage() {
           await updateGameRound(gameId, {
             inProgressRound: newRound,
             currentPhase: "bidding",
+            biddingPhase: "blind-declaration-and-entry",
           });
         } catch (error) {
           console.error("Error saving new round:", error);
@@ -357,11 +395,13 @@ export default function GamePlayPage() {
         setup: newSetup,
         inProgressRound: newRound,
         currentPhase: "bidding",
+        biddingPhase: "blind-declaration-and-entry",
       });
 
       // Update local state
       setSetup(newSetup);
       setCurrentRound(newRound);
+      setBiddingPhase("blind-declaration-and-entry");
       setShowEditSetup(false);
     } catch (error) {
       console.error("Error updating setup:", error);
@@ -474,6 +514,8 @@ export default function GamePlayPage() {
           tricksAvailable={currentRound.roundNumber}
           onUpdate={handleUpdateBid}
           onComplete={handleBidsComplete}
+          initialPhase={biddingPhase}
+          onPhaseChange={handleBiddingPhaseChange}
         />
       )}
 
