@@ -1,35 +1,71 @@
 # Old Heck - Card Game Scoring App
 
-A React-based scoring application for the card game "Old Heck" (also known as "Oh Hell" or "Oh Heck"). Track scores across multiple rounds with automatic calculation based on tricks taken and bids met.
+A modern, mobile-responsive scoring application for the card game "Old Heck" (also known as "Oh Hell" or "Oh Heck"). Track scores across multiple rounds with automatic calculation, real-time updates, and shareable view-only links.
 
 ## Features
 
-- **Game Setup**: Configure number of decks and players
-- **Two-Phase Round Play**:
-  - Phase 1: Collect bids from all players (including zero bids)
-  - Phase 2: Simple radio buttons - "Made it" or "Missed it" for each player
-- **Automatic Score Calculation**: Scores calculated using the Old Heck formula
+### Game Management
+- **Google Authentication**: Secure sign-in to create and manage your games
+- **Auto-Save**: Games automatically save to the cloud after each phase
+- **My Games**: View all your created games with status indicators (in progress/completed)
+- **View-Only Links**: Share live game progress with spectators
+- **End Game Early**: Option to finish games prematurely if needed
+
+### Game Setup
+- **Flexible Configuration**: Set number of decks and add unlimited players
+- **Player Avatars**: Each player gets a unique colored avatar with initials for easy identification
+- **Responsive Design**: Optimized for both desktop and mobile devices
+
+### Three-Phase Round Play
+
+**Phase 1: Blind Bid Declaration** (Purple Interface)
+- Players can optionally bid blind (without seeing cards) for **DOUBLE points**
+- Visual indicators for blind bidders throughout the game
+- Automatic progression to regular bidding
+
+**Phase 2: Regular Bidding** (Blue Interface)
+- Each player enters their bid (0 or more tricks)
+- **Real-time validation**: Total bids cannot equal tricks available (game rule enforcement)
+- Color-coded feedback: Red for over/under bids, Yellow for equal (not allowed)
+- Automatic progression to results phase
+
+**Phase 3: Results** (Green Interface)
+- Simple "Made it" or "Missed it" selection for each player
+- Auto-completion after all players marked (1.5s delay)
+- Optional manual completion for immediate progression
+
+### Scoring System
+- **Regular Bids**:
   - Made bid: `(bid × bid) + 10` points
   - Missed bid: `-(bid × bid)` points
-- **Running Totals**: View cumulative scores throughout the game
-- **Game History**: Save completed games to Firebase and view later
-- **Responsive Design**: Built with Tailwind CSS
+- **Blind Bids** (2x multiplier):
+  - Made bid: `2 × ((bid × bid) + 10)` points
+  - Missed bid: `2 × (-(bid × bid))` points
+- **Running Totals**: Expandable score breakdown by round
+- **Player Avatars**: Color-coded circles with initials for quick identification
+
+### Mobile Optimization
+- Hamburger menu for navigation on small screens
+- Responsive card titles that scale for narrow displays
+- Horizontal scrolling for many players
+- Touch-friendly interface elements
 
 ## Tech Stack
 
 - **React 19** - UI framework
 - **TypeScript** - Type safety
 - **Vite** - Build tool and dev server
-- **Firebase/Firestore** - Cloud database for game storage
+- **Firebase/Firestore** - Cloud database with real-time updates
+- **Firebase Authentication** - Google OAuth
 - **React Router** - Client-side routing
-- **Tailwind CSS** - Styling
+- **Tailwind CSS** - Utility-first styling with custom theme
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js 20.19+ or 22.12+
-- Firebase project with Firestore enabled
+- Firebase project with Firestore and Authentication enabled
 
 ### Installation
 
@@ -71,53 +107,120 @@ npm run dev
 
 ### Firebase Setup
 
-1. Create a Firebase project at [console.firebase.google.com](https://console.firebase.google.com)
-2. Enable Firestore Database
-3. Create a web app in your Firebase project
-4. Copy the configuration values to `.env.local`
+1. **Create a Firebase project** at [console.firebase.google.com](https://console.firebase.google.com)
+
+2. **Enable Authentication**:
+   - Go to Authentication → Sign-in method
+   - Enable Google sign-in provider
+
+3. **Enable Firestore Database**:
+   - Go to Firestore Database
+   - Create database in production mode
+
+4. **Deploy Firestore Rules** (for security):
+   ```bash
+   firebase login
+   firebase deploy --only firestore:rules
+   ```
+   See [FIRESTORE_RULES.md](./FIRESTORE_RULES.md) for details.
+
+5. **Deploy Firestore Indexes** (required for "My Games" page):
+   ```bash
+   firebase deploy --only firestore:indexes
+   ```
+   See [FIRESTORE_SETUP.md](./FIRESTORE_SETUP.md) for details.
+
+6. **Create a web app** in your Firebase project settings
+
+7. **Copy the configuration** values to `.env.local`
 
 ## Usage
 
-### Starting a New Game
+### Authentication
 
 1. Navigate to the home page
+2. Click "Sign in with Google" to authenticate
+3. Once signed in, you can create and manage games
+
+### Starting a New Game
+
+1. Click "🎮 New Game" in the header
 2. Set the number of decks (default: 1)
-3. Add or remove players (minimum 2)
-4. Click "Start Game"
+3. Add or edit player names (minimum 2)
+4. Player avatars update automatically as you type
+5. Click "🎮 Start Game"
+6. Game is created and saved to the cloud instantly
 
 ### Playing a Game
 
-The app provides a seamless flow with automatic progression between rounds:
+The app provides a seamless flow with automatic progression between phases:
 
-**Phase 1: Bidding** (Blue Interface)
+**Phase 1: Blind Bid Declaration** (Purple Interface)
 
-1. Round starts automatically (first round begins immediately, subsequent rounds auto-start after completion)
-2. Each player enters their bid (0 or more tricks they think they'll take)
-3. **Important:** The total of all bids cannot equal the number of tricks available (the app enforces this rule)
-4. Click "Start Round →" when all bids are entered correctly
-5. Game automatically transitions to results phase
+1. Choose if any players want to bid blind (without seeing cards)
+2. Check "Blind Bid?" for players bidding blind
+3. Blind bidders enter their bids immediately
+4. Click "Continue to Regular Bidding →"
+5. **Benefit**: Blind bids earn **DOUBLE points** (2x multiplier)
 
-**Phase 2: Results** (Green Interface)
+**Phase 2: Regular Bidding** (Blue Interface)
+
+1. Remaining players (non-blind) enter their bids
+2. Watch the real-time bid tracker:
+   - **Red badge "⚠ Over!"**: Total bids exceed tricks (someone will definitely fail)
+   - **Red badge "⚠ Under!"**: Total bids under tricks (someone will definitely fail)
+   - **Yellow badge "⚠ Equal!"**: Not allowed per game rules (adjust bids)
+3. All bids must be entered correctly before proceeding
+4. Click "Start Round →" when ready
+5. Game automatically saves and transitions to results phase
+
+**Phase 3: Results** (Green Interface)
 
 1. Play the round physically with cards
-2. For each player, select "Made it" or "Missed it" using radio buttons
-3. Scores are calculated automatically:
-   - Made bid: `(bid × bid) + 10` points
-   - Missed bid: `-(bid × bid)` points
-4. Round auto-completes 1.5 seconds after all players are marked
-5. Next round automatically starts (or you can click "Complete Round Now" to skip the delay)
+2. For each player, click "✅ Made it" or "❌ Missed it"
+3. Scores calculate automatically (2x for blind bids)
+4. Round auto-completes 1.5 seconds after all players marked
+5. Click "Complete Round Now" to skip the delay
+6. Next round starts automatically
+7. Repeat until max rounds reached
 
-**After All Rounds**
+**Auto-Save Throughout**
+- Every phase transition saves to the cloud automatically
+- Browser refreshes will resume exactly where you left off
+- No manual save button needed
+- "💾 Saving..." indicator shows when syncing
 
-- View running totals throughout the game
-- When max rounds are reached, click "Save Game" to finish
-- Game data is saved to Firebase for later viewing
+### Sharing and Viewing
 
-### Viewing Game History
+**View-Only Links**
+- Click "👁️ Open View" to see the spectator view
+- Click "📋 Copy" to share the link with others
+- Anyone with the link can watch live updates (no authentication required)
+- View-only mode shows current round and all completed rounds
 
-- After saving, you'll be redirected to the game history page
-- Navigate directly to `/game/{gameId}` to view any saved game
-- Click "← Home" to start a new game
+**My Games Page**
+- Click "📋 My Games" in the header to see all your games
+- Games show status: "🎮 In Progress" or "🏁 Completed"
+- Click games to resume playing or view final scores
+- Most recent games appear first
+
+**End Game Early**
+- Click "End Game Early" button in game info section
+- Confirm in the dialog
+- Game is marked as completed with current scores
+- Useful for time-limited sessions
+
+### Mobile Experience
+
+**Navigation**
+- Desktop: Side-by-side navigation buttons
+- Mobile (<640px): Hamburger menu (☰) with dropdown
+- Very narrow screens (<400px): Extra compact layout
+
+**Player Display**
+- Collapsed view: Shows colored avatars with initials and scores
+- Expanded view: Shows full player names with avatars
+- Horizontal scrolling for games with 8+ players
 
 ## Scripts
 
@@ -130,42 +233,95 @@ The app provides a seamless flow with automatic progression between rounds:
 
 ```
 src/
-├── components/       # Reusable React components
-│   ├── Header.tsx
-│   ├── RoundEditor.tsx
-│   └── Totals.tsx
-├── pages/           # Route-level page components
-│   ├── GameSetupPage.tsx
-│   ├── GamePlayPage.tsx
-│   └── GameHistoryPage.tsx
-├── utils/           # Utility functions
-│   └── rounds.ts
-├── types.ts         # TypeScript type definitions
-├── scoring.ts       # Game scoring logic
-├── firebase.ts      # Firebase configuration
-└── App.tsx          # Main app with routing
+├── components/          # Reusable React components
+│   ├── Header.tsx       # Navigation with auth controls
+│   ├── BidCollector.tsx # Blind & regular bidding phases
+│   ├── RoundEditor.tsx  # Results phase
+│   ├── Totals.tsx       # Running score breakdown
+│   └── PlayerAvatar.tsx # Colored avatar circles
+├── pages/               # Route-level page components
+│   ├── GameSetupPage.tsx    # Game creation
+│   ├── GamePlayPage.tsx     # Active game (owner)
+│   ├── GameViewPage.tsx     # View-only (spectators)
+│   ├── MyGamesPage.tsx      # User's game list
+│   └── GameHistoryPage.tsx  # Legacy (deprecated)
+├── contexts/            # React Context providers
+│   └── AuthContext.tsx  # Authentication state
+├── utils/               # Utility functions
+│   ├── rounds.ts        # Round calculations
+│   └── suits.ts         # Player suit assignment
+├── types.ts             # TypeScript type definitions
+├── scoring.ts           # Game scoring logic
+├── firebase.ts          # Firebase configuration
+└── App.tsx              # Main app with routing
 ```
 
 ## Game Rules
 
 Old Heck (Oh Hell) is a trick-taking card game where:
 
+### Basic Concept
 - **Rounds & Tricks:** Each round number equals the number of tricks available
   - Round 1: 1 trick available (1 card dealt per player)
   - Round 2: 2 tricks available (2 cards dealt per player)
   - And so on...
-- **Bidding:** At the start of each round, players bid how many tricks they think they'll take
-  - **Important Rule:** The total of all bids cannot equal the number of tricks available
-  - This ensures at least one player will fail to make their bid
-  - The last player to bid (often the dealer) must adjust their bid if needed
-- **Playing:** Players play the round with actual cards to see who takes tricks
-- **Scoring:** Based on your bid, regardless of how many tricks you actually took
-  - Made your bid (took exactly what you bid): `(bid × bid) + 10` points
-  - Missed your bid (took any other number): `-(bid × bid) + 10` points
-- **Example:** If you bid 3 tricks:
-  - Make your bid: `(3 × 3) + 10 = +19` points ✓
-  - Miss your bid: `-(3 × 3) = -9` points ✗
-- The maximum number of rounds is based on: `(52 × decks) ÷ players`
+- **Goal:** Bid exactly how many tricks you'll take (no more, no less)
+
+### Bidding Rules
+- **Regular Bidding:** Bid 0 or more tricks before seeing your cards
+- **Blind Bidding:** Bid without seeing cards for **DOUBLE points**
+- **Critical Rule:** Total of all bids ≠ number of tricks available
+  - Ensures at least one player will fail their bid
+  - Last player to bid must adjust if total would equal tricks
+
+### Scoring
+Points are based on whether you made your bid, not how many tricks you took:
+
+**Regular Bids:**
+- **Made bid** (took exactly what you bid): `(bid × bid) + 10` points
+- **Missed bid** (took any other number): `-(bid × bid)` points
+
+**Blind Bids (2x Multiplier):**
+- **Made bid**: `2 × ((bid × bid) + 10)` points
+- **Missed bid**: `2 × (-(bid × bid))` points
+
+**Examples:**
+
+Regular bid of 3 tricks:
+- Make it: `(3 × 3) + 10 = +19` points ✓
+- Miss it: `-(3 × 3) = -9` points ✗
+
+Blind bid of 3 tricks:
+- Make it: `2 × 19 = +38` points ✓✓
+- Miss it: `2 × (-9) = -18` points ✗✗
+
+Bid of 0 tricks (regular):
+- Make it: `(0 × 0) + 10 = +10` points ✓
+- Miss it: `-(0 × 0) = 0` points ✗
+
+### Game Length
+- Maximum rounds: `(52 × number of decks) ÷ number of players`
+- Example: 1 deck, 4 players = 13 rounds max
+- Example: 2 decks, 6 players = 17 rounds max
+
+## Security
+
+The app implements Firebase Security Rules to protect game data:
+
+- **Public Read**: Anyone can view games (enables view-only links)
+- **Authenticated Create**: Only signed-in users can create games
+- **Owner-Only Write**: Only game creators can update/delete their games
+- **Immutable Fields**: Creator and game setup cannot be changed after creation
+
+See [FIRESTORE_RULES.md](./FIRESTORE_RULES.md) for complete security model.
+
+## Contributing
+
+Contributions are welcome! Please ensure your code:
+- Passes `npm run lint` without errors
+- Follows TypeScript best practices
+- Maintains mobile responsiveness
+- Includes appropriate error handling
 
 ## License
 

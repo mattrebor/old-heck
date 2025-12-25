@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import Header from "../components/Header";
+import PlayerAvatar from "../components/PlayerAvatar";
 import { calculateMaxRounds } from "../utils/rounds";
-import { assignSuit, getSuitColor } from "../utils/suits";
 import { createGame } from "../firebase";
 import type { GameSetup } from "../types";
 
@@ -111,9 +111,7 @@ export default function GameSetupPage() {
           <p className="text-base font-bold text-gray-800 mb-4">Players</p>
           {players.map((p, i) => (
             <div key={i} className="flex items-center gap-4 mb-4">
-              <span className={`text-4xl ${getSuitColor(assignSuit(i))}`}>
-                {assignSuit(i)}
-              </span>
+              <PlayerAvatar name={p} size="lg" />
               <input
                 value={p}
                 onChange={(e) => updatePlayer(i, e.target.value)}
