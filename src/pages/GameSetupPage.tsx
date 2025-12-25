@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { calculateMaxRounds } from "../utils/rounds";
 import { assignSuit, getSuitColor } from "../utils/suits";
+import { createGame } from "../firebase";
 import type { GameSetup } from "../types";
 
 export default function GameSetupPage() {
@@ -16,14 +17,20 @@ export default function GameSetupPage() {
     setPlayers(copy);
   }
 
-  function startGame() {
+  async function startGame() {
     const setup: GameSetup = {
       decks,
       players,
       maxRounds: calculateMaxRounds(decks, players.length),
     };
 
-    navigate("/game/new", { state: setup });
+    try {
+      const gameId = await createGame(setup);
+      navigate(`/game/${gameId}`);
+    } catch (error) {
+      console.error("Error creating game:", error);
+      alert("Failed to create game. Please try again.");
+    }
   }
 
   return (

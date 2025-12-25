@@ -13,14 +13,19 @@ export default function BidCollector({
   onUpdate: (playerIndex: number, bid: number, blindBid: boolean) => void;
   onComplete: () => void;
 }) {
-  const [biddingPhase, setBiddingPhase] = useState<'blind-declaration-and-entry' | 'regular-bid-entry'>('blind-declaration-and-entry');
+  const [biddingPhase, setBiddingPhase] = useState<
+    "blind-declaration-and-entry" | "regular-bid-entry"
+  >("blind-declaration-and-entry");
   const [blindBidDecisions, setBlindBidDecisions] = useState<boolean[]>(
-    round.scores.map(ps => ps.blindBid)
+    round.scores.map((ps) => ps.blindBid)
   );
 
-  const hasBlindBidders = blindBidDecisions.some(b => b);
+  const hasBlindBidders = blindBidDecisions.some((b) => b);
   const allBidsEntered = round.scores.every((ps) => ps.bid >= 0);
-  const totalBids = round.scores.reduce((sum, ps) => sum + (ps.bid >= 0 ? ps.bid : 0), 0);
+  const totalBids = round.scores.reduce(
+    (sum, ps) => sum + (ps.bid >= 0 ? ps.bid : 0),
+    0
+  );
   const bidsEqualTricks = totalBids === tricksAvailable;
   const canProceed = allBidsEntered && !bidsEqualTricks;
 
@@ -48,7 +53,7 @@ export default function BidCollector({
       }
     });
 
-    setBiddingPhase('regular-bid-entry');
+    setBiddingPhase("regular-bid-entry");
   }
 
   function handleRegularBidChange(index: number, bid: number) {
@@ -56,7 +61,7 @@ export default function BidCollector({
   }
 
   // PHASE 1: Blind Bid Declaration and Entry (Combined)
-  if (biddingPhase === 'blind-declaration-and-entry') {
+  if (biddingPhase === "blind-declaration-and-entry") {
     return (
       <div className="border-4 border-accent-500 rounded-2xl p-8 mb-8 bg-gradient-to-br from-purple-100 to-purple-200 shadow-card-hover">
         <h3 className="font-bold text-3xl mb-6 text-purple-700 flex items-center gap-3">
@@ -64,7 +69,9 @@ export default function BidCollector({
           Round {round.roundNumber} - Blind Bid Phase
         </h3>
         <p className="text-base text-purple-600 mb-6 font-semibold">
-          Will any players bid blind (without seeing their cards)? Check "Blind Bid" and enter your bid now. Blind bids earn <span className="text-purple-800 font-bold">DOUBLE</span> points!
+          Will any players bid blind (without seeing their cards)? Check "Blind
+          Bid" and enter your bid now. Blind bids earn{" "}
+          <span className="text-purple-800 font-bold">DOUBLE</span> points!
         </p>
 
         <div className="mb-6 p-5 bg-purple-300 rounded-xl border-2 border-purple-500">
@@ -79,43 +86,53 @@ export default function BidCollector({
               key={i}
               className={`p-5 rounded-xl border-3 transition-all ${
                 blindBidDecisions[i]
-                  ? 'bg-purple-200 border-purple-500'
-                  : 'bg-white border-purple-300'
+                  ? "bg-purple-200 border-purple-500"
+                  : "bg-white border-purple-300"
               }`}
             >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-4">
+              <div className="flex items-center justify-between mb-3 gap-4">
+                <div className="flex items-center gap-2">
                   <span className={`text-4xl ${getSuitColor(ps.suit)}`}>
                     {ps.suit}
                   </span>
-                  <span className="font-bold text-lg text-gray-800">{ps.name}</span>
+                  <span className="font-bold text-lg text-gray-800">
+                    {ps.name}
+                  </span>
                   {blindBidDecisions[i] && (
                     <span className="px-3 py-1 bg-purple-600 text-white rounded-lg text-sm font-bold">
                       ⚡ BLIND 2X
                     </span>
                   )}
                 </div>
-                <label className="flex items-center gap-4 cursor-pointer">
-                  <span className="text-base font-semibold text-gray-700">Blind Bid?</span>
-                  <input
-                    type="checkbox"
-                    checked={blindBidDecisions[i]}
-                    onChange={() => toggleBlindBid(i)}
-                    className="w-6 h-6 text-purple-600 rounded focus:ring-purple-500"
-                  />
-                </label>
+                <div>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <span className="text-base font-semibold text-gray-700">
+                      Blind Bid?
+                    </span>
+                    <input
+                      type="checkbox"
+                      checked={blindBidDecisions[i]}
+                      onChange={() => toggleBlindBid(i)}
+                      className="w-6 h-6 text-purple-600 rounded focus:ring-purple-500"
+                    />
+                  </label>
+                </div>
               </div>
 
               {blindBidDecisions[i] && (
                 <div className="flex items-center gap-6 mt-4 pt-4 border-t-2 border-purple-400">
-                  <span className="text-base font-semibold text-purple-700">Enter your blind bid:</span>
+                  <span className="text-base font-semibold text-purple-700">
+                    Enter your blind bid:
+                  </span>
                   <input
                     type="number"
                     min={0}
                     placeholder="Blind Bid"
                     className="border-3 border-purple-400 rounded-xl px-5 py-3 w-28 text-center text-xl font-bold focus:border-purple-600 focus:outline-none focus:ring-4 focus:ring-purple-600/30 bg-white transition-all"
                     value={ps.bid >= 0 ? ps.bid : ""}
-                    onChange={(e) => handleBlindBidChange(i, Number(e.target.value))}
+                    onChange={(e) =>
+                      handleBlindBidChange(i, Number(e.target.value))
+                    }
                   />
                 </div>
               )}
@@ -128,7 +145,9 @@ export default function BidCollector({
           disabled={!allBlindBidsEntered}
           className="w-full bg-gradient-to-r from-purple-600 to-purple-400 text-white px-6 py-4 rounded-xl text-lg font-bold shadow-card-hover hover:shadow-2xl hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all"
         >
-          {allBlindBidsEntered ? "Continue to Regular Bidding →" : "Enter all blind bids to continue"}
+          {allBlindBidsEntered
+            ? "Continue to Regular Bidding →"
+            : "Enter all blind bids to continue"}
         </button>
       </div>
     );
@@ -142,7 +161,9 @@ export default function BidCollector({
         Round {round.roundNumber} - Place Your Bids
       </h3>
       <p className="text-base text-bid-600 mb-6 font-semibold">
-        {hasBlindBidders ? "Remaining players, enter your bids:" : "Each player, enter how many tricks you bid to take:"}
+        {hasBlindBidders
+          ? "Remaining players, enter your bids:"
+          : "Each player, enter how many tricks you bid to take:"}
       </p>
       <div className="mb-6 p-5 bg-bid-300 rounded-xl border-2 border-bid-500">
         <div className="text-base text-white font-bold">
@@ -159,7 +180,9 @@ export default function BidCollector({
       {/* Show blind bidders (read-only) */}
       {hasBlindBidders && (
         <div className="mb-6">
-          <p className="text-sm font-bold text-purple-700 mb-3">Blind Bids (already submitted):</p>
+          <p className="text-sm font-bold text-purple-700 mb-3">
+            Blind Bids (already submitted):
+          </p>
           {round.scores.map((ps, i) => {
             if (!blindBidDecisions[i]) return null;
 
@@ -172,7 +195,9 @@ export default function BidCollector({
                   {ps.suit}
                 </span>
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-base text-gray-800">{ps.name}</span>
+                  <span className="font-bold text-base text-gray-800">
+                    {ps.name}
+                  </span>
                   <span className="px-2 py-1 bg-purple-600 text-white rounded text-xs font-bold">
                     ⚡ BLIND
                   </span>
@@ -207,15 +232,18 @@ export default function BidCollector({
               placeholder="Bid"
               className="border-3 border-bid-400 rounded-xl px-5 py-3 w-28 text-center text-xl font-bold focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-500/30 bg-bid-50 transition-all"
               value={ps.bid >= 0 ? ps.bid : ""}
-              onChange={(e) => handleRegularBidChange(i, Number(e.target.value))}
+              onChange={(e) =>
+                handleRegularBidChange(i, Number(e.target.value))
+              }
             />
           </div>
         );
       })}
       {bidsEqualTricks && allBidsEntered && (
         <div className="mb-5 p-5 bg-red-100 border-3 border-red-500 rounded-xl text-base text-red-800 font-semibold">
-          <strong>Rule violation:</strong> The total of all bids ({totalBids}) cannot equal the number of tricks available ({tricksAvailable}).
-          The last player to bid must adjust their bid to ensure someone will fail.
+          <strong>Rule violation:</strong> The total of all bids ({totalBids})
+          cannot equal the number of tricks available ({tricksAvailable}). The
+          last player to bid must adjust their bid to ensure someone will fail.
         </div>
       )}
       <button

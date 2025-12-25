@@ -26,6 +26,10 @@ export type GameSetup = {
 export type Game = {
   id?: string;
   createdAt: Timestamp;
+  updatedAt?: Timestamp;
+  status: 'in_progress' | 'completed';
   setup: GameSetup;
   rounds: Round[];
+  inProgressRound?: Round;
+  currentPhase?: 'bidding' | 'results' | 'completed';
 };
