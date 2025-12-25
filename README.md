@@ -134,6 +134,66 @@ npm run dev
 
 7. **Copy the configuration** values to `.env.local`
 
+### Firebase Hosting Setup
+
+To deploy your app to Firebase Hosting:
+
+1. **Initialize Firebase in your project** (if not already done):
+   ```bash
+   firebase init
+   ```
+   - Select "Hosting" when prompted
+   - Choose your existing Firebase project
+   - Set build directory: `dist`
+   - Configure as single-page app: `Yes`
+   - Don't overwrite existing files
+
+2. **Build the production bundle**:
+   ```bash
+   npm run build
+   ```
+
+3. **Deploy to Firebase Hosting**:
+   ```bash
+   firebase deploy --only hosting
+   ```
+
+4. **Deploy everything at once** (hosting, rules, and indexes):
+   ```bash
+   npm run build
+   firebase deploy
+   ```
+
+5. **View your live app**:
+   - Firebase will provide a URL like: `https://your-project.web.app`
+   - Set this as your production URL
+
+**Environment Variables for Production:**
+
+Create a `.env.production` file with your Firebase config:
+```env
+VITE_FIREBASE_API_KEY=your-api-key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project.firebasestorage.app
+VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+VITE_FIREBASE_APP_ID=your-app-id
+```
+
+**Important**: For production, add your hosting domain to:
+- **Firebase Authentication** → Settings → Authorized domains
+- **Google OAuth** → Authorized redirect URIs (in Google Cloud Console)
+
+**GitHub Actions (Optional):**
+
+The project includes automated deployment workflows:
+- **Pull Requests**: Auto-deploys preview channels for testing
+- **Main Branch**: Auto-deploys to production on merge
+
+Workflows are in `.github/workflows/`. Ensure you have:
+- `FIREBASE_SERVICE_ACCOUNT` secret set in GitHub repo settings
+- Firebase project properly configured
+
 ## Usage
 
 ### Authentication
