@@ -4,12 +4,18 @@ import { loadGame, updateGameRound, markGameComplete } from "../firebase";
 import type { GameSetup, Round } from "../types";
 import { calculateOldHeckScore } from "../scoring";
 import { debounce } from "../utils/debounce";
+import { createRound } from "../utils/rounds";
 import Header from "../components/Header";
 import BidCollector from "../components/BidCollector";
 import RoundEditor from "../components/RoundEditor";
 import Totals from "../components/Totals";
 
 type RoundPhase = "bidding" | "results" | "score-review" | "completed";
+
+// Constants
+const AUTO_SAVE_DEBOUNCE_MS = 500;
+const LINK_COPIED_TIMEOUT_MS = 2000;
+const NAVIGATION_DELAY_MS = 500;
 
 export default function GamePlayPage() {
   const { gameId } = useParams<{ gameId: string }>();
@@ -40,11 +46,10 @@ export default function GamePlayPage() {
           currentPhase: phase,
           ...(phase === "bidding" && biddingPhase && { biddingPhase }),
         });
-        console.log(`Auto-saved ${phase} update`);
       } catch (error) {
         console.error(`Failed to auto-save ${phase}:`, error);
       }
-    }, 500) // 500ms debounce delay
+    }, AUTO_SAVE_DEBOUNCE_MS)
   );
 
   // Load game from Firestore on mount
@@ -128,30 +133,9 @@ export default function GamePlayPage() {
     );
   }
 
-  function createNewRoundFromSetup(
-    gameSetup: GameSetup,
-    roundNumber: number
-  ): Round {
-    // Rotate the first bidder each round, starting from the selected first player
-    const firstBidderIndex = (gameSetup.firstPlayerIndex + (roundNumber - 1)) % gameSetup.players.length;
-
-    return {
-      roundNumber,
-      scores: gameSetup.players.map((name) => ({
-        name,
-        bid: -1, // -1 means bid not entered yet
-        tricks: 0,
-        met: false,
-        score: 0,
-        blindBid: false,
-      })),
-      firstBidderIndex,
-    };
-  }
-
   function createNewRound(roundNumber: number): Round {
     if (!setup) throw new Error("Setup not loaded");
-    return createNewRoundFromSetup(setup, roundNumber);
+    return createRound(setup, roundNumber);
   }
 
   function handleUpdateBid(
@@ -334,7 +318,7 @@ export default function GamePlayPage() {
       // Navigate to view page after a brief delay
       setTimeout(() => {
         navigate(`/game/${gameId}/view`);
-      }, 500);
+      }, NAVIGATION_DELAY_MS);
     } catch (error) {
       console.error("Error ending game:", error);
       alert("Failed to end game. Please try again.");
@@ -449,7 +433,7 @@ export default function GamePlayPage() {
                 const viewUrl = `${window.location.origin}/game/${gameId}/view`;
                 navigator.clipboard.writeText(viewUrl);
                 setLinkCopied(true);
-                setTimeout(() => setLinkCopied(false), 2000);
+                setTimeout(() => setLinkCopied(false), LINK_COPIED_TIMEOUT_MS);
               }}
               className={`${
                 linkCopied
