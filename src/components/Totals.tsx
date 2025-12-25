@@ -1,7 +1,10 @@
+import React, { useState } from "react";
 import type { Round, Suit } from "../types";
 import { getSuitColor } from "../utils/suits";
 
 export default function Totals({ rounds }: { rounds: Round[] }) {
+  const [expandedRounds, setExpandedRounds] = useState<Set<number>>(new Set());
+
   if (rounds.length === 0) return null;
 
   // Get players from first round (maintains order)
@@ -11,6 +14,16 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
   rounds[0].scores.forEach(s => {
     playerSuits[s.name] = s.suit;
   });
+
+  const toggleRound = (roundNumber: number) => {
+    const newExpanded = new Set(expandedRounds);
+    if (newExpanded.has(roundNumber)) {
+      newExpanded.delete(roundNumber);
+    } else {
+      newExpanded.add(roundNumber);
+    }
+    setExpandedRounds(newExpanded);
+  };
 
   // Calculate totals for each player
   const totals: Record<string, number> = {};
@@ -38,45 +51,79 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
                 Round
               </th>
               {players.map((name) => (
-                <th key={name} className="p-5 text-center text-white font-bold text-lg last:rounded-tr-xl">
+                <th key={name} className="p-5 text-center font-bold text-lg last:rounded-tr-xl">
                   <div className="flex flex-col items-center gap-2">
                     <span className={`text-3xl ${getSuitColor(playerSuits[name])}`}>
                       {playerSuits[name]}
                     </span>
-                    <span>{name}</span>
+                    <span className="text-gray-900">{name}</span>
                   </div>
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {rounds.map((round, idx) => (
-              <tr key={round.roundNumber} className={`border-t border-gray-200 hover:bg-gray-50 transition-colors ${idx === rounds.length - 1 ? 'border-b-2 border-felt-400' : ''}`}>
-                <td className="p-5 font-bold text-gray-700">
-                  Round {round.roundNumber}
-                </td>
-                {players.map((name) => {
-                  const playerScore = round.scores.find(s => s.name === name);
-                  if (!playerScore) return <td key={name} className="p-5 text-center">-</td>;
-
-                  return (
-                    <td key={name} className="p-5 text-center">
-                      <div className="flex flex-col items-center gap-1">
-                        <span className={`font-mono text-xl font-bold ${
-                          playerScore.score < 0 ? 'text-danger-500' : 'text-success-500'
-                        }`}>
-                          {playerScore.score > 0 ? '+' : ''}{playerScore.score}
+            {rounds.map((round, idx) => {
+              const isExpanded = expandedRounds.has(round.roundNumber);
+              return (
+                <React.Fragment key={round.roundNumber}>
+                  <tr
+                    onClick={() => toggleRound(round.roundNumber)}
+                    className={`border-t border-gray-200 hover:bg-gray-100 cursor-pointer transition-colors ${idx === rounds.length - 1 && !isExpanded ? 'border-b-2 border-felt-400' : ''}`}
+                  >
+                    <td className="p-5 font-bold text-gray-700">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">
+                          {isExpanded ? '▼' : '▶'}
                         </span>
-                        <span className="text-xs text-gray-600">
-                          Bid: {playerScore.bid}
-                          {playerScore.blindBid && <span className="text-purple-600 font-bold ml-1">⚡</span>}
-                        </span>
+                        Round {round.roundNumber}
                       </div>
                     </td>
-                  );
-                })}
-              </tr>
-            ))}
+                    {players.map((name) => {
+                      const playerScore = round.scores.find(s => s.name === name);
+                      if (!playerScore) return <td key={name} className="p-5 text-center">-</td>;
+
+                      return (
+                        <td key={name} className="p-5 text-center">
+                          <span className={`font-mono text-xl font-bold ${
+                            playerScore.score < 0 ? 'text-danger-500' : 'text-success-500'
+                          }`}>
+                            {playerScore.score > 0 ? '+' : ''}{playerScore.score}
+                          </span>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                  {isExpanded && (
+                    <tr className={`bg-gray-50 ${idx === rounds.length - 1 ? 'border-b-2 border-felt-400' : ''}`}>
+                      <td className="px-5 pb-5 pt-2 text-sm text-gray-600">
+                        Details:
+                      </td>
+                      {players.map((name) => {
+                        const playerScore = round.scores.find(s => s.name === name);
+                        if (!playerScore) return <td key={name} className="px-5 pb-5 pt-2"></td>;
+
+                        return (
+                          <td key={name} className="px-5 pb-5 pt-2 text-center">
+                            <div className="text-xs text-gray-600 flex flex-col items-center gap-1">
+                              <div className="text-purple-600 font-bold min-h-[16px]">
+                                {playerScore.blindBid ? '⚡ BLIND' : '\u00A0'}
+                              </div>
+                              <div>
+                                Bid: {playerScore.bid}
+                                <span className={playerScore.met ? 'text-green-600' : 'text-red-600'}>
+                                  {playerScore.met ? ' ✓' : ' ✗'}
+                                </span>
+                              </div>
+                            </div>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  )}
+                </React.Fragment>
+              );
+            })}
             <tr className="bg-gradient-to-r from-felt-400 to-felt-300">
               <td className="p-5 font-bold text-white text-lg first:rounded-bl-xl">
                 TOTAL
@@ -88,9 +135,11 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
                     isWinner ? 'bg-gradient-to-br from-gold-500 to-orange-500' : ''
                   }`}>
                     <div className="flex flex-col items-center gap-1">
-                      {isWinner && <span className="text-2xl">👑</span>}
+                      <span className="text-2xl h-8">
+                        {isWinner ? '👑' : ''}
+                      </span>
                       <span className={`font-mono text-2xl font-bold ${
-                        isWinner ? 'text-white' : totals[name] < 0 ? 'text-danger-500' : 'text-white'
+                        totals[name] < 0 ? 'text-red-700' : 'text-green-700'
                       }`}>
                         {totals[name]}
                       </span>
