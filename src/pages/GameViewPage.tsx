@@ -113,7 +113,7 @@ export default function GameViewPage() {
     if (!setup) return;
 
     // Navigate to setup page with prefilled settings
-    navigate("/setup", { state: { setup } });
+    navigate("/", { state: { setup } });
   }
 
   // Show loading state

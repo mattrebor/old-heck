@@ -345,7 +345,7 @@ export default function GamePlayPage() {
     if (!setup) return;
 
     // Navigate to setup page with prefilled settings
-    navigate("/setup", { state: { setup } });
+    navigate("/", { state: { setup } });
   }
 
   // Check if setup can be edited (round 1, bidding phase, no bids entered)
