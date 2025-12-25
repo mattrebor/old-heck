@@ -13,12 +13,12 @@ jobs:
       name: prod
     steps:
       - name: Verify variable values
-        - run: echo "VITE_FIREBASE_API_KEY is: $VITE_FIREBASE_API_KEY"
-      - uses: actions/checkout@v4
-      - run: npm ci && npm run build
-      - uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_OHECK_CE403 }}
-          channelId: live
-          projectId: oheck-ce403
+        run: echo "VITE_FIREBASE_API_KEY is: |$VITE_FIREBASE_API_KEY|"
+      # - uses: actions/checkout@v4
+      # - run: npm ci && npm run build
+      # - uses: FirebaseExtended/action-hosting-deploy@v0
+      #   with:
+      #     repoToken: ${{ secrets.GITHUB_TOKEN }}
+      #     firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_OHECK_CE403 }}
+      #     channelId: live
+      #     projectId: oheck-ce403
