@@ -109,6 +109,9 @@ export default function GamePlayPage() {
   }
 
   function createNewRoundFromSetup(gameSetup: GameSetup, roundNumber: number): Round {
+    // Rotate the first bidder each round
+    const firstBidderIndex = (roundNumber - 1) % gameSetup.players.length;
+
     return {
       roundNumber,
       scores: gameSetup.players.map((name, index) => ({
@@ -120,6 +123,7 @@ export default function GamePlayPage() {
         score: 0,
         blindBid: false,
       })),
+      firstBidderIndex,
     };
   }
 

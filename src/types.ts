@@ -15,6 +15,7 @@ export type PlayerScore = {
 export type Round = {
   roundNumber: number;
   scores: PlayerScore[];
+  firstBidderIndex: number;
 };
 
 export type GameSetup = {

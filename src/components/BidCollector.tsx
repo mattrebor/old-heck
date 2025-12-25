@@ -245,12 +245,21 @@ export default function BidCollector({
       {round.scores.map((ps, i) => {
         if (blindBidDecisions[i]) return null; // Skip blind bidders
 
+        const isFirstBidder = i === round.firstBidderIndex;
+
         return (
           <div
             key={i}
             className="flex items-center justify-between mb-5 p-5 bg-white rounded-xl border-3 border-bid-300 hover:border-gold-500 hover:shadow-card transition-all"
           >
-            <PlayerAvatar name={ps.name} size="lg" showName={true} />
+            <div className="flex items-center gap-2">
+              <PlayerAvatar name={ps.name} size="lg" showName={true} />
+              {isFirstBidder && (
+                <span className="px-2 py-1 bg-blue-500 text-white rounded-lg text-xs font-bold">
+                  🎯 FIRST
+                </span>
+              )}
+            </div>
             <input
               type="number"
               min={0}
