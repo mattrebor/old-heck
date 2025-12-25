@@ -22,13 +22,27 @@ service cloud.firestore {
           && data.status in ['in_progress', 'completed'];
     }
 
+    // Helper function to check if setup can be edited
+    function canEditSetup() {
+      let oldData = resource.data;
+      // Can edit setup if:
+      // - No completed rounds yet (rounds array is empty)
+      // - Current round is round 1 (inProgressRound.roundNumber == 1)
+      // Frontend enforces additional check that no bids have been entered
+      return oldData.rounds.size() == 0
+          && oldData.get('inProgressRound', {}).get('roundNumber', 0) == 1;
+    }
+
     // Helper function to validate game update data
     function isValidGameUpdate() {
       let data = request.resource.data;
+      let setupChanged = data.setup != resource.data.setup;
+
       // Prevent changing the creator
+      // Allow setup changes only if canEditSetup() returns true
       return data.createdBy == resource.data.createdBy
-          && data.setup == resource.data.setup
-          && data.createdAt == resource.data.createdAt;
+          && data.createdAt == resource.data.createdAt
+          && (!setupChanged || canEditSetup());
     }
 
     // Games collection rules
