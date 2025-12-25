@@ -62,8 +62,8 @@ export default function GameSetupPage() {
       <div className="max-w-xl mx-auto p-6">
         <Header />
         <div className="bg-gradient-to-br from-felt-200 to-felt-300 rounded-2xl p-8 shadow-card-hover mb-8 border-4 border-felt-500">
-          <h2 className="text-3xl font-bold text-felt-600 mb-8 flex items-center gap-3">
-            <span className="text-5xl">🃏</span>
+          <h2 className="text-2xl sm:text-3xl font-bold text-felt-600 mb-6 sm:mb-8 flex items-center gap-2 sm:gap-3">
+            <span className="text-3xl sm:text-5xl">🃏</span>
             Set Up Your Game
           </h2>
           <div className="text-center py-12">
@@ -87,8 +87,8 @@ export default function GameSetupPage() {
       <Header />
 
       <div className="bg-gradient-to-br from-felt-200 to-felt-300 rounded-2xl p-8 shadow-card-hover mb-8 border-4 border-felt-500">
-        <h2 className="text-3xl font-bold text-felt-600 mb-8 flex items-center gap-3">
-          <span className="text-5xl">🃏</span>
+        <h2 className="text-2xl sm:text-3xl font-bold text-felt-600 mb-6 sm:mb-8 flex items-center gap-2 sm:gap-3">
+          <span className="text-3xl sm:text-5xl">🃏</span>
           Set Up Your Game
         </h2>
 

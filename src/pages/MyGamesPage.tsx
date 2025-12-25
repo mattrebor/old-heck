@@ -59,8 +59,8 @@ export default function MyGamesPage() {
       <Header />
 
       <div className="bg-gradient-to-br from-felt-300 to-felt-200 rounded-2xl p-6 mb-8 border-4 border-felt-500 shadow-card-hover">
-        <h2 className="text-3xl font-bold text-felt-600 mb-2 flex items-center gap-3">
-          <span className="text-4xl">🎮</span>
+        <h2 className="text-2xl sm:text-3xl font-bold text-felt-600 mb-2 flex items-center gap-2 sm:gap-3">
+          <span className="text-3xl sm:text-4xl">🎮</span>
           My Games
         </h2>
         <p className="text-gray-700">Games you've created</p>

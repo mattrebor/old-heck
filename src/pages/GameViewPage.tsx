@@ -130,8 +130,8 @@ export default function GameViewPage() {
       {/* Current Round - In Progress */}
       {currentRound && (
         <div className="border-4 border-blue-400 rounded-xl p-6 mb-6 bg-gradient-to-br from-blue-50 to-blue-100">
-          <h3 className="font-bold text-2xl mb-4 text-blue-700 flex items-center gap-3">
-            <span className="text-3xl">🎯</span>
+          <h3 className="font-bold text-xl sm:text-2xl mb-4 text-blue-700 flex items-center gap-2 sm:gap-3">
+            <span className="text-2xl sm:text-3xl">🎯</span>
             Round {currentRound.roundNumber} - In Progress
           </h3>
 

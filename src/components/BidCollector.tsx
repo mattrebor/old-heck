@@ -65,8 +65,8 @@ export default function BidCollector({
   if (biddingPhase === "blind-declaration-and-entry") {
     return (
       <div className="border-4 border-accent-500 rounded-2xl p-8 mb-8 bg-gradient-to-br from-purple-100 to-purple-200 shadow-card-hover">
-        <h3 className="font-bold text-3xl mb-6 text-purple-700 flex items-center gap-3">
-          <span className="text-4xl">👁️</span>
+        <h3 className="font-bold text-xl sm:text-2xl md:text-3xl mb-4 md:mb-6 text-purple-700 flex items-center gap-2 md:gap-3">
+          <span className="text-2xl sm:text-3xl md:text-4xl">👁️</span>
           Round {round.roundNumber} - Blind Bid Phase
         </h3>
         <p className="text-base text-purple-600 mb-6 font-semibold">
@@ -175,8 +175,8 @@ export default function BidCollector({
   // PHASE 2: Regular Bid Entry (non-blind bidders)
   return (
     <div className="border-4 border-bid-500 rounded-2xl p-8 mb-8 bg-gradient-to-br from-bid-100 to-bid-200 shadow-card-hover">
-      <h3 className="font-bold text-3xl mb-6 text-bid-700 flex items-center gap-3">
-        <span className="text-4xl">🎴</span>
+      <h3 className="font-bold text-xl sm:text-2xl md:text-3xl mb-4 md:mb-6 text-bid-700 flex items-center gap-2 md:gap-3">
+        <span className="text-2xl sm:text-3xl md:text-4xl">🎴</span>
         Round {round.roundNumber} - Place Your Bids
       </h3>
       <p className="text-base text-bid-600 mb-6 font-semibold">
