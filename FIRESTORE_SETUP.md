@@ -2,6 +2,8 @@
 
 This document explains how to set up and deploy Firestore indexes for the Old Heck application.
 
+> **See also**: [FIRESTORE_RULES.md](./FIRESTORE_RULES.md) for security rules configuration and deployment.
+
 ## Composite Indexes
 
 The application requires the following composite index for the "My Games" page:
