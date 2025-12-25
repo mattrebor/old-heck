@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
@@ -20,6 +20,13 @@ export default function GameViewPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [playersExpanded, setPlayersExpanded] = useState(false);
+
+  // Track previous values to detect changes
+  const prevRoundRef = useRef<Round | null>(null);
+  const prevPhaseRef = useRef<string | null>(null);
+  const [changedBids, setChangedBids] = useState<Set<number>>(new Set());
+  const [changedResults, setChangedResults] = useState<Set<number>>(new Set());
+  const [phaseChanged, setPhaseChanged] = useState(false);
 
   // Load game with real-time updates
   useEffect(() => {
@@ -60,6 +67,46 @@ export default function GameViewPage() {
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, [gameId]);
+
+  // Detect changes and trigger animations
+  useEffect(() => {
+    if (!currentRound || loading) return;
+
+    const newChangedBids = new Set<number>();
+    const newChangedResults = new Set<number>();
+
+    // Detect bid changes
+    if (prevRoundRef.current && prevRoundRef.current.roundNumber === currentRound.roundNumber) {
+      currentRound.scores.forEach((score, idx) => {
+        const prevScore = prevRoundRef.current?.scores[idx];
+        if (prevScore && prevScore.bid !== score.bid && score.bid >= 0) {
+          newChangedBids.add(idx);
+        }
+        if (prevScore && prevScore.tricks !== score.tricks && score.tricks >= 0) {
+          newChangedResults.add(idx);
+        }
+      });
+    }
+
+    // Detect phase change
+    if (prevPhaseRef.current !== currentPhase && currentPhase) {
+      setPhaseChanged(true);
+      setTimeout(() => setPhaseChanged(false), 2000);
+    }
+
+    if (newChangedBids.size > 0) {
+      setChangedBids(newChangedBids);
+      setTimeout(() => setChangedBids(new Set()), 2000);
+    }
+
+    if (newChangedResults.size > 0) {
+      setChangedResults(newChangedResults);
+      setTimeout(() => setChangedResults(new Set()), 2000);
+    }
+
+    prevRoundRef.current = currentRound;
+    prevPhaseRef.current = currentPhase;
+  }, [currentRound, currentPhase, loading]);
 
   // Show loading state
   if (loading) {
@@ -155,7 +202,9 @@ export default function GameViewPage() {
           </h3>
 
           {currentPhase && (
-            <div className="mb-4 p-3 bg-blue-200 rounded-lg border-2 border-blue-400">
+            <div className={`mb-4 p-3 bg-blue-200 rounded-lg border-2 border-blue-400 transition-all ${
+              phaseChanged ? "animate-pulse ring-4 ring-blue-400" : ""
+            }`}>
               <div className="text-sm font-bold text-blue-800">
                 Current Phase:{" "}
                 <span className="capitalize">
@@ -168,10 +217,17 @@ export default function GameViewPage() {
           )}
 
           <div className="space-y-3">
-            {currentRound.scores.map((ps, i) => (
+            {currentRound.scores.map((ps, i) => {
+              const hasBidChange = changedBids.has(i);
+              const hasResultChange = changedResults.has(i);
+              const hasAnyChange = hasBidChange || hasResultChange;
+
+              return (
               <div
                 key={i}
-                className="flex flex-wrap items-center gap-3 text-sm bg-white p-4 rounded-lg border-2 border-blue-200 justify-between"
+                className={`flex flex-wrap items-center gap-3 text-sm bg-white p-4 rounded-lg border-2 border-blue-200 justify-between transition-all ${
+                  hasAnyChange ? "animate-pulse ring-4 ring-yellow-400 shadow-lg" : ""
+                }`}
               >
                 <PlayerAvatar name={ps.name} size="md" showName={true} />
 
@@ -212,7 +268,8 @@ export default function GameViewPage() {
                   </>
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
