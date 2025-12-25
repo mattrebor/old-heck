@@ -119,7 +119,7 @@ export default function GameSetupPage() {
           {players.map((p, i) => {
             const isEmpty = p.trim() === "";
             return (
-              <div key={i} className="flex items-center gap-4 mb-4">
+              <div key={i} className="flex items-center gap-3 mb-4">
                 <PlayerAvatar name={p || "?"} size="lg" />
                 <input
                   value={p}
@@ -131,6 +131,15 @@ export default function GameSetupPage() {
                   } rounded-xl px-5 py-4 w-full text-lg font-semibold focus:outline-none focus:ring-4 transition-all bg-white`}
                   placeholder="Enter player name"
                 />
+                {players.length > 2 && (
+                  <button
+                    onClick={() => setPlayers(players.filter((_, idx) => idx !== i))}
+                    className="text-red-600 hover:text-red-700 font-bold text-xl px-2"
+                    title="Remove player"
+                  >
+                    ×
+                  </button>
+                )}
               </div>
             );
           })}
