@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { loadGame, updateGameRound, markGameComplete } from "../firebase";
 import type { GameSetup, Round } from "../types";
 import { calculateOldHeckScore } from "../scoring";
-import { assignSuit } from "../utils/suits";
 import Header from "../components/Header";
 import BidCollector from "../components/BidCollector";
 import RoundEditor from "../components/RoundEditor";
@@ -108,15 +107,17 @@ export default function GamePlayPage() {
     );
   }
 
-  function createNewRoundFromSetup(gameSetup: GameSetup, roundNumber: number): Round {
+  function createNewRoundFromSetup(
+    gameSetup: GameSetup,
+    roundNumber: number
+  ): Round {
     // Rotate the first bidder each round
     const firstBidderIndex = (roundNumber - 1) % gameSetup.players.length;
 
     return {
       roundNumber,
-      scores: gameSetup.players.map((name, index) => ({
+      scores: gameSetup.players.map((name, _index) => ({
         name,
-        suit: assignSuit(index),
         bid: -1, // -1 means bid not entered yet
         tricks: 0,
         met: false,
@@ -132,7 +133,11 @@ export default function GamePlayPage() {
     return createNewRoundFromSetup(setup, roundNumber);
   }
 
-  function handleUpdateBid(playerIndex: number, bid: number, blindBid: boolean) {
+  function handleUpdateBid(
+    playerIndex: number,
+    bid: number,
+    blindBid: boolean
+  ) {
     if (!currentRound) return;
 
     const updatedScores = currentRound.scores.map((ps, i) => {
@@ -298,7 +303,7 @@ export default function GamePlayPage() {
     completedRounds.length === 0 &&
     currentRound?.roundNumber === 1 &&
     currentPhase === "bidding" &&
-    currentRound?.scores.every(s => s.bid === -1);
+    currentRound?.scores.every((s) => s.bid === -1);
 
   function openEditSetup() {
     if (!setup) return;
@@ -317,8 +322,8 @@ export default function GamePlayPage() {
     if (!gameId || !setup) return;
 
     // Validate player names
-    const trimmedPlayers = editPlayers.map(p => p.trim());
-    if (trimmedPlayers.some(p => p === "")) {
+    const trimmedPlayers = editPlayers.map((p) => p.trim());
+    if (trimmedPlayers.some((p) => p === "")) {
       alert("All player names must be filled in.");
       return;
     }
@@ -419,7 +424,9 @@ export default function GamePlayPage() {
             </div>
             <div>
               <strong className="text-bid-700">Rounds:</strong>{" "}
-              <span className="text-gray-800">{completedRounds.length}/{setup.maxRounds}</span>
+              <span className="text-gray-800">
+                {completedRounds.length}/{setup.maxRounds}
+              </span>
             </div>
           </div>
           <div className="flex gap-3">
@@ -446,7 +453,7 @@ export default function GamePlayPage() {
             onClick={() => setPlayersExpanded(!playersExpanded)}
             className="flex items-center gap-2 text-sm font-semibold text-bid-700 hover:text-bid-800 transition-colors w-full"
           >
-            <span className="text-xs">{playersExpanded ? '▼' : '▶'}</span>
+            <span className="text-xs">{playersExpanded ? "▼" : "▶"}</span>
             <span>Players ({setup.players.length})</span>
           </button>
           {playersExpanded && (
@@ -495,18 +502,19 @@ export default function GamePlayPage() {
       {/* Running Totals */}
       {completedRounds.length > 0 && <Totals rounds={completedRounds} />}
 
-
       {/* Max rounds warning */}
       {nextRoundNumber > setup.maxRounds && !currentRound && (
         <div className="mt-6 bg-gradient-to-r from-green-100 to-green-200 border-3 border-green-500 rounded-xl p-5 text-base text-green-900 font-semibold">
-          🎉 Game complete! Maximum rounds ({setup.maxRounds}) reached. Game has been saved automatically.
+          🎉 Game complete! Maximum rounds ({setup.maxRounds}) reached. Game has
+          been saved automatically.
         </div>
       )}
 
       {/* In progress info */}
       {currentRound && currentPhase === "bidding" && (
         <div className="mt-6 bg-gradient-to-r from-bid-100 to-bid-200 border-3 border-bid-400 rounded-xl p-5 text-base text-bid-800 font-semibold">
-          ℹ️ Game will automatically continue to results phase once all bids are entered.
+          ℹ️ Game will automatically continue to results phase once all bids are
+          entered.
         </div>
       )}
       {currentRound && currentPhase === "results" && (
@@ -536,14 +544,18 @@ export default function GamePlayPage() {
                   min={1}
                   value={editDecks}
                   onChange={(e) =>
-                    setEditDecks(e.target.value === "" ? "" : Number(e.target.value))
+                    setEditDecks(
+                      e.target.value === "" ? "" : Number(e.target.value)
+                    )
                   }
                   className="border-3 border-felt-400 rounded-xl px-4 py-3 w-full text-lg font-semibold focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-500/30 transition-all bg-white"
                 />
               </label>
 
               <div>
-                <p className="text-base font-bold text-gray-800 mb-3">Players</p>
+                <p className="text-base font-bold text-gray-800 mb-3">
+                  Players
+                </p>
                 {editPlayers.map((p, i) => {
                   const isEmpty = p.trim() === "";
                   return (
@@ -560,7 +572,11 @@ export default function GamePlayPage() {
                       />
                       {editPlayers.length > 2 && (
                         <button
-                          onClick={() => setEditPlayers(editPlayers.filter((_, idx) => idx !== i))}
+                          onClick={() =>
+                            setEditPlayers(
+                              editPlayers.filter((_, idx) => idx !== i)
+                            )
+                          }
                           className="text-red-600 hover:text-red-700 font-bold text-xl px-2"
                           title="Remove player"
                         >
@@ -571,7 +587,12 @@ export default function GamePlayPage() {
                   );
                 })}
                 <button
-                  onClick={() => setEditPlayers([...editPlayers, `Player ${editPlayers.length + 1}`])}
+                  onClick={() =>
+                    setEditPlayers([
+                      ...editPlayers,
+                      `Player ${editPlayers.length + 1}`,
+                    ])
+                  }
                   className="text-bid-600 text-sm font-bold hover:text-bid-700 mt-2 px-3 py-2 hover:bg-white/50 rounded-lg transition-all"
                 >
                   + Add player
@@ -588,7 +609,12 @@ export default function GamePlayPage() {
               </button>
               <button
                 onClick={saveSetupChanges}
-                disabled={isSaving || editPlayers.some(p => p.trim() === "") || typeof editDecks !== "number" || editDecks < 1}
+                disabled={
+                  isSaving ||
+                  editPlayers.some((p) => p.trim() === "") ||
+                  typeof editDecks !== "number" ||
+                  editDecks < 1
+                }
                 className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-bold hover:from-blue-600 hover:to-blue-700 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed transition-all"
               >
                 {isSaving ? "Saving..." : "Save Changes"}
@@ -606,8 +632,9 @@ export default function GamePlayPage() {
               End Game Early?
             </h3>
             <p className="text-gray-700 mb-6">
-              Are you sure you want to end this game now? The game will be marked as
-              completed with the current scores. This action cannot be undone.
+              Are you sure you want to end this game now? The game will be
+              marked as completed with the current scores. This action cannot be
+              undone.
             </p>
             <div className="flex gap-3">
               <button

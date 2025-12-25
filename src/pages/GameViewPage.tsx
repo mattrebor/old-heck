@@ -4,9 +4,9 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../contexts/AuthContext";
 import type { Game, GameSetup, Round } from "../types";
-import { getSuitColor } from "../utils/suits";
 import Header from "../components/Header";
 import Totals from "../components/Totals";
+import PlayerAvatar from "../components/PlayerAvatar";
 
 export default function GameViewPage() {
   const { gameId } = useParams<{ gameId: string }>();
@@ -98,8 +98,12 @@ export default function GameViewPage() {
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm mb-2">
           <div className="font-semibold">
             <span className="text-blue-600">👁️</span>
-            <span className={`ml-1 ${gameStatus === 'completed' ? 'text-green-700' : 'text-blue-700'}`}>
-              {gameStatus === 'completed' ? '🎉 Complete' : 'Live'}
+            <span
+              className={`ml-1 ${
+                gameStatus === "completed" ? "text-green-700" : "text-blue-700"
+              }`}
+            >
+              {gameStatus === "completed" ? "🎉 Complete" : "Live"}
             </span>
           </div>
           <div>
@@ -108,7 +112,9 @@ export default function GameViewPage() {
           </div>
           <div>
             <strong className="text-bid-700">Rounds:</strong>{" "}
-            <span className="text-gray-800">{completedRounds.length}/{setup.maxRounds}</span>
+            <span className="text-gray-800">
+              {completedRounds.length}/{setup.maxRounds}
+            </span>
           </div>
         </div>
         <div className="border-t border-bid-300 pt-2">
@@ -116,7 +122,7 @@ export default function GameViewPage() {
             onClick={() => setPlayersExpanded(!playersExpanded)}
             className="flex items-center gap-2 text-sm font-semibold text-bid-700 hover:text-bid-800 transition-colors w-full"
           >
-            <span className="text-xs">{playersExpanded ? '▼' : '▶'}</span>
+            <span className="text-xs">{playersExpanded ? "▼" : "▶"}</span>
             <span>Players ({setup.players.length})</span>
           </button>
           {playersExpanded && (
@@ -152,12 +158,9 @@ export default function GameViewPage() {
             {currentRound.scores.map((ps, i) => (
               <div
                 key={i}
-                className="flex flex-wrap items-center gap-3 text-sm bg-white p-4 rounded-lg border-2 border-blue-200"
+                className="flex flex-wrap items-center gap-3 text-sm bg-white p-4 rounded-lg border-2 border-blue-200 justify-between"
               >
-                <span className={`text-2xl ${getSuitColor(ps.suit)}`}>
-                  {ps.suit}
-                </span>
-                <span className="font-medium min-w-[100px]">{ps.name}</span>
+                <PlayerAvatar name={ps.name} size="md" showName={true} />
                 {ps.blindBid && (
                   <span className="px-2 py-1 bg-purple-600 text-white rounded text-xs font-bold">
                     ⚡ BLIND
@@ -204,18 +207,20 @@ export default function GameViewPage() {
       {completedRounds.length > 0 && <Totals rounds={completedRounds} />}
 
       {/* Game Complete Message */}
-      {gameStatus === 'completed' && (
+      {gameStatus === "completed" && (
         <div className="mt-6 bg-gradient-to-r from-green-100 to-green-200 border-3 border-green-500 rounded-xl p-5 text-base text-green-900 font-semibold">
           🎉 Game complete! All rounds finished.
         </div>
       )}
 
       {/* Waiting for next round */}
-      {!currentRound && nextRoundNumber <= setup.maxRounds && gameStatus !== 'completed' && (
-        <div className="mt-6 bg-gradient-to-r from-yellow-100 to-yellow-200 border-3 border-yellow-500 rounded-xl p-5 text-base text-yellow-900 font-semibold">
-          ⏳ Waiting for round {nextRoundNumber} to start...
-        </div>
-      )}
+      {!currentRound &&
+        nextRoundNumber <= setup.maxRounds &&
+        gameStatus !== "completed" && (
+          <div className="mt-6 bg-gradient-to-r from-yellow-100 to-yellow-200 border-3 border-yellow-500 rounded-xl p-5 text-base text-yellow-900 font-semibold">
+            ⏳ Waiting for round {nextRoundNumber} to start...
+          </div>
+        )}
 
       {/* Action Buttons - Only show for authenticated users */}
       {user && (

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import type { Round, Suit } from "../types";
+import type { Round } from "../types";
 import PlayerAvatar from "./PlayerAvatar";
 
 export default function Totals({ rounds }: { rounds: Round[] }) {
@@ -9,11 +9,6 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
 
   // Get players from first round (maintains order)
   const players = rounds[0].scores.map((s) => s.name);
-  const playerSuits: Record<string, Suit> = {};
-
-  rounds[0].scores.forEach((s) => {
-    playerSuits[s.name] = s.suit;
-  });
 
   const toggleRound = (roundNumber: number) => {
     const newExpanded = new Set(expandedRounds);

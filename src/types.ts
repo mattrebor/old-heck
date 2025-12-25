@@ -1,10 +1,9 @@
 import type { Timestamp } from "firebase/firestore";
 
-export type Suit = '♠' | '♥' | '♦' | '♣';
+export type Suit = "♠" | "♥" | "♦" | "♣";
 
 export type PlayerScore = {
   name: string;
-  suit: Suit;
   bid: number;
   tricks: number;
   met: boolean;
@@ -28,7 +27,7 @@ export type Game = {
   id?: string;
   createdAt: Timestamp;
   updatedAt?: Timestamp;
-  status: 'in_progress' | 'completed';
+  status: "in_progress" | "completed";
   createdBy?: {
     uid: string;
     displayName: string | null;
@@ -37,5 +36,5 @@ export type Game = {
   setup: GameSetup;
   rounds: Round[];
   inProgressRound?: Round;
-  currentPhase?: 'bidding' | 'results' | 'completed';
+  currentPhase?: "bidding" | "results" | "completed";
 };
