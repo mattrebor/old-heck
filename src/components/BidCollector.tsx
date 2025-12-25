@@ -172,6 +172,19 @@ export default function BidCollector({
   }
 
   // PHASE 2: Regular Bid Entry (non-blind bidders)
+  // Create ordered list of player indices starting from firstBidderIndex
+  const playerIndices = Array.from({ length: round.scores.length }, (_, i) => i);
+  const orderedIndices = [
+    ...playerIndices.slice(round.firstBidderIndex),
+    ...playerIndices.slice(0, round.firstBidderIndex)
+  ];
+
+  // Find the next player who needs to bid (excluding blind bidders)
+  const nextBidderIndex = orderedIndices.find(idx => {
+    if (blindBidDecisions[idx]) return false; // Skip blind bidders
+    return round.scores[idx].bid === -1; // Find first player without a bid
+  });
+
   return (
     <div className="border-4 border-bid-500 rounded-2xl p-8 mb-8 bg-gradient-to-br from-bid-100 to-bid-200 shadow-card-hover">
       <h3 className="font-bold text-xl sm:text-2xl md:text-3xl mb-4 md:mb-6 text-bid-700 flex items-center gap-2 md:gap-3">
@@ -180,8 +193,8 @@ export default function BidCollector({
       </h3>
       <p className="text-base text-bid-600 mb-6 font-semibold">
         {hasBlindBidders
-          ? "Remaining players, enter your bids:"
-          : "Each player, enter how many books you bid to take:"}
+          ? "Remaining players, enter your bids in order:"
+          : "Enter your bids in order, starting with the first bidder:"}
       </p>
       <div className="mb-6 p-5 bg-bid-300 rounded-xl border-2 border-bid-500">
         <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 text-base text-white font-bold">
@@ -241,16 +254,26 @@ export default function BidCollector({
         </div>
       )}
 
-      {/* Show regular bidders (editable) */}
-      {round.scores.map((ps, i) => {
+      {/* Show regular bidders (in bidding order) */}
+      {orderedIndices.map((i) => {
         if (blindBidDecisions[i]) return null; // Skip blind bidders
 
+        const ps = round.scores[i];
         const isFirstBidder = i === round.firstBidderIndex;
+        const isCurrentBidder = i === nextBidderIndex;
+        const hasBid = ps.bid >= 0;
+        const canBid = isCurrentBidder || hasBid;
 
         return (
           <div
             key={i}
-            className="flex items-center justify-between mb-5 p-5 bg-white rounded-xl border-3 border-bid-300 hover:border-gold-500 hover:shadow-card transition-all"
+            className={`flex items-center justify-between mb-5 p-5 rounded-xl border-3 transition-all ${
+              isCurrentBidder
+                ? "bg-green-50 border-green-500 shadow-lg"
+                : hasBid
+                ? "bg-white border-bid-300"
+                : "bg-gray-50 border-gray-300 opacity-60"
+            }`}
           >
             <div className="flex items-center gap-2">
               <PlayerAvatar name={ps.name} size="lg" showName={true} />
@@ -259,12 +282,27 @@ export default function BidCollector({
                   🎯 FIRST
                 </span>
               )}
+              {isCurrentBidder && !hasBid && (
+                <span className="px-2 py-1 bg-green-600 text-white rounded-lg text-xs font-bold">
+                  👉 YOUR TURN
+                </span>
+              )}
+              {hasBid && (
+                <span className="px-2 py-1 bg-gray-500 text-white rounded-lg text-xs font-bold">
+                  ✓ BID
+                </span>
+              )}
             </div>
             <input
               type="number"
               min={0}
-              placeholder="Bid"
-              className="border-3 border-bid-400 rounded-xl px-5 py-3 w-28 text-center text-xl font-bold focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-500/30 bg-bid-50 transition-all"
+              placeholder={canBid ? "Bid" : "Wait"}
+              disabled={!canBid}
+              className={`border-3 rounded-xl px-5 py-3 w-28 text-center text-xl font-bold transition-all ${
+                canBid
+                  ? "border-bid-400 focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-500/30 bg-bid-50"
+                  : "border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed"
+              }`}
               value={ps.bid >= 0 ? ps.bid : ""}
               onChange={(e) =>
                 handleRegularBidChange(i, e.target.value === "" ? -1 : Number(e.target.value))
