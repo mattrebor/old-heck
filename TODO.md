@@ -11,9 +11,9 @@
 - ✅ (HIGH) fix avatar in horizontal score breakdown. it should show name below the avatar instead of next to it
 - ✅ (MEDIUM) save automatically when bids are entered
 - ✅ (HIGH) add intermediate score review phase between rounds with point deltas on mobile
+- ✅ (MEDIUM) add logout functionality
 
 ## Remaining
 
 - (MEDIUM) Show score breakdown at the top of the page when blind bid phase
 - (LOW) allow editing blind bid, bids and results
-- (MEDIUM) add logout functionality

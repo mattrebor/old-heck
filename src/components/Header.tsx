@@ -1,10 +1,21 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function Header() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  async function handleSignOut() {
+    try {
+      await signOut();
+      setMenuOpen(false);
+      navigate("/");
+    } catch (error) {
+      console.error("Failed to sign out:", error);
+    }
+  }
 
   return (
     <header className="mb-8 pb-6 border-b-4 border-felt-400">
@@ -29,6 +40,12 @@ export default function Header() {
               >
                 🎮 New Game
               </Link>
+              <button
+                onClick={handleSignOut}
+                className="px-4 py-3 bg-gradient-to-r from-gray-500 to-gray-400 text-white rounded-xl hover:from-gray-600 hover:to-gray-500 transition-all font-bold shadow-card hover:shadow-card-hover hover:scale-105 text-base whitespace-nowrap"
+              >
+                🚪 Sign Out
+              </button>
             </div>
 
             {/* Hamburger menu button - visible on small screens */}
@@ -81,6 +98,12 @@ export default function Header() {
           >
             🎮 New Game
           </Link>
+          <button
+            onClick={handleSignOut}
+            className="px-4 py-3 bg-gradient-to-r from-gray-500 to-gray-400 text-white rounded-xl hover:from-gray-600 hover:to-gray-500 transition-all font-bold shadow-card text-center"
+          >
+            🚪 Sign Out
+          </button>
         </div>
       )}
     </header>
