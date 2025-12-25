@@ -185,6 +185,9 @@ export default function GamePlayPage() {
     setCurrentRound(updatedRound);
     setCurrentPhase("results");
 
+    // Scroll to top when transitioning to results phase
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
     // Save to Firestore
     try {
       setIsSaving(true);
@@ -246,6 +249,8 @@ export default function GamePlayPage() {
 
       // Check if game is complete
       if (nextRoundNumber > setup.maxRounds) {
+        // Scroll to top to show game complete message
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         await markGameComplete(gameId);
       } else if (newCompletedRounds.length === 1) {
         // After round 1: Auto-start round 2 (skip score review)
@@ -253,6 +258,9 @@ export default function GamePlayPage() {
         setCurrentRound(newRound);
         setCurrentPhase("bidding");
         setBiddingPhase("blind-declaration-and-entry");
+
+        // Scroll to top when auto-starting next round
+        window.scrollTo({ top: 0, behavior: 'smooth' });
 
         await updateGameRound(gameId, {
           inProgressRound: newRound,
@@ -262,6 +270,9 @@ export default function GamePlayPage() {
       } else {
         // After round 2+: Show score review phase
         setCurrentPhase("score-review");
+
+        // Scroll to top when entering score review phase
+        window.scrollTo({ top: 0, behavior: 'smooth' });
 
         await updateGameRound(gameId, {
           currentPhase: "score-review",
@@ -283,6 +294,9 @@ export default function GamePlayPage() {
     setCurrentRound(newRound);
     setCurrentPhase("bidding");
     setBiddingPhase("blind-declaration-and-entry");
+
+    // Scroll to top when starting next round
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
     try {
       setIsSaving(true);
