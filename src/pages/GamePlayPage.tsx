@@ -23,6 +23,7 @@ export default function GamePlayPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [playersExpanded, setPlayersExpanded] = useState(false);
+  const [showEndGameDialog, setShowEndGameDialog] = useState(false);
   const autoCompleteTimerRef = useRef<number | null>(null);
 
   // Load game from Firestore on mount
@@ -255,6 +256,35 @@ export default function GamePlayPage() {
     }
   }
 
+  async function handleEndGameEarly() {
+    if (!gameId) return;
+
+    try {
+      setIsSaving(true);
+
+      // If there's a current round in progress, we need to clear it
+      await updateGameRound(gameId, {
+        inProgressRound: undefined,
+        currentPhase: undefined,
+      });
+
+      // Mark the game as completed
+      await markGameComplete(gameId);
+
+      setShowEndGameDialog(false);
+
+      // Navigate to view page after a brief delay
+      setTimeout(() => {
+        navigate(`/game/${gameId}/view`);
+      }, 500);
+    } catch (error) {
+      console.error("Error ending game:", error);
+      alert("Failed to end game. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
   const nextRoundNumber = completedRounds.length + 1;
 
   return (
@@ -298,15 +328,25 @@ export default function GamePlayPage() {
 
       {/* Game Info - Compact */}
       <div className="bg-gradient-to-r from-bid-100 to-accent-500/20 border-2 border-bid-400 rounded-lg p-3 mb-4 shadow-card">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm mb-2">
-          <div>
-            <strong className="text-bid-700">Decks:</strong>{" "}
-            <span className="text-gray-800">{setup.decks}</span>
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-sm mb-2">
+          <div className="flex flex-wrap gap-x-4 gap-y-1">
+            <div>
+              <strong className="text-bid-700">Decks:</strong>{" "}
+              <span className="text-gray-800">{setup.decks}</span>
+            </div>
+            <div>
+              <strong className="text-bid-700">Rounds:</strong>{" "}
+              <span className="text-gray-800">{completedRounds.length}/{setup.maxRounds}</span>
+            </div>
           </div>
-          <div>
-            <strong className="text-bid-700">Rounds:</strong>{" "}
-            <span className="text-gray-800">{completedRounds.length}/{setup.maxRounds}</span>
-          </div>
+          {nextRoundNumber <= setup.maxRounds && (
+            <button
+              onClick={() => setShowEndGameDialog(true)}
+              className="text-xs font-semibold text-red-600 hover:text-red-700 hover:underline transition-colors"
+            >
+              End Game Early
+            </button>
+          )}
         </div>
         <div className="border-t border-bid-300 pt-2">
           <button
@@ -379,6 +419,36 @@ export default function GamePlayPage() {
       {currentRound && currentPhase === "results" && (
         <div className="mt-6 bg-gradient-to-r from-felt-100 to-felt-200 border-3 border-felt-400 rounded-xl p-5 text-base text-felt-600 font-semibold">
           ℹ️ Next round will start automatically after completing this one.
+        </div>
+      )}
+
+      {/* End Game Early Confirmation Dialog */}
+      {showEndGameDialog && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl">
+            <h3 className="text-2xl font-bold text-gray-800 mb-4">
+              End Game Early?
+            </h3>
+            <p className="text-gray-700 mb-6">
+              Are you sure you want to end this game now? The game will be marked as
+              completed with the current scores. This action cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowEndGameDialog(false)}
+                className="flex-1 px-6 py-3 bg-gray-200 text-gray-800 rounded-xl font-bold hover:bg-gray-300 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleEndGameEarly}
+                disabled={isSaving}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-bold hover:from-red-600 hover:to-red-700 disabled:from-gray-400 disabled:to-gray-400 transition-all"
+              >
+                {isSaving ? "Ending..." : "End Game"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
