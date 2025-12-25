@@ -339,7 +339,7 @@ export default function GamePlayPage() {
               handleCompleteRound();
             }}
             disabled={!currentRound.scores.every((ps) => ps.tricks >= 0)}
-            className="mb-6 bg-gradient-to-r from-success-500 to-success-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:shadow-card-hover hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all w-full"
+            className="mb-6 bg-gradient-to-r from-success-500 to-success-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:shadow-card-hover hover:scale-105 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all w-full"
           >
             Complete Round Now
           </button>

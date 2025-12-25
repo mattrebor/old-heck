@@ -143,7 +143,7 @@ export default function BidCollector({
         <button
           onClick={proceedToRegularBidding}
           disabled={!allBlindBidsEntered}
-          className="w-full bg-gradient-to-r from-purple-600 to-purple-400 text-white px-6 py-4 rounded-xl text-lg font-bold shadow-card-hover hover:shadow-2xl hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all"
+          className="w-full bg-gradient-to-r from-purple-600 to-purple-400 text-white px-6 py-4 rounded-xl text-lg font-bold shadow-card-hover hover:shadow-2xl hover:scale-105 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all"
         >
           {allBlindBidsEntered
             ? "Continue to Regular Bidding →"
@@ -249,7 +249,7 @@ export default function BidCollector({
       <button
         onClick={onComplete}
         disabled={!canProceed}
-        className="mt-6 bg-gradient-to-r from-bid-600 to-bid-400 text-white px-8 py-5 rounded-xl text-xl font-bold shadow-card-hover hover:shadow-2xl hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all w-full"
+        className="mt-6 bg-gradient-to-r from-bid-600 to-bid-400 text-white px-8 py-5 rounded-xl text-xl font-bold shadow-card-hover hover:shadow-2xl hover:scale-105 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all w-full"
       >
         {!allBidsEntered
           ? "Enter all bids to continue"
