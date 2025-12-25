@@ -9,4 +9,6 @@ jobs:
     environment: prod # Links to the "staging" environment settings
     steps:
         - name: Verify variable value
-          run: echo "VITE_FIREBASE_API_KEY is $VITE_FIREBASE_API_KEY"
+          run: echo "VITE_FIREBASE_API_KEY2 is $VITE_FIREBASE_API_KEY2"
+          env:
+            VITE_FIREBASE_API_KEY2: ${{ vars.VITE_FIREBASE_API_KEY }}
