@@ -23,11 +23,18 @@ export default function GameSetupPage() {
     // User is guaranteed to be authenticated at this point
     if (!user) return;
 
+    // Validate that all player names are non-empty after trimming
+    const trimmedPlayers = players.map(p => p.trim());
+    if (trimmedPlayers.some(p => p === "")) {
+      alert("All player names must be filled in. Please provide names for all players.");
+      return;
+    }
+
     const deckCount = typeof decks === "number" ? decks : 1;
 
     const setup: GameSetup = {
       decks: deckCount,
-      players,
+      players: trimmedPlayers,
       maxRounds: calculateMaxRounds(deckCount, players.length),
     };
 
@@ -109,16 +116,24 @@ export default function GameSetupPage() {
 
         <div className="mb-8">
           <p className="text-base font-bold text-gray-800 mb-4">Players</p>
-          {players.map((p, i) => (
-            <div key={i} className="flex items-center gap-4 mb-4">
-              <PlayerAvatar name={p} size="lg" />
-              <input
-                value={p}
-                onChange={(e) => updatePlayer(i, e.target.value)}
-                className="border-3 border-felt-400 rounded-xl px-5 py-4 w-full text-lg font-semibold focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-500/30 transition-all bg-white"
-              />
-            </div>
-          ))}
+          {players.map((p, i) => {
+            const isEmpty = p.trim() === "";
+            return (
+              <div key={i} className="flex items-center gap-4 mb-4">
+                <PlayerAvatar name={p || "?"} size="lg" />
+                <input
+                  value={p}
+                  onChange={(e) => updatePlayer(i, e.target.value)}
+                  className={`border-3 ${
+                    isEmpty
+                      ? "border-red-400 focus:border-red-500 focus:ring-red-500/30"
+                      : "border-felt-400 focus:border-gold-500 focus:ring-gold-500/30"
+                  } rounded-xl px-5 py-4 w-full text-lg font-semibold focus:outline-none focus:ring-4 transition-all bg-white`}
+                  placeholder="Enter player name"
+                />
+              </div>
+            );
+          })}
           <button
             onClick={() =>
               setPlayers([...players, `Player ${players.length + 1}`])
@@ -131,7 +146,8 @@ export default function GameSetupPage() {
 
         <button
           onClick={startGame}
-          className="bg-gradient-to-r from-felt-500 to-felt-400 text-white px-8 py-5 rounded-xl text-xl font-bold shadow-card-hover hover:shadow-2xl hover:scale-105 transition-all w-full"
+          disabled={players.some(p => p.trim() === "") || typeof decks !== "number" || decks < 1}
+          className="bg-gradient-to-r from-felt-500 to-felt-400 text-white px-8 py-5 rounded-xl text-xl font-bold shadow-card-hover hover:shadow-2xl hover:scale-105 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all w-full"
         >
           🎮 Start Game
         </button>
