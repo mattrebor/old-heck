@@ -11,12 +11,20 @@ export default function Header() {
         Old Heck
       </h1>
       {user && (
-        <Link
-          to="/"
-          className="px-3 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-bid-600 to-bid-400 text-white rounded-xl hover:from-bid-700 hover:to-bid-500 transition-all font-bold shadow-card hover:shadow-card-hover hover:scale-105 text-sm sm:text-lg whitespace-nowrap"
-        >
-          🎮 New Game
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            to="/my-games"
+            className="px-3 py-2 sm:px-4 sm:py-3 bg-gradient-to-r from-felt-500 to-felt-400 text-white rounded-xl hover:from-felt-600 hover:to-felt-500 transition-all font-bold shadow-card hover:shadow-card-hover hover:scale-105 text-sm sm:text-base whitespace-nowrap"
+          >
+            📋 My Games
+          </Link>
+          <Link
+            to="/"
+            className="px-3 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-bid-600 to-bid-400 text-white rounded-xl hover:from-bid-700 hover:to-bid-500 transition-all font-bold shadow-card hover:shadow-card-hover hover:scale-105 text-sm sm:text-lg whitespace-nowrap"
+          >
+            🎮 New Game
+          </Link>
+        </div>
       )}
     </header>
   );
