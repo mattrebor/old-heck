@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import type { Round, Suit } from "../types";
-import { getSuitColor } from "../utils/suits";
 import PlayerAvatar from "./PlayerAvatar";
 
 export default function Totals({ rounds }: { rounds: Round[] }) {
@@ -9,10 +8,10 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
   if (rounds.length === 0) return null;
 
   // Get players from first round (maintains order)
-  const players = rounds[0].scores.map(s => s.name);
+  const players = rounds[0].scores.map((s) => s.name);
   const playerSuits: Record<string, Suit> = {};
 
-  rounds[0].scores.forEach(s => {
+  rounds[0].scores.forEach((s) => {
     playerSuits[s.name] = s.suit;
   });
 
@@ -56,16 +55,20 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
                 <div
                   key={name}
                   className={`flex items-center justify-between p-3 rounded-lg ${
-                    isWinner ? 'bg-gradient-to-br from-gold-500 to-orange-500' : 'bg-white/50'
+                    isWinner
+                      ? "bg-gradient-to-br from-gold-500 to-orange-500"
+                      : "bg-white/50"
                   }`}
                 >
                   <div className="flex items-center gap-2">
                     <PlayerAvatar name={name} size="md" showName={true} />
                     {isWinner && <span className="text-xl">👑</span>}
                   </div>
-                  <span className={`font-mono text-xl font-bold ${
-                    totals[name] < 0 ? 'text-red-700' : 'text-green-700'
-                  }`}>
+                  <span
+                    className={`font-mono text-xl font-bold ${
+                      totals[name] < 0 ? "text-red-700" : "text-green-700"
+                    }`}
+                  >
                     {totals[name]}
                   </span>
                 </div>
@@ -78,41 +81,68 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
         {rounds.map((round) => {
           const isExpanded = expandedRounds.has(round.roundNumber);
           return (
-            <div key={round.roundNumber} className="bg-white rounded-xl shadow-card overflow-hidden">
+            <div
+              key={round.roundNumber}
+              className="bg-white rounded-xl shadow-card overflow-hidden"
+            >
               <div
                 onClick={() => toggleRound(round.roundNumber)}
-                className={`bg-felt-500 text-white font-bold flex items-center justify-between cursor-pointer ${isExpanded ? 'p-4' : 'p-2'}`}
+                className={`bg-felt-500 text-white font-bold flex items-center justify-between cursor-pointer ${
+                  isExpanded ? "p-4" : "p-2"
+                }`}
               >
                 <span className="flex items-center gap-2">
-                  <span className={isExpanded ? 'text-base' : 'text-sm'}>{isExpanded ? '▼' : '▶'}</span>
-                  <span className={isExpanded ? 'text-base' : 'text-sm'}>Round {round.roundNumber}</span>
+                  <span className={isExpanded ? "text-base" : "text-sm"}>
+                    {isExpanded ? "▼" : "▶"}
+                  </span>
+                  <span className={isExpanded ? "text-base" : "text-sm"}>
+                    Round {round.roundNumber}
+                  </span>
                 </span>
               </div>
               {isExpanded ? (
                 <div className="p-4 space-y-3">
                   {players.map((name) => {
-                    const playerScore = round.scores.find(s => s.name === name);
+                    const playerScore = round.scores.find(
+                      (s) => s.name === name
+                    );
                     if (!playerScore) return null;
 
                     return (
-                      <div key={name} className="flex items-center justify-between pb-3 border-b last:border-b-0 border-gray-200">
+                      <div
+                        key={name}
+                        className="flex items-center justify-between pb-3 border-b last:border-b-0 border-gray-200"
+                      >
                         <PlayerAvatar name={name} size="md" showName={true} />
                         <div className="flex items-center gap-3">
                           <div className="text-xs text-gray-600 flex flex-col items-end gap-1">
                             {playerScore.blindBid && (
-                              <div className="text-purple-600 font-bold">⚡ BLIND</div>
+                              <div className="text-purple-600 font-bold">
+                                ⚡ BLIND
+                              </div>
                             )}
                             <div>
                               Bid: {playerScore.bid}
-                              <span className={playerScore.met ? 'text-green-600' : 'text-red-600'}>
-                                {playerScore.met ? ' ✓' : ' ✗'}
+                              <span
+                                className={
+                                  playerScore.met
+                                    ? "text-green-600"
+                                    : "text-red-600"
+                                }
+                              >
+                                {playerScore.met ? " ✓" : " ✗"}
                               </span>
                             </div>
                           </div>
-                          <span className={`font-mono text-lg font-bold ${
-                            playerScore.score < 0 ? 'text-danger-500' : 'text-success-500'
-                          }`}>
-                            {playerScore.score > 0 ? '+' : ''}{playerScore.score}
+                          <span
+                            className={`font-mono text-lg font-bold ${
+                              playerScore.score < 0
+                                ? "text-danger-500"
+                                : "text-success-500"
+                            }`}
+                          >
+                            {playerScore.score > 0 ? "+" : ""}
+                            {playerScore.score}
                           </span>
                         </div>
                       </div>
@@ -123,16 +153,26 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
                 <div className="px-3 py-2 overflow-x-auto">
                   <div className="flex items-center gap-3 min-w-max">
                     {players.map((name) => {
-                      const playerScore = round.scores.find(s => s.name === name);
+                      const playerScore = round.scores.find(
+                        (s) => s.name === name
+                      );
                       if (!playerScore) return null;
 
                       return (
-                        <div key={name} className="flex flex-col items-center gap-1 flex-shrink-0">
+                        <div
+                          key={name}
+                          className="flex flex-col items-center gap-1 flex-shrink-0"
+                        >
                           <PlayerAvatar name={name} size="sm" />
-                          <span className={`font-mono text-sm font-bold ${
-                            playerScore.score < 0 ? 'text-danger-500' : 'text-success-500'
-                          }`}>
-                            {playerScore.score > 0 ? '+' : ''}{playerScore.score}
+                          <span
+                            className={`font-mono text-sm font-bold ${
+                              playerScore.score < 0
+                                ? "text-danger-500"
+                                : "text-success-500"
+                            }`}
+                          >
+                            {playerScore.score > 0 ? "+" : ""}
+                            {playerScore.score}
                           </span>
                         </div>
                       );
@@ -154,12 +194,12 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
                 Round
               </th>
               {players.map((name) => (
-                <th key={name} className="p-5 text-center font-bold text-lg last:rounded-tr-xl">
+                <th
+                  key={name}
+                  className="p-5 text-center font-bold text-lg last:rounded-tr-xl"
+                >
                   <div className="flex flex-col items-center gap-2">
-                    <span className={`text-3xl ${getSuitColor(playerSuits[name])}`}>
-                      {playerSuits[name]}
-                    </span>
-                    <span className="text-gray-900">{name}</span>
+                    <PlayerAvatar name={name} size="md" showName={true} />
                   </div>
                 </th>
               ))}
@@ -172,52 +212,101 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
                 <React.Fragment key={round.roundNumber}>
                   <tr
                     onClick={() => toggleRound(round.roundNumber)}
-                    className={`border-t border-gray-200 hover:bg-gray-100 cursor-pointer transition-colors ${idx === rounds.length - 1 && !isExpanded ? 'border-b-2 border-felt-400' : ''}`}
+                    className={`border-t border-gray-200 hover:bg-gray-100 cursor-pointer transition-colors ${
+                      idx === rounds.length - 1 && !isExpanded
+                        ? "border-b-2 border-felt-400"
+                        : ""
+                    }`}
                   >
-                    <td className={`font-bold text-gray-700 ${isExpanded ? 'p-5' : 'py-2 px-3'}`}>
+                    <td
+                      className={`font-bold text-gray-700 ${
+                        isExpanded ? "p-5" : "py-2 px-3"
+                      }`}
+                    >
                       <div className="flex items-center gap-2">
-                        <span className={isExpanded ? 'text-lg' : 'text-sm'}>
-                          {isExpanded ? '▼' : '▶'}
+                        <span className={isExpanded ? "text-lg" : "text-sm"}>
+                          {isExpanded ? "▼" : "▶"}
                         </span>
-                        <span className={isExpanded ? 'text-base' : 'text-sm'}>
+                        <span className={isExpanded ? "text-base" : "text-sm"}>
                           Round {round.roundNumber}
                         </span>
                       </div>
                     </td>
                     {players.map((name) => {
-                      const playerScore = round.scores.find(s => s.name === name);
-                      if (!playerScore) return <td key={name} className={`text-center ${isExpanded ? 'p-5' : 'py-2 px-3'}`}>-</td>;
+                      const playerScore = round.scores.find(
+                        (s) => s.name === name
+                      );
+                      if (!playerScore)
+                        return (
+                          <td
+                            key={name}
+                            className={`text-center ${
+                              isExpanded ? "p-5" : "py-2 px-3"
+                            }`}
+                          >
+                            -
+                          </td>
+                        );
 
                       return (
-                        <td key={name} className={`text-center ${isExpanded ? 'p-5' : 'py-2 px-3'}`}>
-                          <span className={`font-mono font-bold ${isExpanded ? 'text-xl' : 'text-sm'} ${
-                            playerScore.score < 0 ? 'text-danger-500' : 'text-success-500'
-                          }`}>
-                            {playerScore.score > 0 ? '+' : ''}{playerScore.score}
+                        <td
+                          key={name}
+                          className={`text-center ${
+                            isExpanded ? "p-5" : "py-2 px-3"
+                          }`}
+                        >
+                          <span
+                            className={`font-mono font-bold ${
+                              isExpanded ? "text-xl" : "text-sm"
+                            } ${
+                              playerScore.score < 0
+                                ? "text-danger-500"
+                                : "text-success-500"
+                            }`}
+                          >
+                            {playerScore.score > 0 ? "+" : ""}
+                            {playerScore.score}
                           </span>
                         </td>
                       );
                     })}
                   </tr>
                   {isExpanded && (
-                    <tr className={`bg-gray-50 ${idx === rounds.length - 1 ? 'border-b-2 border-felt-400' : ''}`}>
+                    <tr
+                      className={`bg-gray-50 ${
+                        idx === rounds.length - 1
+                          ? "border-b-2 border-felt-400"
+                          : ""
+                      }`}
+                    >
                       <td className="px-5 pb-5 pt-2 text-sm text-gray-600">
                         Details:
                       </td>
                       {players.map((name) => {
-                        const playerScore = round.scores.find(s => s.name === name);
-                        if (!playerScore) return <td key={name} className="px-5 pb-5 pt-2"></td>;
+                        const playerScore = round.scores.find(
+                          (s) => s.name === name
+                        );
+                        if (!playerScore)
+                          return (
+                            <td key={name} className="px-5 pb-5 pt-2"></td>
+                          );
 
                         return (
                           <td key={name} className="px-5 pb-5 pt-2 text-center">
                             <div className="text-xs text-gray-600 flex flex-col items-center gap-1">
                               <div className="text-purple-600 font-bold min-h-[16px]">
-                                {playerScore.blindBid ? '⚡ BLIND' : '\u00A0'}
+                                {playerScore.blindBid ? "⚡ BLIND" : "\u00A0"}
                               </div>
                               <div>
                                 Bid: {playerScore.bid}
-                                <span className={playerScore.met ? 'text-green-600' : 'text-red-600'}>
-                                  {playerScore.met ? ' ✓' : ' ✗'}
+                                <span
+                                  className={
+                                    playerScore.met
+                                      ? "text-green-600"
+                                      : "text-red-600"
+                                  }
+                                >
+                                  {playerScore.met ? " ✓" : " ✗"}
                                 </span>
                               </div>
                             </div>
@@ -236,16 +325,23 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
               {players.map((name) => {
                 const isWinner = totals[name] === maxScore;
                 return (
-                  <td key={name} className={`p-5 text-center last:rounded-br-xl ${
-                    isWinner ? 'bg-gradient-to-br from-gold-500 to-orange-500' : ''
-                  }`}>
+                  <td
+                    key={name}
+                    className={`p-5 text-center last:rounded-br-xl ${
+                      isWinner
+                        ? "bg-gradient-to-br from-gold-500 to-orange-500"
+                        : ""
+                    }`}
+                  >
                     <div className="flex flex-col items-center gap-1">
                       <span className="text-2xl h-8">
-                        {isWinner ? '👑' : ''}
+                        {isWinner ? "👑" : ""}
                       </span>
-                      <span className={`font-mono text-2xl font-bold ${
-                        totals[name] < 0 ? 'text-red-700' : 'text-green-700'
-                      }`}>
+                      <span
+                        className={`font-mono text-2xl font-bold ${
+                          totals[name] < 0 ? "text-red-700" : "text-green-700"
+                        }`}
+                      >
                         {totals[name]}
                       </span>
                     </div>
