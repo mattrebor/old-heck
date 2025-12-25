@@ -92,39 +92,27 @@ export default function GameViewPage() {
     <div className="max-w-4xl mx-auto p-6">
       <Header />
 
-      {/* View-only indicator */}
-      <div className="mb-4 bg-gradient-to-r from-blue-100 to-blue-200 border-2 border-blue-400 rounded-xl p-4 text-center">
-        <div className="text-lg font-bold text-blue-800 mb-1">
-          👁️ View-Only Mode - Live Updates
-        </div>
-        <div className="text-sm text-blue-700">
-          This page updates automatically as the game progresses
-        </div>
-      </div>
-
-      {/* Game Info */}
-      <div className="bg-gradient-to-r from-bid-100 to-accent-500/20 border-3 border-bid-400 rounded-xl p-6 mb-8 shadow-card">
-        <div className="text-base font-semibold mb-2">
-          <strong className="text-bid-700">Players:</strong>{" "}
-          <span className="text-gray-800">{setup.players.join(", ")}</span>
-        </div>
-        <div className="text-base font-semibold mb-2">
-          <strong className="text-bid-700">Decks:</strong>{" "}
-          <span className="text-gray-800">{setup.decks}</span> ·{" "}
-          <strong className="text-bid-700">Max Rounds:</strong>{" "}
-          <span className="text-gray-800">{setup.maxRounds}</span>
-        </div>
-        <div className="text-base font-semibold mb-2">
-          <strong className="text-bid-700">Completed Rounds:</strong>{" "}
-          <span className="text-gray-800">
-            {completedRounds.length} / {setup.maxRounds}
-          </span>
-        </div>
-        <div className="text-base font-semibold">
-          <strong className="text-bid-700">Status:</strong>{" "}
-          <span className={`${gameStatus === 'completed' ? 'text-green-700' : 'text-blue-700'}`}>
-            {gameStatus === 'completed' ? '🎉 Complete' : '🎮 In Progress'}
-          </span>
+      {/* Game Info - Compact */}
+      <div className="bg-gradient-to-r from-bid-100 to-accent-500/20 border-2 border-bid-400 rounded-lg p-3 mb-4 shadow-card">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+          <div className="font-semibold">
+            <span className="text-blue-600">👁️</span>
+            <span className={`ml-1 ${gameStatus === 'completed' ? 'text-green-700' : 'text-blue-700'}`}>
+              {gameStatus === 'completed' ? '🎉 Complete' : 'Live'}
+            </span>
+          </div>
+          <div>
+            <strong className="text-bid-700">Players:</strong>{" "}
+            <span className="text-gray-800">{setup.players.join(", ")}</span>
+          </div>
+          <div>
+            <strong className="text-bid-700">Decks:</strong>{" "}
+            <span className="text-gray-800">{setup.decks}</span>
+          </div>
+          <div>
+            <strong className="text-bid-700">Rounds:</strong>{" "}
+            <span className="text-gray-800">{completedRounds.length}/{setup.maxRounds}</span>
+          </div>
         </div>
       </div>
 
@@ -220,10 +208,10 @@ export default function GameViewPage() {
 
       {/* Action Buttons - Only show for authenticated users */}
       {user && (
-        <div className="mt-8">
+        <div className="mt-6">
           <button
             onClick={() => navigator.clipboard.writeText(window.location.href)}
-            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:shadow-card-hover hover:scale-105 transition-all w-full"
+            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:shadow-card-hover hover:scale-105 transition-all w-full"
           >
             📋 Copy Link
           </button>

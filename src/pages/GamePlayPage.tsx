@@ -267,19 +267,17 @@ export default function GamePlayPage() {
         </div>
       )}
 
-      {/* View-only link */}
-      <div className="mb-4 bg-gradient-to-r from-purple-100 to-purple-200 border-2 border-purple-400 rounded-xl p-4">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">👁️</span>
-            <span className="text-sm font-semibold text-purple-800">
-              Share live view-only link with others
-            </span>
+      {/* View-only link - Compact */}
+      <div className="mb-3 bg-gradient-to-r from-purple-100 to-purple-200 border-2 border-purple-400 rounded-lg p-2">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-xs font-semibold text-purple-800">
+            <span>👁️</span>
+            <span>Share view-only link</span>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
             <button
               onClick={() => navigate(`/game/${gameId}/view`)}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all flex-1 sm:flex-none"
+              className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs font-bold transition-all flex-1 sm:flex-none"
             >
               Open View
             </button>
@@ -289,25 +287,29 @@ export default function GamePlayPage() {
                 navigator.clipboard.writeText(viewUrl);
                 alert("View-only link copied to clipboard!");
               }}
-              className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all flex-1 sm:flex-none"
+              className="bg-purple-500 hover:bg-purple-600 text-white px-3 py-1 rounded text-xs font-bold transition-all flex-1 sm:flex-none"
             >
-              📋 Copy Link
+              📋 Copy
             </button>
           </div>
         </div>
       </div>
 
-      <div className="bg-gradient-to-r from-bid-100 to-accent-500/20 border-3 border-bid-400 rounded-xl p-6 mb-8 shadow-card">
-        <div className="text-base font-semibold mb-2">
-          <strong className="text-bid-700">Players:</strong> <span className="text-gray-800">{setup.players.join(", ")}</span>
-        </div>
-        <div className="text-base font-semibold mb-2">
-          <strong className="text-bid-700">Decks:</strong> <span className="text-gray-800">{setup.decks}</span> · <strong className="text-bid-700">Max Rounds:</strong>{" "}
-          <span className="text-gray-800">{setup.maxRounds}</span>
-        </div>
-        <div className="text-base font-semibold">
-          <strong className="text-bid-700">Completed Rounds:</strong> <span className="text-gray-800">{completedRounds.length} /{" "}
-          {setup.maxRounds}</span>
+      {/* Game Info - Compact */}
+      <div className="bg-gradient-to-r from-bid-100 to-accent-500/20 border-2 border-bid-400 rounded-lg p-3 mb-4 shadow-card">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+          <div>
+            <strong className="text-bid-700">Players:</strong>{" "}
+            <span className="text-gray-800">{setup.players.join(", ")}</span>
+          </div>
+          <div>
+            <strong className="text-bid-700">Decks:</strong>{" "}
+            <span className="text-gray-800">{setup.decks}</span>
+          </div>
+          <div>
+            <strong className="text-bid-700">Rounds:</strong>{" "}
+            <span className="text-gray-800">{completedRounds.length}/{setup.maxRounds}</span>
+          </div>
         </div>
       </div>
 
