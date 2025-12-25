@@ -83,28 +83,28 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
             <div key={round.roundNumber} className="bg-white rounded-xl shadow-card overflow-hidden">
               <div
                 onClick={() => toggleRound(round.roundNumber)}
-                className="p-4 bg-felt-500 text-white font-bold flex items-center justify-between cursor-pointer"
+                className={`bg-felt-500 text-white font-bold flex items-center justify-between cursor-pointer ${isExpanded ? 'p-4' : 'p-2'}`}
               >
                 <span className="flex items-center gap-2">
-                  <span className="text-base">{isExpanded ? '▼' : '▶'}</span>
-                  Round {round.roundNumber}
+                  <span className={isExpanded ? 'text-base' : 'text-sm'}>{isExpanded ? '▼' : '▶'}</span>
+                  <span className={isExpanded ? 'text-base' : 'text-sm'}>Round {round.roundNumber}</span>
                 </span>
               </div>
-              <div className="p-4 space-y-3">
-                {players.map((name) => {
-                  const playerScore = round.scores.find(s => s.name === name);
-                  if (!playerScore) return null;
+              {isExpanded ? (
+                <div className="p-4 space-y-3">
+                  {players.map((name) => {
+                    const playerScore = round.scores.find(s => s.name === name);
+                    if (!playerScore) return null;
 
-                  return (
-                    <div key={name} className="flex items-center justify-between pb-3 border-b last:border-b-0 border-gray-200">
-                      <div className="flex items-center gap-2">
-                        <span className={`text-xl ${getSuitColor(playerSuits[name])}`}>
-                          {playerSuits[name]}
-                        </span>
-                        <span className="font-medium text-gray-700">{name}</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        {isExpanded && (
+                    return (
+                      <div key={name} className="flex items-center justify-between pb-3 border-b last:border-b-0 border-gray-200">
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xl ${getSuitColor(playerSuits[name])}`}>
+                            {playerSuits[name]}
+                          </span>
+                          <span className="font-medium text-gray-700">{name}</span>
+                        </div>
+                        <div className="flex items-center gap-3">
                           <div className="text-xs text-gray-600 flex flex-col items-end gap-1">
                             {playerScore.blindBid && (
                               <div className="text-purple-600 font-bold">⚡ BLIND</div>
@@ -116,17 +116,39 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
                               </span>
                             </div>
                           </div>
-                        )}
-                        <span className={`font-mono text-lg font-bold ${
-                          playerScore.score < 0 ? 'text-danger-500' : 'text-success-500'
-                        }`}>
-                          {playerScore.score > 0 ? '+' : ''}{playerScore.score}
-                        </span>
+                          <span className={`font-mono text-lg font-bold ${
+                            playerScore.score < 0 ? 'text-danger-500' : 'text-success-500'
+                          }`}>
+                            {playerScore.score > 0 ? '+' : ''}{playerScore.score}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="px-3 py-2">
+                  <div className="flex items-center justify-around gap-2 text-xs">
+                    {players.map((name) => {
+                      const playerScore = round.scores.find(s => s.name === name);
+                      if (!playerScore) return null;
+
+                      return (
+                        <div key={name} className="flex flex-col items-center gap-1">
+                          <span className={`text-base ${getSuitColor(playerSuits[name])}`}>
+                            {playerSuits[name]}
+                          </span>
+                          <span className={`font-mono text-sm font-bold ${
+                            playerScore.score < 0 ? 'text-danger-500' : 'text-success-500'
+                          }`}>
+                            {playerScore.score > 0 ? '+' : ''}{playerScore.score}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}
@@ -161,21 +183,23 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
                     onClick={() => toggleRound(round.roundNumber)}
                     className={`border-t border-gray-200 hover:bg-gray-100 cursor-pointer transition-colors ${idx === rounds.length - 1 && !isExpanded ? 'border-b-2 border-felt-400' : ''}`}
                   >
-                    <td className="p-5 font-bold text-gray-700">
+                    <td className={`font-bold text-gray-700 ${isExpanded ? 'p-5' : 'py-2 px-3'}`}>
                       <div className="flex items-center gap-2">
-                        <span className="text-lg">
+                        <span className={isExpanded ? 'text-lg' : 'text-sm'}>
                           {isExpanded ? '▼' : '▶'}
                         </span>
-                        Round {round.roundNumber}
+                        <span className={isExpanded ? 'text-base' : 'text-sm'}>
+                          Round {round.roundNumber}
+                        </span>
                       </div>
                     </td>
                     {players.map((name) => {
                       const playerScore = round.scores.find(s => s.name === name);
-                      if (!playerScore) return <td key={name} className="p-5 text-center">-</td>;
+                      if (!playerScore) return <td key={name} className={`text-center ${isExpanded ? 'p-5' : 'py-2 px-3'}`}>-</td>;
 
                       return (
-                        <td key={name} className="p-5 text-center">
-                          <span className={`font-mono text-xl font-bold ${
+                        <td key={name} className={`text-center ${isExpanded ? 'p-5' : 'py-2 px-3'}`}>
+                          <span className={`font-mono font-bold ${isExpanded ? 'text-xl' : 'text-sm'} ${
                             playerScore.score < 0 ? 'text-danger-500' : 'text-success-500'
                           }`}>
                             {playerScore.score > 0 ? '+' : ''}{playerScore.score}
