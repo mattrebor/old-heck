@@ -6,7 +6,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: staging # Links to the "staging" environment settings
+    environment: prod # Links to the "staging" environment settings
     steps:
         - name: Verify variable value
-          run: echo "MY_VARIABLE value is"
+          run: echo "VITE_FIREBASE_API_KEY is $VITE_FIREBASE_API_KEY"
