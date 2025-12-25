@@ -194,7 +194,8 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
                   className="p-5 text-center font-bold text-lg last:rounded-tr-xl"
                 >
                   <div className="flex flex-col items-center gap-2">
-                    <PlayerAvatar name={name} size="md" showName={true} />
+                    <PlayerAvatar name={name} size="md" />
+                    <span className="text-white text-sm">{name}</span>
                   </div>
                 </th>
               ))}
