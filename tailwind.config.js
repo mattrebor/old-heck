@@ -33,6 +33,12 @@ export default {
           500: "#10b981",
           600: "#34d399",
         },
+        // Danger colors
+        danger: {
+          50: "#fee2e2",
+          500: "#ef4444",
+          600: "#f87171",
+        },
         // Gold/accent colors
         gold: {
           500: "#f59e0b",
