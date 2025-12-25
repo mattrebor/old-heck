@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../contexts/AuthContext";
@@ -10,6 +10,7 @@ import PlayerAvatar from "../components/PlayerAvatar";
 
 export default function GameViewPage() {
   const { gameId } = useParams<{ gameId: string }>();
+  const navigate = useNavigate();
   const { user } = useAuth();
 
   const [setup, setSetup] = useState<GameSetup | null>(null);
@@ -107,6 +108,13 @@ export default function GameViewPage() {
     prevRoundRef.current = currentRound;
     prevPhaseRef.current = currentPhase;
   }, [currentRound, currentPhase, loading]);
+
+  function handleStartNewGameWithSameSettings() {
+    if (!setup) return;
+
+    // Navigate to setup page with prefilled settings
+    navigate("/setup", { state: { setup } });
+  }
 
   // Show loading state
   if (loading) {
@@ -279,8 +287,18 @@ export default function GameViewPage() {
 
       {/* Game Complete Message */}
       {gameStatus === "completed" && (
-        <div className="mt-6 bg-gradient-to-r from-green-100 to-green-200 border-3 border-green-500 rounded-xl p-5 text-base text-green-900 font-semibold">
-          🎉 Game complete! All rounds finished.
+        <div className="mt-6 space-y-4">
+          <div className="bg-gradient-to-r from-green-100 to-green-200 border-3 border-green-500 rounded-xl p-5 text-base text-green-900 font-semibold">
+            🎉 Game complete! All rounds finished.
+          </div>
+          {user && (
+            <button
+              onClick={handleStartNewGameWithSameSettings}
+              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-4 rounded-xl text-xl font-bold hover:shadow-card-hover hover:scale-105 transition-all"
+            >
+              🎮 New Game with Same Settings
+            </button>
+          )}
         </div>
       )}
 

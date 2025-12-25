@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import Header from "../components/Header";
 import PlayerAvatar from "../components/PlayerAvatar";
@@ -9,10 +9,19 @@ import type { GameSetup } from "../types";
 
 export default function GameSetupPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, signInWithGoogle, loading } = useAuth();
-  const [decks, setDecks] = useState<number | "">(1);
-  const [players, setPlayers] = useState<string[]>(["Player 1", "Player 2"]);
-  const [firstPlayerIndex, setFirstPlayerIndex] = useState<number>(0);
+
+  // Check if we received prefill data from location state
+  const prefillSetup = location.state?.setup as GameSetup | undefined;
+
+  const [decks, setDecks] = useState<number | "">(prefillSetup?.decks ?? 1);
+  const [players, setPlayers] = useState<string[]>(
+    prefillSetup?.players ?? ["Player 1", "Player 2"]
+  );
+  const [firstPlayerIndex, setFirstPlayerIndex] = useState<number>(
+    prefillSetup?.firstPlayerIndex ?? 0
+  );
 
   function updatePlayer(index: number, name: string) {
     const copy = [...players];
