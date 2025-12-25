@@ -2,6 +2,9 @@ export default {
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
+      screens: {
+        'xs': '400px',
+      },
       fontFamily: {
         sans: ["Quicksand", "ui-sans-serif", "system-ui", "sans-serif"],
       },
