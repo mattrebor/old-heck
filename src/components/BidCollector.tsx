@@ -76,8 +76,31 @@ export default function BidCollector({
         </p>
 
         <div className="mb-6 p-5 bg-purple-300 rounded-xl border-2 border-purple-500">
-          <div className="text-base text-purple-900 font-bold">
-            <strong>Books available:</strong> {tricksAvailable}
+          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 text-base text-purple-900 font-bold">
+            <div>
+              <strong>Books available:</strong> {tricksAvailable}
+            </div>
+            <div>
+              <strong>Total bids:</strong>{" "}
+              <span
+                className={
+                  totalBids === tricksAvailable
+                    ? "px-2 py-1 bg-yellow-400 text-gray-900 rounded"
+                    : "px-2 py-1 bg-red-600 text-white rounded"
+                }
+              >
+                {totalBids}
+              </span>
+              {totalBids > tricksAvailable && (
+                <span className="ml-2 px-2 py-1 bg-red-600 text-white rounded">⚠ Over!</span>
+              )}
+              {totalBids < tricksAvailable && (
+                <span className="ml-2 px-2 py-1 bg-red-600 text-white rounded">⚠ Under!</span>
+              )}
+              {totalBids === tricksAvailable && (
+                <span className="ml-2 px-2 py-1 bg-yellow-400 text-gray-900 rounded">⚠ Equal!</span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -162,14 +185,31 @@ export default function BidCollector({
           : "Each player, enter how many books you bid to take:"}
       </p>
       <div className="mb-6 p-5 bg-bid-300 rounded-xl border-2 border-bid-500">
-        <div className="text-base text-white font-bold">
-          <strong>Books available:</strong> {tricksAvailable} ·
-          <strong className="ml-2">Total bids:</strong> {totalBids}
-          {allBidsEntered && bidsEqualTricks && (
-            <span className="ml-2 text-yellow-300 font-bold">
-              ⚠ Total bids cannot equal books available!
+        <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 text-base text-white font-bold">
+          <div>
+            <strong>Books available:</strong> {tricksAvailable}
+          </div>
+          <div>
+            <strong>Total bids:</strong>{" "}
+            <span
+              className={
+                totalBids === tricksAvailable
+                  ? "px-2 py-1 bg-yellow-400 text-gray-900 rounded"
+                  : "px-2 py-1 bg-red-600 text-white rounded"
+              }
+            >
+              {totalBids}
             </span>
-          )}
+            {totalBids > tricksAvailable && (
+              <span className="ml-2 px-2 py-1 bg-red-600 text-white rounded">⚠ Over!</span>
+            )}
+            {totalBids < tricksAvailable && (
+              <span className="ml-2 px-2 py-1 bg-red-600 text-white rounded">⚠ Under!</span>
+            )}
+            {totalBids === tricksAvailable && (
+              <span className="ml-2 px-2 py-1 bg-yellow-400 text-gray-900 rounded">⚠ Equal!</span>
+            )}
+          </div>
         </div>
       </div>
 
