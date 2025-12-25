@@ -104,58 +104,73 @@ export default function BidCollector({
         </div>
 
         <div className="space-y-4 mb-6">
-          {round.scores.map((ps, i) => (
-            <div
-              key={i}
-              className={`p-5 rounded-xl border-3 transition-all ${
-                blindBidDecisions[i]
-                  ? "bg-purple-200 border-purple-500"
-                  : "bg-white border-purple-300"
-              }`}
-            >
-              <div className="flex items-center justify-between mb-3 gap-4">
-                <div className="flex items-center gap-2">
-                  <PlayerAvatar name={ps.name} size="lg" showName={true} />
+          {round.scores.map((ps, i) => {
+            const bidTooHigh = blindBidDecisions[i] && ps.bid >= 0 && ps.bid > tricksAvailable;
+
+            return (
+              <div key={i}>
+                <div
+                  className={`p-5 rounded-xl border-3 transition-all ${
+                    blindBidDecisions[i]
+                      ? "bg-purple-200 border-purple-500"
+                      : "bg-white border-purple-300"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-3 gap-4">
+                    <div className="flex items-center gap-2">
+                      <PlayerAvatar name={ps.name} size="lg" showName={true} />
+                      {blindBidDecisions[i] && (
+                        <span className="px-3 py-1 bg-purple-600 text-white rounded-lg text-sm font-bold">
+                          ⚡ BLIND 2X
+                        </span>
+                      )}
+                      {bidTooHigh && (
+                        <span className="px-1.5 py-0.5 bg-orange-500 text-white rounded text-xs font-bold whitespace-nowrap">
+                          ⚠
+                        </span>
+                      )}
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <span className="text-base font-semibold text-gray-700">
+                          Blind Bid?
+                        </span>
+                        <input
+                          type="checkbox"
+                          checked={blindBidDecisions[i]}
+                          onChange={() => toggleBlindBid(i)}
+                          className="w-6 h-6 text-purple-600 rounded focus:ring-purple-500"
+                        />
+                      </label>
+                    </div>
+                  </div>
+
                   {blindBidDecisions[i] && (
-                    <span className="px-3 py-1 bg-purple-600 text-white rounded-lg text-sm font-bold">
-                      ⚡ BLIND 2X
-                    </span>
+                    <div className="flex items-center gap-6 mt-4 pt-4 border-t-2 border-purple-400">
+                      <span className="text-base font-semibold text-purple-700">
+                        Enter your blind bid:
+                      </span>
+                      <input
+                        type="number"
+                        min={0}
+                        placeholder="Blind Bid"
+                        className="border-3 border-purple-400 rounded-xl px-5 py-3 w-28 text-center text-xl font-bold focus:border-purple-600 focus:outline-none focus:ring-4 focus:ring-purple-600/30 bg-white transition-all"
+                        value={ps.bid >= 0 ? ps.bid : ""}
+                        onChange={(e) =>
+                          handleBlindBidChange(i, e.target.value === "" ? -1 : Number(e.target.value))
+                        }
+                      />
+                    </div>
                   )}
                 </div>
-                <div>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <span className="text-base font-semibold text-gray-700">
-                      Blind Bid?
-                    </span>
-                    <input
-                      type="checkbox"
-                      checked={blindBidDecisions[i]}
-                      onChange={() => toggleBlindBid(i)}
-                      className="w-6 h-6 text-purple-600 rounded focus:ring-purple-500"
-                    />
-                  </label>
-                </div>
+                {bidTooHigh && (
+                  <div className="mt-2 mb-2 px-3 py-2 bg-orange-100 border-2 border-orange-400 rounded-lg text-sm text-orange-800 font-semibold">
+                    ⚠ Warning: Bid ({ps.bid}) exceeds cards in hand ({tricksAvailable})
+                  </div>
+                )}
               </div>
-
-              {blindBidDecisions[i] && (
-                <div className="flex items-center gap-6 mt-4 pt-4 border-t-2 border-purple-400">
-                  <span className="text-base font-semibold text-purple-700">
-                    Enter your blind bid:
-                  </span>
-                  <input
-                    type="number"
-                    min={0}
-                    placeholder="Blind Bid"
-                    className="border-3 border-purple-400 rounded-xl px-5 py-3 w-28 text-center text-xl font-bold focus:border-purple-600 focus:outline-none focus:ring-4 focus:ring-purple-600/30 bg-white transition-all"
-                    value={ps.bid >= 0 ? ps.bid : ""}
-                    onChange={(e) =>
-                      handleBlindBidChange(i, e.target.value === "" ? -1 : Number(e.target.value))
-                    }
-                  />
-                </div>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <button
@@ -234,20 +249,33 @@ export default function BidCollector({
           {round.scores.map((ps, i) => {
             if (!blindBidDecisions[i]) return null;
 
+            const bidTooHigh = ps.bid > tricksAvailable;
+
             return (
-              <div
-                key={i}
-                className="flex items-center justify-between mb-3 p-4 bg-purple-100 rounded-xl border-2 border-purple-400"
-              >
-                <div className="flex items-center gap-2">
-                  <PlayerAvatar name={ps.name} size="md" showName={true} />
-                  <span className="px-2 py-1 bg-purple-600 text-white rounded text-xs font-bold">
-                    ⚡ BLIND
+              <div key={i}>
+                <div
+                  className="flex items-center justify-between mb-2 p-4 bg-purple-100 rounded-xl border-2 border-purple-400"
+                >
+                  <div className="flex items-center gap-2">
+                    <PlayerAvatar name={ps.name} size="md" showName={true} />
+                    <span className="px-2 py-1 bg-purple-600 text-white rounded text-xs font-bold">
+                      ⚡ BLIND
+                    </span>
+                    {bidTooHigh && (
+                      <span className="px-1.5 py-0.5 bg-orange-500 text-white rounded text-xs font-bold whitespace-nowrap">
+                        ⚠
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-xl font-bold text-purple-700">
+                    Bid: {ps.bid}
                   </span>
                 </div>
-                <span className="text-xl font-bold text-purple-700">
-                  Bid: {ps.bid}
-                </span>
+                {bidTooHigh && (
+                  <div className="mb-3 px-3 py-2 bg-orange-100 border-2 border-orange-400 rounded-lg text-sm text-orange-800 font-semibold">
+                    ⚠ Warning: Bid ({ps.bid}) exceeds cards in hand ({tricksAvailable})
+                  </div>
+                )}
               </div>
             );
           })}
@@ -263,51 +291,63 @@ export default function BidCollector({
         const isCurrentBidder = i === nextBidderIndex;
         const hasBid = ps.bid >= 0;
         const canBid = isCurrentBidder || hasBid;
+        const bidTooHigh = hasBid && ps.bid > tricksAvailable;
 
         return (
-          <div
-            key={i}
-            className={`flex items-center justify-between mb-5 p-5 rounded-xl border-3 transition-all ${
-              isCurrentBidder
-                ? "bg-green-50 border-green-500 shadow-lg"
-                : hasBid
-                ? "bg-white border-bid-300"
-                : "bg-gray-50 border-gray-300 opacity-60"
-            }`}
-          >
-            <div className="flex items-center gap-1 flex-1 min-w-0">
-              <PlayerAvatar name={ps.name} size="lg" showName={true} />
-              {isFirstBidder && (
-                <span className="px-1.5 py-0.5 bg-blue-500 text-white rounded text-xs font-bold whitespace-nowrap">
-                  🎯
-                </span>
-              )}
-              {isCurrentBidder && !hasBid && (
-                <span className="px-1.5 py-0.5 bg-green-600 text-white rounded text-xs font-bold whitespace-nowrap">
-                  👉
-                </span>
-              )}
-              {hasBid && (
-                <span className="px-1.5 py-0.5 bg-gray-500 text-white rounded text-xs font-bold whitespace-nowrap">
-                  ✓
-                </span>
-              )}
-            </div>
-            <input
-              type="number"
-              min={0}
-              placeholder={canBid ? "Bid" : "Wait"}
-              disabled={!canBid}
-              className={`border-3 rounded-xl px-3 py-3 w-20 text-center text-xl font-bold transition-all ${
-                canBid
-                  ? "border-bid-400 focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-500/30 bg-bid-50"
-                  : "border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed"
+          <div key={i}>
+            <div
+              className={`flex items-center justify-between mb-2 p-5 rounded-xl border-3 transition-all ${
+                isCurrentBidder
+                  ? "bg-green-50 border-green-500 shadow-lg"
+                  : hasBid
+                  ? "bg-white border-bid-300"
+                  : "bg-gray-50 border-gray-300 opacity-60"
               }`}
-              value={ps.bid >= 0 ? ps.bid : ""}
-              onChange={(e) =>
-                handleRegularBidChange(i, e.target.value === "" ? -1 : Number(e.target.value))
-              }
-            />
+            >
+              <div className="flex items-center gap-1 flex-1 min-w-0">
+                <PlayerAvatar name={ps.name} size="lg" showName={true} />
+                {isFirstBidder && (
+                  <span className="px-1.5 py-0.5 bg-blue-500 text-white rounded text-xs font-bold whitespace-nowrap">
+                    🎯
+                  </span>
+                )}
+                {isCurrentBidder && !hasBid && (
+                  <span className="px-1.5 py-0.5 bg-green-600 text-white rounded text-xs font-bold whitespace-nowrap">
+                    👉
+                  </span>
+                )}
+                {hasBid && !bidTooHigh && (
+                  <span className="px-1.5 py-0.5 bg-gray-500 text-white rounded text-xs font-bold whitespace-nowrap">
+                    ✓
+                  </span>
+                )}
+                {bidTooHigh && (
+                  <span className="px-1.5 py-0.5 bg-orange-500 text-white rounded text-xs font-bold whitespace-nowrap">
+                    ⚠
+                  </span>
+                )}
+              </div>
+              <input
+                type="number"
+                min={0}
+                placeholder={canBid ? "Bid" : "Wait"}
+                disabled={!canBid}
+                className={`border-3 rounded-xl px-3 py-3 w-20 text-center text-xl font-bold transition-all ${
+                  canBid
+                    ? "border-bid-400 focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-500/30 bg-bid-50"
+                    : "border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed"
+                }`}
+                value={ps.bid >= 0 ? ps.bid : ""}
+                onChange={(e) =>
+                  handleRegularBidChange(i, e.target.value === "" ? -1 : Number(e.target.value))
+                }
+              />
+            </div>
+            {bidTooHigh && (
+              <div className="mb-3 px-3 py-2 bg-orange-100 border-2 border-orange-400 rounded-lg text-sm text-orange-800 font-semibold">
+                ⚠ Warning: Bid ({ps.bid}) exceeds cards in hand ({tricksAvailable})
+              </div>
+            )}
           </div>
         );
       })}
