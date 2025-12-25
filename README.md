@@ -38,6 +38,7 @@ A modern, mobile-responsive scoring application for the card game "Old Heck" (al
 
 **Phase 3: Results** (Green Interface)
 - Simple "Made it" or "Missed it" selection for each player
+- **Auto-save**: Results save automatically as you enter them (500ms debounce)
 - Auto-completion after all players marked (1.5s delay)
 - Optional manual completion for immediate progression
 
@@ -255,17 +256,19 @@ The app provides a seamless flow with automatic progression between phases:
 
 1. Play the round physically with cards
 2. For each player, click "✅ Made it" or "❌ Missed it"
-3. Scores calculate automatically (2x for blind bids)
-4. Round auto-completes 1.5 seconds after all players marked
-5. Click "Complete Round Now" to skip the delay
-6. Next round starts automatically
-7. Repeat until max rounds reached
+3. **Results auto-save** as you enter them (500ms after last change)
+4. Scores calculate automatically (2x for blind bids)
+5. Round auto-completes 1.5 seconds after all players marked
+6. Click "Complete Round Now" to skip the delay
+7. Next round starts automatically
+8. Repeat until max rounds reached
 
 **Auto-Save Throughout**
 - **Bid entries**: Auto-save 500ms after last change (debounced for efficiency)
+- **Result entries**: Auto-save 500ms after marking Made it/Missed it
 - **Phase transitions**: Save immediately when moving between phases
 - **Bidding sub-phase**: Tracks whether you're in blind or regular bidding phase
-- **Browser refreshes**: Resume exactly where you left off, including partial bids
+- **Browser refreshes**: Resume exactly where you left off, including partial bids and results
 - **No manual save**: Everything persists automatically to Firestore
 - **Visual feedback**: "💾 Saving..." indicator shows when syncing to cloud
 
