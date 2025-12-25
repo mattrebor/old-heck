@@ -30,7 +30,6 @@ export default function GamePlayPage() {
   const [editPlayers, setEditPlayers] = useState<string[]>([]);
   const [editDecks, setEditDecks] = useState<number | "">(1);
   const [editFirstPlayerIndex, setEditFirstPlayerIndex] = useState<number>(0);
-  const autoCompleteTimerRef = useRef<number | null>(null);
 
   // Create debounced auto-save function for bid and result updates
   const debouncedSaveRef = useRef(
@@ -234,21 +233,6 @@ export default function GamePlayPage() {
 
     // Auto-save with debouncing
     debouncedSaveRef.current(gameId, updatedRound, "results");
-
-    // Clear any existing timer
-    if (autoCompleteTimerRef.current) {
-      clearTimeout(autoCompleteTimerRef.current);
-    }
-
-    // Auto-complete round when all players have answered
-    const allPlayersAnswered = updatedScores.every((ps) => ps.tricks >= 0);
-
-    if (allPlayersAnswered) {
-      autoCompleteTimerRef.current = window.setTimeout(() => {
-        handleCompleteRound();
-        autoCompleteTimerRef.current = null;
-      }, 1500); // Brief delay to review scores
-    }
   }
 
   async function handleCompleteRound() {
@@ -528,21 +512,15 @@ export default function GamePlayPage() {
           <RoundEditor round={currentRound} onUpdate={handleUpdateResult} />
           <div className="mb-6 p-5 bg-felt-100 border-2 border-felt-400 rounded-xl text-base text-gray-700 font-semibold">
             {currentRound.scores.every((ps) => ps.tricks >= 0)
-              ? "✅ All players marked! Round will auto-complete in a moment..."
-              : "⏳ Mark all players to continue. Round will auto-complete when done."}
+              ? "✅ All players marked! Click 'Complete Round' to continue."
+              : "⏳ Mark all players to continue."}
           </div>
           <button
-            onClick={() => {
-              if (autoCompleteTimerRef.current) {
-                clearTimeout(autoCompleteTimerRef.current);
-                autoCompleteTimerRef.current = null;
-              }
-              handleCompleteRound();
-            }}
+            onClick={handleCompleteRound}
             disabled={!currentRound.scores.every((ps) => ps.tricks >= 0)}
             className="mb-6 bg-gradient-to-r from-success-500 to-success-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:shadow-card-hover hover:scale-105 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all w-full"
           >
-            Complete Round Now
+            Complete Round
           </button>
         </div>
       )}
