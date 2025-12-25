@@ -37,13 +37,103 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
   const maxScore = Math.max(...Object.values(totals));
 
   return (
-    <div className="bg-gradient-to-br from-felt-300 to-felt-200 rounded-2xl p-8 mt-8 border-4 border-felt-500 shadow-card-hover">
-      <h3 className="font-bold text-3xl mb-6 text-felt-600 flex items-center gap-3">
-        <span className="text-4xl">📊</span>
+    <div className="bg-gradient-to-br from-felt-300 to-felt-200 rounded-2xl p-4 md:p-8 mt-8 border-4 border-felt-500 shadow-card-hover">
+      <h3 className="font-bold text-2xl md:text-3xl mb-4 md:mb-6 text-felt-600 flex items-center gap-2 md:gap-3">
+        <span className="text-3xl md:text-4xl">📊</span>
         Score Breakdown
       </h3>
 
-      <div className="overflow-x-auto bg-white rounded-xl shadow-card">
+      {/* Mobile vertical layout */}
+      <div className="md:hidden space-y-4">
+        {/* Totals first on mobile */}
+        <div className="bg-gradient-to-r from-felt-400 to-felt-300 rounded-xl p-4 shadow-card">
+          <h4 className="font-bold text-white text-lg mb-3">TOTAL SCORES</h4>
+          <div className="space-y-2">
+            {players.map((name) => {
+              const isWinner = totals[name] === maxScore;
+              return (
+                <div
+                  key={name}
+                  className={`flex items-center justify-between p-3 rounded-lg ${
+                    isWinner ? 'bg-gradient-to-br from-gold-500 to-orange-500' : 'bg-white/50'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className={`text-2xl ${getSuitColor(playerSuits[name])}`}>
+                      {playerSuits[name]}
+                    </span>
+                    <span className="font-semibold text-gray-900">{name}</span>
+                    {isWinner && <span className="text-xl">👑</span>}
+                  </div>
+                  <span className={`font-mono text-xl font-bold ${
+                    totals[name] < 0 ? 'text-red-700' : 'text-green-700'
+                  }`}>
+                    {totals[name]}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Rounds */}
+        {rounds.map((round) => {
+          const isExpanded = expandedRounds.has(round.roundNumber);
+          return (
+            <div key={round.roundNumber} className="bg-white rounded-xl shadow-card overflow-hidden">
+              <div
+                onClick={() => toggleRound(round.roundNumber)}
+                className="p-4 bg-felt-500 text-white font-bold flex items-center justify-between cursor-pointer"
+              >
+                <span className="flex items-center gap-2">
+                  <span className="text-base">{isExpanded ? '▼' : '▶'}</span>
+                  Round {round.roundNumber}
+                </span>
+              </div>
+              <div className="p-4 space-y-3">
+                {players.map((name) => {
+                  const playerScore = round.scores.find(s => s.name === name);
+                  if (!playerScore) return null;
+
+                  return (
+                    <div key={name} className="flex items-center justify-between pb-3 border-b last:border-b-0 border-gray-200">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xl ${getSuitColor(playerSuits[name])}`}>
+                          {playerSuits[name]}
+                        </span>
+                        <span className="font-medium text-gray-700">{name}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {isExpanded && (
+                          <div className="text-xs text-gray-600 flex flex-col items-end gap-1">
+                            {playerScore.blindBid && (
+                              <div className="text-purple-600 font-bold">⚡ BLIND</div>
+                            )}
+                            <div>
+                              Bid: {playerScore.bid}
+                              <span className={playerScore.met ? 'text-green-600' : 'text-red-600'}>
+                                {playerScore.met ? ' ✓' : ' ✗'}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                        <span className={`font-mono text-lg font-bold ${
+                          playerScore.score < 0 ? 'text-danger-500' : 'text-success-500'
+                        }`}>
+                          {playerScore.score > 0 ? '+' : ''}{playerScore.score}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Desktop/Tablet horizontal table */}
+      <div className="hidden md:block overflow-x-auto bg-white rounded-xl shadow-card">
         <table className="w-full">
           <thead>
             <tr className="bg-felt-500">
