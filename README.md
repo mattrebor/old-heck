@@ -217,9 +217,15 @@ Workflows are in `.github/workflows/`. Ensure you have:
 
 ### Authentication
 
+**Sign In:**
 1. Navigate to the home page
 2. Click "Sign in with Google" to authenticate
 3. Once signed in, you can create and manage games
+
+**Sign Out:**
+- Click the "🚪 Sign Out" button in the header navigation
+- Available on both desktop and mobile menu
+- Logs you out and returns you to the home page
 
 ### Starting a New Game
 
