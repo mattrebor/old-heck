@@ -22,6 +22,7 @@ export default function GamePlayPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [playersExpanded, setPlayersExpanded] = useState(false);
   const autoCompleteTimerRef = useRef<number | null>(null);
 
   // Load game from Firestore on mount
@@ -297,11 +298,7 @@ export default function GamePlayPage() {
 
       {/* Game Info - Compact */}
       <div className="bg-gradient-to-r from-bid-100 to-accent-500/20 border-2 border-bid-400 rounded-lg p-3 mb-4 shadow-card">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-          <div>
-            <strong className="text-bid-700">Players:</strong>{" "}
-            <span className="text-gray-800">{setup.players.join(", ")}</span>
-          </div>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm mb-2">
           <div>
             <strong className="text-bid-700">Decks:</strong>{" "}
             <span className="text-gray-800">{setup.decks}</span>
@@ -310,6 +307,20 @@ export default function GamePlayPage() {
             <strong className="text-bid-700">Rounds:</strong>{" "}
             <span className="text-gray-800">{completedRounds.length}/{setup.maxRounds}</span>
           </div>
+        </div>
+        <div className="border-t border-bid-300 pt-2">
+          <button
+            onClick={() => setPlayersExpanded(!playersExpanded)}
+            className="flex items-center gap-2 text-sm font-semibold text-bid-700 hover:text-bid-800 transition-colors w-full"
+          >
+            <span className="text-xs">{playersExpanded ? '▼' : '▶'}</span>
+            <span>Players ({setup.players.length})</span>
+          </button>
+          {playersExpanded && (
+            <div className="mt-2 text-sm text-gray-800 pl-5">
+              {setup.players.join(", ")}
+            </div>
+          )}
         </div>
       </div>
 
