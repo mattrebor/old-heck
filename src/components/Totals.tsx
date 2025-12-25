@@ -120,14 +120,14 @@ export default function Totals({ rounds }: { rounds: Round[] }) {
                   })}
                 </div>
               ) : (
-                <div className="px-3 py-2">
-                  <div className="flex items-center justify-around gap-2">
+                <div className="px-3 py-2 overflow-x-auto">
+                  <div className="flex items-center gap-3 min-w-max">
                     {players.map((name) => {
                       const playerScore = round.scores.find(s => s.name === name);
                       if (!playerScore) return null;
 
                       return (
-                        <div key={name} className="flex flex-col items-center gap-1">
+                        <div key={name} className="flex flex-col items-center gap-1 flex-shrink-0">
                           <PlayerAvatar name={name} size="sm" />
                           <span className={`font-mono text-sm font-bold ${
                             playerScore.score < 0 ? 'text-danger-500' : 'text-success-500'
