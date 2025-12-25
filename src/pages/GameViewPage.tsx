@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../contexts/AuthContext";
@@ -10,7 +10,6 @@ import Totals from "../components/Totals";
 
 export default function GameViewPage() {
   const { gameId } = useParams<{ gameId: string }>();
-  const navigate = useNavigate();
   const { user } = useAuth();
 
   const [setup, setSetup] = useState<GameSetup | null>(null);
@@ -25,6 +24,7 @@ export default function GameViewPage() {
   // Load game with real-time updates
   useEffect(() => {
     if (!gameId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setError("No game ID provided");
       setLoading(false);
       return;

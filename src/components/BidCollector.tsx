@@ -1,6 +1,5 @@
 import { useState } from "react";
 import type { Round } from "../types";
-import { getSuitColor } from "../utils/suits";
 import PlayerAvatar from "./PlayerAvatar";
 
 export default function BidCollector({
