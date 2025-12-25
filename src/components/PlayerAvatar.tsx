@@ -6,6 +6,20 @@ function getInitials(name: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
+// Use a set of vibrant, distinguishable colors
+const AVATAR_COLORS = [
+  '#EF4444', // red
+  '#F59E0B', // amber
+  '#10B981', // emerald
+  '#3B82F6', // blue
+  '#8B5CF6', // violet
+  '#EC4899', // pink
+  '#14B8A6', // teal
+  '#F97316', // orange
+  '#6366F1', // indigo
+  '#06B6D4', // cyan
+];
+
 function stringToColor(str: string): string {
   // Generate a consistent color based on the string
   let hash = 0;
@@ -13,35 +27,28 @@ function stringToColor(str: string): string {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
 
-  // Use a set of vibrant, distinguishable colors
-  const colors = [
-    '#EF4444', // red
-    '#F59E0B', // amber
-    '#10B981', // emerald
-    '#3B82F6', // blue
-    '#8B5CF6', // violet
-    '#EC4899', // pink
-    '#14B8A6', // teal
-    '#F97316', // orange
-    '#6366F1', // indigo
-    '#06B6D4', // cyan
-  ];
+  const index = Math.abs(hash) % AVATAR_COLORS.length;
+  return AVATAR_COLORS[index];
+}
 
-  const index = Math.abs(hash) % colors.length;
-  return colors[index];
+function indexToColor(index: number): string {
+  // Use player index to get consistent color
+  return AVATAR_COLORS[index % AVATAR_COLORS.length];
 }
 
 export default function PlayerAvatar({
   name,
   size = 'md',
-  showName = false
+  showName = false,
+  index
 }: {
   name: string;
   size?: 'sm' | 'md' | 'lg';
   showName?: boolean;
+  index?: number;
 }) {
   const initials = getInitials(name);
-  const color = stringToColor(name);
+  const color = index !== undefined ? indexToColor(index) : stringToColor(name);
 
   const sizeClasses = {
     sm: 'w-8 h-8 text-xs',
