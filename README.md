@@ -10,8 +10,11 @@ A modern, mobile-responsive scoring application for the card game "Old Heck" (al
 - **My Games**: View all your created games with status indicators (in progress/completed)
 - **Delete Games**: Remove unwanted games from your list with confirmation
 - **View-Only Links**: Share live game progress with spectators
+- **Real-Time Change Animations**: Spectators see visual pulse effects when bids/results are entered or phase changes
 - **End Game Early**: Option to finish games prematurely if needed
 - **Resume Anytime**: Refresh the page at any point and resume exactly where you left off
+- **Quick Rematch**: "New Game with Same Settings" button pre-fills setup page for fast game creation
+- **Auto-Scroll**: Page automatically scrolls to top when transitioning between game phases
 
 ### Game Setup
 - **Flexible Configuration**: Set number of decks and add unlimited players
@@ -305,6 +308,12 @@ The app provides a seamless flow with automatic progression between phases:
 - Click "📋 Copy" to share the link with others
 - Anyone with the link can watch live updates (no authentication required)
 - View-only mode shows current round and all completed rounds
+- **Real-Time Change Animations**:
+  - Yellow pulse ring when a player's bid is entered
+  - Yellow pulse ring when a player's result is recorded
+  - Blue pulse ring when game phase changes (Bidding → Results)
+  - Animations last 2 seconds and automatically clear
+  - Helps spectators see exactly when updates happen without refreshing
 
 **My Games Page**
 - Click "📋 My Games" in the header to see all your games
@@ -319,6 +328,16 @@ The app provides a seamless flow with automatic progression between phases:
 - Game is marked as completed with current scores
 - Clears any in-progress round
 - Useful for time-limited sessions
+
+**Quick Rematch**
+- After completing a game, click "🎮 New Game with Same Settings"
+- Navigates to setup page with all previous settings pre-filled:
+  - Same players (in same order)
+  - Same number of decks
+  - Same first player selection
+- Review and edit any settings before starting if desired
+- Click "🎮 Start Game" to begin the new game
+- Perfect for playing multiple games back-to-back
 
 ### Mobile Experience
 
@@ -341,9 +360,12 @@ The app provides a seamless flow with automatic progression between phases:
 ## Scripts
 
 - `npm run dev` - Start development server
-- `npm run build` - Build for production
+- `npm run build` - Build for production (TypeScript check + Vite build)
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint
+- `npm test` - Run tests with Vitest
+- `npm run test:ui` - Run tests with Vitest UI
+- `npm run test:coverage` - Generate test coverage report
 
 ## Project Structure
 

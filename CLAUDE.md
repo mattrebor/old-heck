@@ -47,23 +47,34 @@ firebase deploy
 
 ### Game State Flow
 
-The application uses a three-phase round system with auto-save at each step:
+The application uses a multi-phase round system with auto-save at each step:
 
 1. **Bidding Phase** (`currentPhase: "bidding"`)
+
    - Sub-phase: `biddingPhase: "blind-declaration-and-entry"` - Players declare blind bids (optional)
    - Sub-phase: `biddingPhase: "regular-bid-entry"` - Regular bidding in rotation order
    - **Auto-save**: Bids save with 500ms debounce after each entry
+   - **Auto-scroll**: Page scrolls to top when transitioning to results phase
    - **Critical Rule**: Total bids cannot equal tricks available
 
 2. **Results Phase** (`currentPhase: "results"`)
+
    - Players mark whether they made their bid (Met/Missed)
    - **Auto-save**: Results save with 500ms debounce after each entry
+   - **Auto-scroll**: Page scrolls to top when transitioning to score review or next round
    - Manual completion - user must click "Complete Round" button
 
-3. **Round Completion** (`currentPhase: "completed"`)
+3. **Score Review Phase** (`currentPhase: "score-review"`) - *After Round 2+ only*
+
+   - Shows score breakdown with point deltas on mobile
+   - Manual "Start Next Round" button to continue
+   - **Auto-scroll**: Page scrolls to top when starting next round
+   - **Round 1 Exception**: Skips review, auto-starts round 2
+
+4. **Round Completion** (`currentPhase: "completed"`)
    - Round moves to `completedRounds[]` array
    - `inProgressRound` cleared from Firestore
-   - Next round auto-starts if not at max rounds
+   - Either starts score review, auto-starts next round, or marks game complete
 
 ### Game State Persistence
 
@@ -75,7 +86,7 @@ Game {
   setup: GameSetup              // Immutable after creation
   rounds: Round[]               // Completed rounds
   inProgressRound?: Round       // Current round being played
-  currentPhase?: "bidding" | "results" | "completed"
+  currentPhase?: "bidding" | "results" | "score-review" | "completed"
   biddingPhase?: "blind-declaration-and-entry" | "regular-bid-entry"
   status: "in_progress" | "completed"
   createdBy?: { uid, displayName, email }
@@ -137,6 +148,62 @@ Phase transitions save immediately (not debounced) for reliability.
 
 **Note**: Games load from Firestore by ID. On initial game creation, navigate to `/game/:gameId` after `createGame()` returns the ID.
 
+**Quick Rematch**: After game completion, clicking "🎮 New Game with Same Settings" navigates to `/` with `location.state.setup` containing previous game settings. GameSetupPage detects this and pre-fills the form.
+
+### UX Enhancements
+
+**Auto-Scroll on Phase Transitions**
+
+Uses `window.scrollTo({ top: 0, behavior: 'smooth' })` at key transition points:
+- Bidding → Results
+- Results → Score Review (round 2+)
+- Results → Next Round (auto-start after round 1)
+- Score Review → Next Round
+- Game Complete
+
+Prevents users from having to manually scroll up after completing phases (especially important on mobile).
+
+**Real-Time Change Animations (View-Only Page)**
+
+GameViewPage tracks previous round/phase state using `useRef` and detects changes:
+
+```typescript
+const prevRoundRef = useRef<Round | null>(null);
+const prevPhaseRef = useRef<string | null>(null);
+const [changedBids, setChangedBids] = useState<Set<number>>(new Set());
+const [changedResults, setChangedResults] = useState<Set<number>>(new Set());
+const [phaseChanged, setPhaseChanged] = useState(false);
+```
+
+On Firestore update (via `onSnapshot`):
+- Compare current vs previous values
+- Set animation state for changed items
+- Apply Tailwind classes: `animate-pulse ring-4 ring-yellow-400`
+- Clear animation after 2 seconds using `setTimeout`
+
+Provides visual feedback to spectators when:
+- A player's bid is entered (yellow pulse)
+- A player's result is recorded (yellow pulse)
+- Game phase changes (blue pulse)
+
+**Quick Rematch Flow**
+
+1. User completes game → sees "🎮 New Game with Same Settings" button
+2. Click button → `navigate("/", { state: { setup } })`
+3. GameSetupPage reads `location.state?.setup` and pre-fills:
+   - `setDecks(prefillSetup?.decks ?? 1)`
+   - `setPlayers(prefillSetup?.players ?? ["Player 1", "Player 2"])`
+   - `setFirstPlayerIndex(prefillSetup?.firstPlayerIndex ?? 0)`
+4. User can review/edit before clicking "Start Game"
+
+**Game Settings Edit**
+
+Before any bids are entered (round 1, bidding phase, all bids = -1):
+- "✏️ Edit Setup" button appears
+- Opens modal dialog to edit players, decks, first player
+- Creates new round with updated settings
+- All changes saved to Firestore
+
 ## Custom Tailwind Theme
 
 The app uses a custom color palette themed around a card table aesthetic:
@@ -168,7 +235,8 @@ Custom breakpoint: `xs:400px` (for very narrow screens)
 ### First Bidder Rotation
 
 ```typescript
-const firstBidderIndex = (gameSetup.firstPlayerIndex + (roundNumber - 1)) % gameSetup.players.length;
+const firstBidderIndex =
+  (gameSetup.firstPlayerIndex + (roundNumber - 1)) % gameSetup.players.length;
 ```
 
 First player is selected at game setup, then rotates each round.
@@ -221,14 +289,21 @@ src/
 ```
 
 **Rules:**
+
 - Test files co-located with source: `ComponentName.test.tsx`
 - One component per file (exception: small helper components)
 - Pages import components, not vice versa
 - Utils must be pure functions (no side effects)
+- Create sub-components if the component or page is too long
+- Make sure each component is easily testable
+- create a hook in hook directory if there's some reuse. Do not create hook that are very complex in the component
+- ensure that eslint is cleared
+- ensure that the README.md is updated
 
 ### TypeScript Conventions
 
 **Type Imports:**
+
 ```typescript
 // ✓ Use 'type' keyword for type-only imports
 import type { Game, Round } from "../types";
@@ -239,6 +314,7 @@ import { Game, Round } from "../types";
 ```
 
 **Type Definitions:**
+
 ```typescript
 // ✓ Export types with 'export type'
 export type GameSetup = {
@@ -257,15 +333,16 @@ export type Game = {
 ```
 
 **Component Props:**
+
 ```typescript
 // ✓ Define props inline with TypeScript object type
 export default function PlayerAvatar({
   name,
-  size = 'md',
-  showName = false
+  size = "md",
+  showName = false,
 }: {
   name: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
   showName?: boolean;
 }) {
   // ...
@@ -305,6 +382,7 @@ import { debounce } from "../utils/debounce";
 ### React Patterns
 
 **Component Structure:**
+
 ```typescript
 // 1. Helper functions (not exported, used internally)
 function getInitials(name: string): string {
@@ -318,7 +396,7 @@ export default function ComponentName({ prop1, prop2 }: Props) {
   const ref = useRef<Type>(initialValue);
 
   // 4. Derived values
-  const computed = state.map(x => x * 2);
+  const computed = state.map((x) => x * 2);
 
   // 5. Event handlers
   function handleClick() {
@@ -331,19 +409,19 @@ export default function ComponentName({ prop1, prop2 }: Props) {
   }, [dependencies]);
 
   // 7. Render
-  return (
-    <div>{/* JSX */}</div>
-  );
+  return <div>{/* JSX */}</div>;
 }
 ```
 
 **Hooks Usage:**
+
 - Always specify types for `useState` when not inferrable
 - Use `useRef` for mutable values that don't trigger re-renders (e.g., debounced functions)
 - Keep `useEffect` dependencies exhaustive (follow ESLint rules)
 - Prefer derived state over `useEffect` when possible
 
 **Exports:**
+
 - Components and pages: **default export**
 - Utility functions: **named exports**
 - Firebase helpers: **named exports**
@@ -352,6 +430,7 @@ export default function ComponentName({ prop1, prop2 }: Props) {
 ### Function Conventions
 
 **Exported Functions (firebase.ts, utils/):**
+
 ```typescript
 /**
  * JSDoc comment describing what the function does
@@ -367,29 +446,32 @@ export async function createGame(
 ```
 
 **Component Event Handlers:**
+
 ```typescript
 // ✓ Prefix with 'handle'
-function handleUpdateBid(index: number, bid: number) { }
-function handleCompleteRound() { }
+function handleUpdateBid(index: number, bid: number) {}
+function handleCompleteRound() {}
 
 // ✗ Avoid generic names
-function onBidUpdate() { }  // Too vague
-function update() { }       // What does this update?
+function onBidUpdate() {} // Too vague
+function update() {} // What does this update?
 ```
 
 **Utility Functions:**
+
 ```typescript
 // ✓ Descriptive verb-noun pairs
-export function calculateMaxRounds(decks: number, players: number): number { }
-export function debounce<T>(func: T, delay: number): (...args) => void { }
+export function calculateMaxRounds(decks: number, players: number): number {}
+export function debounce<T>(func: T, delay: number): (...args) => void {}
 
 // ✗ Avoid abbreviations
-export function calcRounds() { }  // Too terse
+export function calcRounds() {} // Too terse
 ```
 
 ### Error Handling
 
 **Async Functions:**
+
 ```typescript
 // ✓ Try/catch for user-facing operations
 export async function signInWithGoogle() {
@@ -398,12 +480,13 @@ export async function signInWithGoogle() {
     return result.user;
   } catch (error) {
     console.error("Error signing in with Google:", error);
-    throw error;  // Re-throw for caller to handle
+    throw error; // Re-throw for caller to handle
   }
 }
 ```
 
 **Component Error Handling:**
+
 ```typescript
 // ✓ Handle errors in components, show user-friendly messages
 try {
@@ -415,7 +498,10 @@ try {
 }
 ```
 
+- do not use javascript alert but use a toast component to communicate errors
+
 **Console Logging:**
+
 - Use `console.log` for development debugging only
 - Use `console.error` for errors (searchable in production)
 - Remove debug `console.log` before committing
@@ -423,6 +509,7 @@ try {
 ### Styling Conventions
 
 **Tailwind Usage:**
+
 ```typescript
 // ✓ Use template literals for conditional classes
 <div className={`p-4 rounded-lg ${
@@ -440,6 +527,7 @@ try {
 ```
 
 **Responsive Design:**
+
 ```typescript
 // ✓ Mobile-first approach (default → md: → lg:)
 <div className="flex-col md:flex-row">
@@ -453,6 +541,7 @@ try {
 ```
 
 **Utility Classes:**
+
 - Prefer Tailwind utilities over custom CSS
 - Use `flex-shrink-0` to prevent squashing of avatars/icons
 - Use `min-w-0` on text containers to allow proper wrapping
@@ -461,40 +550,46 @@ try {
 ### State Management
 
 **Local State (useState):**
+
 - Component-specific UI state (expanded, loading, error)
 - Form inputs and validation
 
 **Firestore (realtime):**
+
 - Game state (rounds, scores, phase)
 - User game list
 - Auto-sync via `onSnapshot`
 
 **Context (AuthContext):**
+
 - User authentication state
 - Shared across entire app
 - No other global state needed
 
 **Refs (useRef):**
+
 - Debounced save functions (don't trigger re-renders)
 - DOM references (rare - mostly use controlled components)
 
 ### Testing Conventions
 
 **Test Files:**
+
 - Co-locate with source: `scoring.test.ts` next to `scoring.ts`
 - Use descriptive test names: `"should calculate score correctly for blind bid"`
 
 **Test Structure:**
-```typescript
-import { describe, it, expect } from 'vitest';
-import { calculateScore } from './scoring';
 
-describe('calculateScore', () => {
-  it('should return correct score for regular bid met', () => {
+```typescript
+import { describe, it, expect } from "vitest";
+import { calculateScore } from "./scoring";
+
+describe("calculateScore", () => {
+  it("should return correct score for regular bid met", () => {
     expect(calculateScore(3, 3, false)).toBe(19);
   });
 
-  it('should return correct score for blind bid missed', () => {
+  it("should return correct score for blind bid missed", () => {
     expect(calculateScore(3, 2, true)).toBe(-18);
   });
 });
@@ -503,12 +598,14 @@ describe('calculateScore', () => {
 ### Comments & Documentation
 
 **When to Comment:**
+
 - ✓ Complex business logic (scoring formulas, bid validation rules)
 - ✓ Non-obvious React patterns (why using useRef vs useState)
 - ✓ Firestore security constraints (immutable fields)
 - ✓ JSDoc for exported functions
 
 **When NOT to Comment:**
+
 - ✗ Self-explanatory code (`// Increment counter` before `count++`)
 - ✗ Repeating type information
 - ✗ Commented-out code (remove it, use git history)
@@ -516,6 +613,7 @@ describe('calculateScore', () => {
 ### Git Conventions
 
 **Commit Messages:**
+
 ```
 Brief summary in imperative mood (50 chars or less)
 
@@ -529,12 +627,17 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ```
 
 **Branch Strategy:**
+
 - `main` - Production-ready code
 - Feature branches for new work (optional for solo projects)
 
-## TODO
+## Completed Recent Features
 
-See `TODO.md` for current feature priorities. High priority items include:
-- Show score breakdown at top during blind bid phase
-- Add intermediate step between rounds showing score changes
-- Allow editing blind bids, bids, and results
+✅ Score review phase between rounds (after round 2+) with point deltas on mobile
+✅ Auto-scroll to top on phase transitions for better mobile UX
+✅ Real-time change animations on view-only page (pulse effects)
+✅ Quick rematch with pre-filled setup page
+✅ Edit game settings before any bids are entered
+✅ Comprehensive test coverage for components and utilities
+
+See `TODO.md` for future feature priorities.
