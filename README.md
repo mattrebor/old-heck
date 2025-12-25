@@ -20,7 +20,7 @@ A modern, mobile-responsive scoring application for the card game "Old Heck" (al
 - **Editable Setup**: Modify players, decks, and first bidder before any bids are entered
 - **Responsive Design**: Optimized for both desktop and mobile devices
 
-### Three-Phase Round Play
+### Game Flow with Score Review
 
 **Phase 1: Blind Bid Declaration** (Purple Interface)
 - Players can optionally bid blind (without seeing cards) for **DOUBLE points**
@@ -40,6 +40,13 @@ A modern, mobile-responsive scoring application for the card game "Old Heck" (al
 - Simple "Made it" or "Missed it" selection for each player
 - **Auto-save**: Results save automatically as you enter them (500ms debounce)
 - Manual completion required - click "Complete Round" button to proceed
+
+**Score Review Phase** (After Round 2+)
+- Intermediate step between rounds showing score breakdown
+- **Point Deltas on Mobile**: Shows how many points each player gained/lost in the latest round (+/- indicators)
+- Manual "Start Next Round" button to continue when ready
+- Gives players time to review progress before next round
+- **Note**: Round 1 auto-starts round 2 without review (no previous scores to compare)
 
 ### Scoring System
 - **Regular Bids**:
@@ -260,7 +267,20 @@ The app provides a seamless flow with automatic progression between phases:
 3. **Results auto-save** as you enter them (500ms after last change)
 4. Scores calculate automatically (2x for blind bids)
 5. Review scores and click "**Complete Round**" button to proceed
-6. Next round starts automatically
+6. After round 1: Next round starts automatically (no score review)
+7. After round 2+: Proceed to score review phase
+
+**Score Review Phase** (After Round 2+)
+
+1. View completed round summary with celebration message
+2. Review score breakdown showing all players' current standings
+3. **Mobile**: See point deltas (+/- indicators) showing how many points each player gained/lost
+   - Green (+X) for positive scores
+   - Red (-X) for negative scores
+   - Shows next to each player's total score in leaderboard
+4. **Desktop**: Standard score table (no deltas)
+5. Click "**▶️ Start Next Round**" button when ready to continue
+6. Game automatically saves and starts the next round
 7. Repeat until max rounds reached
 
 **Auto-Save Throughout**
