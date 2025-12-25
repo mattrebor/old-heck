@@ -275,21 +275,21 @@ export default function BidCollector({
                 : "bg-gray-50 border-gray-300 opacity-60"
             }`}
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 flex-1 min-w-0">
               <PlayerAvatar name={ps.name} size="lg" showName={true} />
               {isFirstBidder && (
-                <span className="px-2 py-1 bg-blue-500 text-white rounded-lg text-xs font-bold">
-                  🎯 FIRST
+                <span className="px-1.5 py-0.5 bg-blue-500 text-white rounded text-xs font-bold whitespace-nowrap">
+                  🎯
                 </span>
               )}
               {isCurrentBidder && !hasBid && (
-                <span className="px-2 py-1 bg-green-600 text-white rounded-lg text-xs font-bold">
-                  👉 YOUR TURN
+                <span className="px-1.5 py-0.5 bg-green-600 text-white rounded text-xs font-bold whitespace-nowrap">
+                  👉
                 </span>
               )}
               {hasBid && (
-                <span className="px-2 py-1 bg-gray-500 text-white rounded-lg text-xs font-bold">
-                  ✓ BID
+                <span className="px-1.5 py-0.5 bg-gray-500 text-white rounded text-xs font-bold whitespace-nowrap">
+                  ✓
                 </span>
               )}
             </div>
