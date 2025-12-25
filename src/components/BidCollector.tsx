@@ -298,7 +298,7 @@ export default function BidCollector({
               min={0}
               placeholder={canBid ? "Bid" : "Wait"}
               disabled={!canBid}
-              className={`border-3 rounded-xl px-3 py-3 w-16 text-center text-xl font-bold transition-all ${
+              className={`border-3 rounded-xl px-3 py-3 w-20 text-center text-xl font-bold transition-all ${
                 canBid
                   ? "border-bid-400 focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-500/30 bg-bid-50"
                   : "border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed"
