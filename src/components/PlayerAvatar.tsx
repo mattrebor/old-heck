@@ -52,12 +52,12 @@ export default function PlayerAvatar({
   return (
     <div className="flex items-center gap-2">
       <div
-        className={`${sizeClasses[size]} rounded-full flex items-center justify-center text-white font-bold`}
+        className={`${sizeClasses[size]} rounded-full flex items-center justify-center text-white font-bold flex-shrink-0`}
         style={{ backgroundColor: color }}
       >
         {initials}
       </div>
-      {showName && <span className="font-medium text-gray-700">{name}</span>}
+      {showName && <span className="font-medium text-gray-700 min-w-0">{name}</span>}
     </div>
   );
 }
