@@ -28,6 +28,11 @@ export type Game = {
   createdAt: Timestamp;
   updatedAt?: Timestamp;
   status: 'in_progress' | 'completed';
+  createdBy?: {
+    uid: string;
+    displayName: string | null;
+    email: string | null;
+  };
   setup: GameSetup;
   rounds: Round[];
   inProgressRound?: Round;

@@ -267,6 +267,36 @@ export default function GamePlayPage() {
         </div>
       )}
 
+      {/* View-only link */}
+      <div className="mb-4 bg-gradient-to-r from-purple-100 to-purple-200 border-2 border-purple-400 rounded-xl p-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">👁️</span>
+            <span className="text-sm font-semibold text-purple-800">
+              Share live view-only link with others
+            </span>
+          </div>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <button
+              onClick={() => navigate(`/game/${gameId}/view`)}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all flex-1 sm:flex-none"
+            >
+              Open View
+            </button>
+            <button
+              onClick={() => {
+                const viewUrl = `${window.location.origin}/game/${gameId}/view`;
+                navigator.clipboard.writeText(viewUrl);
+                alert("View-only link copied to clipboard!");
+              }}
+              className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all flex-1 sm:flex-none"
+            >
+              📋 Copy Link
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div className="bg-gradient-to-r from-bid-100 to-accent-500/20 border-3 border-bid-400 rounded-xl p-6 mb-8 shadow-card">
         <div className="text-base font-semibold mb-2">
           <strong className="text-bid-700">Players:</strong> <span className="text-gray-800">{setup.players.join(", ")}</span>
@@ -280,38 +310,6 @@ export default function GamePlayPage() {
           {setup.maxRounds}</span>
         </div>
       </div>
-
-      {/* Completed Rounds */}
-      {completedRounds.map((round) => (
-        <div key={round.roundNumber} className="border rounded p-4 mb-4 bg-gray-50">
-          <h3 className="font-semibold mb-3">
-            Round {round.roundNumber} - Completed
-          </h3>
-          <div className="space-y-2">
-            {round.scores.map((ps, i) => (
-              <div key={i} className="grid grid-cols-6 gap-2 items-center text-sm">
-                <span className="font-medium">{ps.name}</span>
-                <span className="text-gray-600">Bid: {ps.bid}</span>
-                <span className="text-gray-600">Took: {ps.tricks}</span>
-                <span
-                  className={`font-medium ${
-                    ps.met ? "text-green-700" : "text-red-600"
-                  }`}
-                >
-                  {ps.met ? "✓ Met" : "✗ Missed"}
-                </span>
-                <span
-                  className={`font-mono text-right font-bold ${
-                    ps.score < 0 ? "text-red-600" : "text-green-700"
-                  }`}
-                >
-                  {ps.score}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
 
       {/* Current Round - Bidding Phase */}
       {currentRound && currentPhase === "bidding" && (
