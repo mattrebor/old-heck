@@ -5,6 +5,7 @@ import {
   doc,
   getDoc,
   setDoc,
+  deleteDoc,
   deleteField,
   Timestamp,
 } from "firebase/firestore";
@@ -117,6 +118,14 @@ export async function markGameComplete(gameId: string): Promise<void> {
     status: "completed",
     updatedAt: Timestamp.now(),
   });
+}
+
+/**
+ * Delete a game from Firestore
+ */
+export async function deleteGame(gameId: string): Promise<void> {
+  const gameRef = doc(db, "games", gameId);
+  await deleteDoc(gameRef);
 }
 
 /**

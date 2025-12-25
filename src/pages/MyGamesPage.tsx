@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
-import { db } from "../firebase";
+import { db, deleteGame } from "../firebase";
 import { useAuth } from "../contexts/AuthContext";
 import type { Game } from "../types";
 import Header from "../components/Header";
@@ -11,6 +11,8 @@ export default function MyGamesPage() {
   const { user, loading: authLoading } = useAuth();
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [gameToDelete, setGameToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -38,6 +40,25 @@ export default function MyGamesPage() {
 
     return () => unsubscribe();
   }, [user, authLoading, navigate]);
+
+  function openDeleteDialog(gameId: string, event: React.MouseEvent) {
+    event.stopPropagation(); // Prevent navigating to the game
+    setGameToDelete(gameId);
+    setDeleteDialogOpen(true);
+  }
+
+  async function handleDeleteGame() {
+    if (!gameToDelete) return;
+
+    try {
+      await deleteGame(gameToDelete);
+      setDeleteDialogOpen(false);
+      setGameToDelete(null);
+    } catch (error) {
+      console.error("Error deleting game:", error);
+      alert("Failed to delete game. Please try again.");
+    }
+  }
 
   if (authLoading || loading) {
     return (
@@ -92,11 +113,13 @@ export default function MyGamesPage() {
             return (
               <div
                 key={game.id}
-                onClick={() => navigate(targetPath)}
-                className="bg-white rounded-xl p-5 shadow-card hover:shadow-card-hover transition-all cursor-pointer border-2 border-gray-200 hover:border-bid-400"
+                className="bg-white rounded-xl p-5 shadow-card hover:shadow-card-hover transition-all border-2 border-gray-200 hover:border-bid-400"
               >
                 <div className="flex items-start justify-between gap-4 mb-3">
-                  <div className="flex-1">
+                  <div
+                    onClick={() => navigate(targetPath)}
+                    className="flex-1 cursor-pointer"
+                  >
                     <div className="flex items-center gap-2 mb-2">
                       <h3 className="text-xl font-bold text-gray-800">
                         Game {game.id?.substring(0, 8)}
@@ -122,19 +145,54 @@ export default function MyGamesPage() {
                         <strong>Rounds:</strong> {game.rounds?.length || 0}/{game.setup.maxRounds}
                       </div>
                     </div>
+                    <div className="text-sm text-gray-500 mt-2">
+                      Players: {game.setup.players.join(", ")}
+                    </div>
                   </div>
-                  <div className="text-right">
+                  <div className="flex flex-col gap-2 items-end">
                     <div className="text-xs text-gray-500">
                       {game.updatedAt?.toDate?.()?.toLocaleDateString() || 'Recently'}
                     </div>
+                    <button
+                      onClick={(e) => openDeleteDialog(game.id!, e)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-all"
+                      title="Delete game"
+                    >
+                      🗑️
+                    </button>
                   </div>
-                </div>
-                <div className="text-sm text-gray-500">
-                  Players: {game.setup.players.join(", ")}
                 </div>
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {deleteDialogOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl">
+            <h3 className="text-2xl font-bold text-gray-800 mb-4">
+              Delete Game?
+            </h3>
+            <p className="text-gray-700 mb-6">
+              Are you sure you want to delete this game? This action cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleteDialogOpen(false)}
+                className="flex-1 px-6 py-3 bg-gray-200 text-gray-800 rounded-xl font-bold hover:bg-gray-300 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteGame}
+                className="flex-1 px-6 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-all"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
