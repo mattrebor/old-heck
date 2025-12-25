@@ -74,7 +74,7 @@ export default function GameHistoryPage() {
               <div key={i} className="grid grid-cols-5 gap-2 text-sm">
                 <span className="font-medium">{s.name}</span>
                 <span className="text-gray-600">Bid: {s.bid}</span>
-                <span className="text-gray-600">Took: {s.tricks}</span>
+                <span className="text-gray-600">Books: {s.tricks}</span>
                 <span
                   className={`${s.met ? "text-green-700" : "text-red-600"}`}
                 >
