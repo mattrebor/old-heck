@@ -179,7 +179,6 @@ export default function GameViewPage() {
                 {/* Show result if phase is results or completed */}
                 {currentPhase === "results" && ps.tricks >= 0 && (
                   <>
-                    <span className="text-gray-600">Books: {ps.tricks}</span>
                     <span
                       className={`font-medium ${
                         ps.met ? "text-green-700" : "text-red-600"
