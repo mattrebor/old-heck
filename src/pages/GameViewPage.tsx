@@ -81,14 +81,6 @@ export default function GameViewPage() {
           <div className="text-xl font-semibold text-red-600 mb-4">
             {error || "Game not found"}
           </div>
-          {user && (
-            <button
-              onClick={() => navigate("/")}
-              className="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:shadow-card-hover hover:scale-105 transition-all"
-            >
-              ← Back to Home
-            </button>
-          )}
         </div>
       </div>
     );
@@ -228,16 +220,10 @@ export default function GameViewPage() {
 
       {/* Action Buttons - Only show for authenticated users */}
       {user && (
-        <div className="mt-8 flex gap-4 flex-wrap">
-          <button
-            onClick={() => navigate("/")}
-            className="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:shadow-card-hover hover:scale-105 transition-all flex-1 min-w-[200px]"
-          >
-            ← Back to Home
-          </button>
+        <div className="mt-8">
           <button
             onClick={() => navigator.clipboard.writeText(window.location.href)}
-            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:shadow-card-hover hover:scale-105 transition-all flex-1 min-w-[200px]"
+            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:shadow-card-hover hover:scale-105 transition-all w-full"
           >
             📋 Copy Link
           </button>

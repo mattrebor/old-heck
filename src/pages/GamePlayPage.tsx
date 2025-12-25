@@ -349,15 +349,6 @@ export default function GamePlayPage() {
       {/* Running Totals */}
       {completedRounds.length > 0 && <Totals rounds={completedRounds} />}
 
-      {/* Action Buttons */}
-      <div className="mt-8 flex gap-4 flex-wrap">
-        <button
-          onClick={() => navigate("/")}
-          className="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:shadow-card-hover hover:scale-105 transition-all flex-1 min-w-[200px]"
-        >
-          ← Back to Home
-        </button>
-      </div>
 
       {/* Max rounds warning */}
       {nextRoundNumber > setup.maxRounds && !currentRound && (
