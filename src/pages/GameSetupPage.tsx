@@ -110,20 +110,34 @@ export default function GameSetupPage() {
           Set Up Your Game
         </h2>
 
-        <label className="block mb-8">
+        <div className="mb-8">
           <span className="text-base font-bold text-gray-800 mb-3 block">
             Number of decks
           </span>
-          <input
-            type="number"
-            min={1}
-            value={decks}
-            onChange={(e) =>
-              setDecks(e.target.value === "" ? "" : Number(e.target.value))
-            }
-            className="border-3 border-felt-400 rounded-xl px-5 py-4 w-full text-lg font-semibold focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-500/30 transition-all bg-white"
-          />
-        </label>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setDecks(Math.max(1, (typeof decks === "number" ? decks : 1) - 1))}
+              className="bg-felt-500 hover:bg-felt-600 text-white font-bold text-2xl w-14 h-14 rounded-xl transition-all shadow-card hover:shadow-card-hover"
+            >
+              −
+            </button>
+            <input
+              type="number"
+              min={1}
+              value={decks}
+              onChange={(e) =>
+                setDecks(e.target.value === "" ? "" : Number(e.target.value))
+              }
+              className="border-3 border-felt-400 rounded-xl px-5 py-4 flex-1 text-center text-xl font-bold focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-500/30 transition-all bg-white"
+            />
+            <button
+              onClick={() => setDecks((typeof decks === "number" ? decks : 1) + 1)}
+              className="bg-felt-500 hover:bg-felt-600 text-white font-bold text-2xl w-14 h-14 rounded-xl transition-all shadow-card hover:shadow-card-hover"
+            >
+              +
+            </button>
+          </div>
+        </div>
 
         <div className="mb-8">
           <p className="text-base font-bold text-gray-800 mb-4">Players</p>
