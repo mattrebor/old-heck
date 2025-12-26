@@ -125,8 +125,23 @@ export default function BidCollector({
 
     if (hasChanges) {
       setLocalBids(updatedLocalBids);
+
+      // Recalculate active bidder when bids change from other users
+      // Only do this in regular bidding phase and if no timer is active
+      if (biddingPhase === "regular-bid-entry" && !bidTimerRef.current) {
+        const orderedIndices = getOrderedPlayerIndices(
+          round.firstBidderIndex,
+          round.scores.length
+        );
+        const nextBidder = getNextBidder(
+          orderedIndices,
+          round.scores,
+          blindBidDecisions
+        );
+        setActiveBidderIndex(nextBidder);
+      }
     }
-  }, [bidsKey, localBids]);
+  }, [bidsKey, localBids, biddingPhase, round, blindBidDecisions]);
 
   // Cleanup timer on unmount
   useEffect(() => {
