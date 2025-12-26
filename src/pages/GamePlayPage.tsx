@@ -174,15 +174,14 @@ export default function GamePlayPage() {
   async function handleBidsComplete() {
     if (!currentRound || !gameId) return;
 
-    // Reset tricks to -1 (not entered yet) for results phase
-    const scoresWithResetTricks = currentRound.scores.map((ps) => ({
+    // Reset results to unrecorded (met: null) for results phase
+    const scoresWithResetResults = currentRound.scores.map((ps) => ({
       ...ps,
-      tricks: -1,
-      met: false,
+      met: null,
       score: 0,
     }));
 
-    const updatedRound = { ...currentRound, scores: scoresWithResetTricks };
+    const updatedRound = { ...currentRound, scores: scoresWithResetResults };
     setCurrentRound(updatedRound);
     setCurrentPhase("results");
 
