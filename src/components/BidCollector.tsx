@@ -42,6 +42,12 @@ export default function BidCollector({
     return round.scores[i].bid >= 0;
   });
 
+  // Check if all players bid blind
+  const allPlayersBlind = blindBidDecisions.every((b) => b);
+
+  // If all players are blind, can only proceed if bids don't equal tricks
+  const canProceedFromBlindPhase = allBlindBidsEntered && (!allPlayersBlind || !bidsEqualTricks);
+
   function toggleBlindBid(index: number) {
     const updated = [...blindBidDecisions];
     updated[index] = !updated[index];
@@ -65,8 +71,13 @@ export default function BidCollector({
       }
     });
 
-    setBiddingPhase("regular-bid-entry");
-    onPhaseChange?.("regular-bid-entry");
+    // If all players bid blind, skip regular bidding and complete
+    if (allPlayersBlind) {
+      onComplete();
+    } else {
+      setBiddingPhase("regular-bid-entry");
+      onPhaseChange?.("regular-bid-entry");
+    }
   }
 
   function handleRegularBidChange(index: number, bid: number) {
@@ -107,14 +118,26 @@ export default function BidCollector({
           ))}
         </div>
 
+        {allPlayersBlind && allBlindBidsEntered && bidsEqualTricks && (
+          <div className="mb-5 p-5 bg-red-100 border-3 border-red-500 rounded-xl text-base text-red-800 font-semibold">
+            <strong>Rule violation:</strong> The total of all bids ({totalBids})
+            cannot equal the number of books available ({tricksAvailable}). At least
+            one player must adjust their bid to ensure someone will fail.
+          </div>
+        )}
+
         <button
           onClick={proceedToRegularBidding}
-          disabled={!allBlindBidsEntered}
+          disabled={!canProceedFromBlindPhase}
           className="w-full bg-gradient-to-r from-purple-600 to-purple-400 text-white px-6 py-4 rounded-xl text-lg font-bold shadow-card-hover hover:shadow-2xl hover:scale-105 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all"
         >
-          {allBlindBidsEntered
-            ? "Continue to Regular Bidding →"
-            : "Enter all blind bids to continue"}
+          {!allBlindBidsEntered
+            ? "Enter all blind bids to continue"
+            : allPlayersBlind && bidsEqualTricks
+            ? "Adjust bids - total cannot equal books available"
+            : allPlayersBlind
+            ? "Start Round →"
+            : "Continue to Regular Bidding →"}
         </button>
       </div>
     );
