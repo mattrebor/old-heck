@@ -18,6 +18,7 @@ export default function GameViewPage() {
   const [completedRounds, setCompletedRounds] = useState<Round[]>([]);
   const [currentRound, setCurrentRound] = useState<Round | null>(null);
   const [currentPhase, setCurrentPhase] = useState<string | null>(null);
+  const [biddingPhase, setBiddingPhase] = useState<"blind-declaration-and-entry" | "regular-bid-entry" | null>(null);
   const [gameStatus, setGameStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -57,6 +58,7 @@ export default function GameViewPage() {
         setCompletedRounds(game.rounds || []);
         setCurrentRound(game.inProgressRound || null);
         setCurrentPhase(game.currentPhase || null);
+        setBiddingPhase(game.biddingPhase || null);
         setGameStatus(game.status);
         setLoading(false);
       },
@@ -237,20 +239,60 @@ export default function GameViewPage() {
           )}
 
           <div className="space-y-3">
-            {currentRound.scores.map((ps, i) => {
-              const hasBidChange = changedBids.has(i);
-              const hasResultChange = changedResults.has(i);
-              const hasAnyChange = hasBidChange || hasResultChange;
+            {(() => {
+              // Calculate ordered player indices during bidding phase (like BidCollector)
+              if (currentPhase === "bidding" && biddingPhase === "regular-bid-entry") {
+                const playerIndices = Array.from({ length: currentRound.scores.length }, (_, i) => i);
+                const orderedIndices = [
+                  ...playerIndices.slice(currentRound.firstBidderIndex),
+                  ...playerIndices.slice(0, currentRound.firstBidderIndex)
+                ];
 
-              return (
-                <ViewOnlyPlayerCard
-                  key={i}
-                  player={ps}
-                  currentPhase={currentPhase}
-                  hasChange={hasAnyChange}
-                />
-              );
-            })}
+                // Find next player who needs to bid (excluding blind bidders)
+                const nextBidderIndex = orderedIndices.find(idx => {
+                  if (currentRound.scores[idx].blindBid) return false; // Skip blind bidders
+                  return currentRound.scores[idx].bid === -1; // Find first player without a bid
+                });
+
+                return orderedIndices.map((i) => {
+                  const ps = currentRound.scores[i];
+                  const hasBidChange = changedBids.has(i);
+                  const hasResultChange = changedResults.has(i);
+                  const hasAnyChange = hasBidChange || hasResultChange;
+                  const isFirstBidder = i === currentRound.firstBidderIndex;
+                  const isCurrentBidder = i === nextBidderIndex;
+                  const hasBid = ps.bid >= 0;
+
+                  return (
+                    <ViewOnlyPlayerCard
+                      key={i}
+                      player={ps}
+                      currentPhase={currentPhase}
+                      hasChange={hasAnyChange}
+                      isFirstBidder={isFirstBidder}
+                      isCurrentBidder={isCurrentBidder}
+                      hasBid={hasBid}
+                    />
+                  );
+                });
+              }
+
+              // Default rendering (blind bidding phase, results phase, etc.)
+              return currentRound.scores.map((ps, i) => {
+                const hasBidChange = changedBids.has(i);
+                const hasResultChange = changedResults.has(i);
+                const hasAnyChange = hasBidChange || hasResultChange;
+
+                return (
+                  <ViewOnlyPlayerCard
+                    key={i}
+                    player={ps}
+                    currentPhase={currentPhase}
+                    hasChange={hasAnyChange}
+                  />
+                );
+              });
+            })()}
           </div>
         </div>
       )}

@@ -7,20 +7,47 @@ type ViewOnlyPlayerCardProps = {
   player: PlayerScore;
   currentPhase: string | null;
   hasChange?: boolean;
+  isFirstBidder?: boolean;
+  isCurrentBidder?: boolean;
+  hasBid?: boolean;
 };
 
 export default function ViewOnlyPlayerCard({
   player,
   currentPhase,
   hasChange = false,
+  isFirstBidder = false,
+  isCurrentBidder = false,
+  hasBid = false,
 }: ViewOnlyPlayerCardProps) {
+  const showBiddingIndicators = currentPhase === "bidding" && (isFirstBidder || isCurrentBidder || hasBid);
+
   return (
     <div
       className={`flex items-center gap-3 text-sm bg-white p-4 rounded-lg border-2 border-blue-200 justify-between transition-all ${
         hasChange ? "animate-pulse ring-4 ring-yellow-400 shadow-lg" : ""
       }`}
     >
-      <PlayerAvatar name={player.name} size="md" showName={true} />
+      <div className="flex items-center gap-2">
+        {showBiddingIndicators && (
+          <div className="flex items-center flex-shrink-0 w-6">
+            {isFirstBidder ? (
+              <span className="px-1.5 py-0.5 bg-blue-500 text-white rounded text-xs font-bold whitespace-nowrap">
+                🎯
+              </span>
+            ) : isCurrentBidder && !hasBid ? (
+              <span className="px-1.5 py-0.5 bg-green-600 text-white rounded text-xs font-bold whitespace-nowrap">
+                👉
+              </span>
+            ) : hasBid ? (
+              <span className="px-1.5 py-0.5 bg-gray-500 text-white rounded text-xs font-bold whitespace-nowrap">
+                ✓
+              </span>
+            ) : null}
+          </div>
+        )}
+        <PlayerAvatar name={player.name} size="md" showName={true} />
+      </div>
 
       <BidDisplay
         bid={player.bid}
