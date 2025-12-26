@@ -14,23 +14,26 @@ export default function ViewOnlyPlayerCard({
 }: ViewOnlyPlayerCardProps) {
   return (
     <div
-      className={`flex flex-wrap items-center gap-3 text-sm bg-white p-4 rounded-lg border-2 border-blue-200 justify-between transition-all ${
+      className={`flex items-center gap-3 text-sm bg-white p-4 rounded-lg border-2 border-blue-200 justify-between transition-all ${
         hasChange ? "animate-pulse ring-4 ring-yellow-400 shadow-lg" : ""
       }`}
     >
       <PlayerAvatar name={player.name} size="md" showName={true} />
 
-      {/* Bid display with inline blind indicator */}
-      <div className="flex items-center gap-2 flex-wrap">
+      {/* Bid display with badge on top */}
+      <div className="flex flex-col gap-1 min-w-0">
+        {/* Badge container - always reserves space */}
+        <div className="h-5">
+          {player.blindBid && player.bid >= 0 && (
+            <span className="px-2 py-0.5 bg-purple-600 text-white rounded text-xs font-bold inline-block">
+              ⚡ BLIND
+            </span>
+          )}
+        </div>
         {player.bid >= 0 ? (
-          <span className="text-gray-700 font-semibold">Bid: {player.bid}</span>
+          <span className="text-gray-700 font-semibold whitespace-nowrap">Bid: {player.bid}</span>
         ) : (
-          <span className="text-gray-400 italic">Bid: waiting...</span>
-        )}
-        {player.blindBid && player.bid >= 0 && (
-          <span className="px-2 py-0.5 bg-purple-600 text-white rounded text-xs font-bold">
-            ⚡ BLIND
-          </span>
+          <span className="text-gray-400 italic whitespace-nowrap">Bid: waiting...</span>
         )}
       </div>
 

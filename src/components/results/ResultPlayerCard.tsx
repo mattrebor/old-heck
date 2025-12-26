@@ -18,15 +18,18 @@ export default function ResultPlayerCard({
         {/* Player info */}
         <div className="flex items-center gap-4">
           <PlayerAvatar name={player.name} size="lg" showName={true} />
-          <div className="flex items-center gap-2 flex-1 flex-wrap">
-            <div className="text-sm sm:text-base text-gray-600 font-semibold">
-              Bid: {player.bid} books
+          <div className="flex flex-col gap-1 flex-1">
+            {/* Badge container - always reserves space */}
+            <div className="h-6">
+              {player.blindBid && (
+                <span className="px-2 py-1 bg-purple-600 text-white rounded-lg text-xs sm:text-sm font-bold inline-block">
+                  ⚡ BLIND
+                </span>
+              )}
             </div>
-            {player.blindBid && (
-              <span className="px-2 py-1 bg-purple-600 text-white rounded-lg text-xs sm:text-sm font-bold">
-                ⚡ BLIND
-              </span>
-            )}
+            <div className="text-sm sm:text-base text-gray-600 font-semibold">
+              Bid: {player.bid}
+            </div>
           </div>
         </div>
 

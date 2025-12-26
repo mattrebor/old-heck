@@ -13,6 +13,9 @@
 - ✅ (HIGH) add intermediate score review phase between rounds with point deltas on mobile
 - ✅ (MEDIUM) add logout functionality
 - ✅ (HIGH) Make the number of decks input touch friendly
+- ✅ (HIGH) consistent Blind badge above the bid count instead of next to it. Also, make sure that spacing the same with or without the blind badge
+- ✅ (HIGH) show bid count consistently. Bid: (count). Don't include the books as a unit next to the count
+- ✅ (HIGH) make the copy link button the GameViewPage behave consistently. Specifically, with the animation effect.
 
 ## Remaining
 
