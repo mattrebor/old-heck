@@ -5,7 +5,6 @@ type RegularBidPlayerRowProps = {
   player: PlayerScore;
   index: number;
   tricksAvailable: number;
-  isFirstBidder: boolean;
   isCurrentBidder: boolean;
   hasBid: boolean;
   onBidChange: (index: number, bid: number) => void;
@@ -15,7 +14,6 @@ export default function RegularBidPlayerRow({
   player,
   index,
   tricksAvailable,
-  isFirstBidder,
   isCurrentBidder,
   hasBid,
   onBidChange,
@@ -36,11 +34,7 @@ export default function RegularBidPlayerRow({
       >
         <div className="flex items-center gap-1 min-w-0">
           <div className="flex items-center flex-shrink-0 w-6">
-            {isFirstBidder ? (
-              <span className="px-1.5 py-0.5 bg-blue-500 text-white rounded text-xs font-bold whitespace-nowrap">
-                🎯
-              </span>
-            ) : isCurrentBidder && !hasBid ? (
+            {isCurrentBidder && !hasBid ? (
               <span className="px-1.5 py-0.5 bg-green-600 text-white rounded text-xs font-bold whitespace-nowrap">
                 👉
               </span>
