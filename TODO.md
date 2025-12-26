@@ -16,10 +16,10 @@
 - ✅ (HIGH) consistent Blind badge above the bid count instead of next to it. Also, make sure that spacing the same with or without the blind badge
 - ✅ (HIGH) show bid count consistently. Bid: (count). Don't include the books as a unit next to the count
 - ✅ (HIGH) make the copy link button the GameViewPage behave consistently. Specifically, with the animation effect.
+- ✅ (HIGH) When all players made a blind bid and then we move into the results collection phase skipping the regular bids phase the view only page still shows the regular bid phase. It should switch the results collection instead. It currently switches only after the first result is inputted.
 
 ## Remaining
 
 - (MEDIUM) Show score breakdown at the top of the page when blind bid phase
 - (LOW) allow editing blind bid, bids and results
-- (HIGH) When all players made a blind bid and then we move into the results collection phase skipping the regular bids phase the view only page still shows the regular bid phase. It should switch the results collection instead. It currently switches only after the first result is inputted.
 - (MEDIUM) do not allow blind bids of 0. It needs to be greater than 0
