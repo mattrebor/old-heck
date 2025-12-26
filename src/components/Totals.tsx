@@ -39,6 +39,23 @@ export default function Totals({
     })
   );
 
+  // Calculate running totals for each round
+  // runningTotals[roundNumber][playerName] = cumulative score up to that round
+  const runningTotals: Record<number, Record<string, number>> = {};
+  rounds.forEach((round, idx) => {
+    runningTotals[round.roundNumber] = {};
+    round.scores.forEach((s) => {
+      // Sum all scores from rounds 0 to current idx
+      const cumulativeScore = rounds
+        .slice(0, idx + 1)
+        .reduce((sum, r) => {
+          const playerScore = r.scores.find((ps) => ps.name === s.name);
+          return sum + (playerScore?.score ?? 0);
+        }, 0);
+      runningTotals[round.roundNumber][s.name] = cumulativeScore;
+    });
+  });
+
   // Find the winner(s)
   const maxScore = Math.max(...Object.values(totals));
 
@@ -157,6 +174,7 @@ export default function Totals({
                     );
                     if (!playerScore) return null;
 
+                    const runningTotal = runningTotals[round.roundNumber][name];
                     return (
                       <div
                         key={name}
@@ -180,16 +198,23 @@ export default function Totals({
                               </span>
                             }
                           />
-                          <span
-                            className={`font-mono text-lg font-bold ${
-                              playerScore.score < 0
-                                ? "text-danger-500"
-                                : "text-success-500"
-                            }`}
-                          >
-                            {playerScore.score > 0 ? "+" : ""}
-                            {playerScore.score}
-                          </span>
+                          <div className="flex flex-col items-end gap-0">
+                            {/* Running total - prominent */}
+                            <span className="font-mono text-xl font-bold text-gray-800">
+                              {runningTotal}
+                            </span>
+                            {/* Per-round delta - less prominent */}
+                            <span
+                              className={`font-mono text-xs ${
+                                playerScore.score < 0
+                                  ? "text-danger-500"
+                                  : "text-success-500"
+                              }`}
+                            >
+                              ({playerScore.score > 0 ? "+" : ""}
+                              {playerScore.score})
+                            </span>
+                          </div>
                         </div>
                       </div>
                     );
@@ -204,21 +229,27 @@ export default function Totals({
                       );
                       if (!playerScore) return null;
 
+                      const runningTotal = runningTotals[round.roundNumber][name];
                       return (
                         <div
                           key={name}
                           className="flex flex-col items-center gap-1 flex-shrink-0"
                         >
                           <PlayerAvatar name={name} size="sm" />
+                          {/* Running total - prominent */}
+                          <span className="font-mono text-base font-bold text-gray-800">
+                            {runningTotal}
+                          </span>
+                          {/* Per-round delta - less prominent */}
                           <span
-                            className={`font-mono text-sm font-bold ${
+                            className={`font-mono text-xs ${
                               playerScore.score < 0
                                 ? "text-danger-500"
                                 : "text-success-500"
                             }`}
                           >
-                            {playerScore.score > 0 ? "+" : ""}
-                            {playerScore.score}
+                            ({playerScore.score > 0 ? "+" : ""}
+                            {playerScore.score})
                           </span>
                         </div>
                       );
@@ -304,6 +335,7 @@ export default function Totals({
                           </td>
                         );
 
+                      const runningTotal = runningTotals[round.roundNumber][name];
                       return (
                         <td
                           key={name}
@@ -311,18 +343,31 @@ export default function Totals({
                             isExpanded ? "p-5" : "py-2 px-3"
                           }`}
                         >
-                          <span
-                            className={`font-mono font-bold ${
-                              isExpanded ? "text-xl" : "text-sm"
-                            } ${
-                              playerScore.score < 0
-                                ? "text-danger-500"
-                                : "text-success-500"
-                            }`}
-                          >
-                            {playerScore.score > 0 ? "+" : ""}
-                            {playerScore.score}
-                          </span>
+                          <div className="flex flex-col items-center gap-0.5">
+                            {/* Running total - prominent */}
+                            <span
+                              className={`font-mono font-bold ${
+                                isExpanded ? "text-xl" : "text-base"
+                              } ${
+                                runningTotal < 0
+                                  ? "text-gray-800"
+                                  : "text-gray-800"
+                              }`}
+                            >
+                              {runningTotal}
+                            </span>
+                            {/* Per-round delta - less prominent */}
+                            <span
+                              className={`font-mono text-xs ${
+                                playerScore.score < 0
+                                  ? "text-danger-500"
+                                  : "text-success-500"
+                              }`}
+                            >
+                              ({playerScore.score > 0 ? "+" : ""}
+                              {playerScore.score})
+                            </span>
+                          </div>
                         </td>
                       );
                     })}
