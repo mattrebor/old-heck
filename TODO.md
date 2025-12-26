@@ -17,11 +17,11 @@
 - ✅ (HIGH) show bid count consistently. Bid: (count). Don't include the books as a unit next to the count
 - ✅ (HIGH) make the copy link button the GameViewPage behave consistently. Specifically, with the animation effect.
 - ✅ (HIGH) When all players made a blind bid and then we move into the results collection phase skipping the regular bids phase the view only page still shows the regular bid phase. It should switch the results collection instead. It currently switches only after the first result is inputted.
+- ✅ (HIGH) In the bid collector, as soon as an input is made then the bidding is moved to the next player. There should some small delay to allow the owner to adjust up or down the bids. If there's no change for a certain time when move to the next player
+- ✅ (HIGH) the blind bid declaration and bid collection should be done in the same order as regular bids (showing indicators doesn't make sense since blind bidding is optional)
 
 ## Remaining
 
 - (MEDIUM) Show score breakdown at the top of the page when blind bid phase
 - (LOW) allow editing blind bid, bids and results
 - (MEDIUM) do not allow blind bids of 0. It needs to be greater than 0
-- (HIGH) In the bid collector, as soon as an input is made then the bidding is moved to the next player. There should some small delay to allow the owner to adjust up or down the bids. If there's no change for a certain time when move to the next player
-- (HIGH) the blind bid declaration and bid collection should be done in the same order as regular bids. Show the same indicators
