@@ -564,7 +564,12 @@ export default function GamePlayPage() {
                 const nextRoundNumber = completedRounds.length + 1;
                 const nextFirstBidderIndex = (setup.firstPlayerIndex + (nextRoundNumber - 1)) % setup.players.length;
                 const nextFirstBidderName = setup.players[nextFirstBidderIndex];
-                return `Review the scores below and click "Start Round ${nextRoundNumber}" when ready. ${nextFirstBidderName} will start the bidding.`;
+                return (
+                  <>
+                    Review the scores below and click "Start Round {nextRoundNumber}" when ready.{" "}
+                    <strong className="text-green-900">{nextFirstBidderName}</strong> will start the bidding.
+                  </>
+                );
               })()}
             </p>
           </div>
