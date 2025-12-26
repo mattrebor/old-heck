@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import type { PlayerScore } from "../../types";
 import PlayerAvatar from "../PlayerAvatar";
 import BidDisplay from "../BidDisplay";
@@ -13,6 +14,17 @@ export default function ViewOnlyPlayerCard({
   currentPhase,
   hasChange = false,
 }: ViewOnlyPlayerCardProps) {
+  const [resultsAnimating, setResultsAnimating] = useState(false);
+
+  // Detect when results change
+  useEffect(() => {
+    if (currentPhase === "results" && player.tricks >= 0) {
+      setResultsAnimating(true);
+      const timeout = setTimeout(() => setResultsAnimating(false), 1000);
+      return () => clearTimeout(timeout);
+    }
+  }, [player.score, player.met, player.tricks, currentPhase]);
+
   return (
     <div
       className={`flex items-center gap-3 text-sm bg-white p-4 rounded-lg border-2 border-blue-200 justify-between transition-all ${
@@ -29,7 +41,11 @@ export default function ViewOnlyPlayerCard({
       />
 
       {/* Always reserve space for results to maintain consistent layout */}
-      <div className="flex items-center gap-2 min-w-[120px] justify-end">
+      <div
+        className={`flex items-center gap-2 min-w-[120px] justify-end transition-all ${
+          resultsAnimating ? "animate-pulse ring-2 ring-blue-400 rounded px-2" : ""
+        }`}
+      >
         {currentPhase === "results" && player.tricks >= 0 ? (
           <>
             <span
