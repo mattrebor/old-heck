@@ -86,6 +86,14 @@ export default function BidCollector({
 
   // PHASE 1: Blind Bid Declaration and Entry (Combined)
   if (biddingPhase === "blind-declaration-and-entry") {
+    // Create ordered list of player indices starting from firstBidderIndex
+    // This shows players in the order they will bid during regular bidding phase
+    const playerIndices = Array.from({ length: round.scores.length }, (_, i) => i);
+    const orderedIndices = [
+      ...playerIndices.slice(round.firstBidderIndex),
+      ...playerIndices.slice(0, round.firstBidderIndex)
+    ];
+
     return (
       <div className="border-4 border-accent-500 rounded-2xl p-8 mb-8 bg-gradient-to-br from-purple-100 to-purple-200 shadow-card-hover">
         <h3 className="font-bold text-xl sm:text-2xl md:text-3xl mb-4 md:mb-6 text-purple-700 flex items-center gap-2 md:gap-3">
@@ -105,17 +113,21 @@ export default function BidCollector({
         />
 
         <div className="space-y-4 mb-6">
-          {round.scores.map((ps, i) => (
-            <BlindBidPlayerCard
-              key={i}
-              player={ps}
-              index={i}
-              tricksAvailable={tricksAvailable}
-              isBlindBidder={blindBidDecisions[i]}
-              onToggleBlind={toggleBlindBid}
-              onBidChange={handleBlindBidChange}
-            />
-          ))}
+          {orderedIndices.map((i) => {
+            const ps = round.scores[i];
+
+            return (
+              <BlindBidPlayerCard
+                key={i}
+                player={ps}
+                index={i}
+                tricksAvailable={tricksAvailable}
+                isBlindBidder={blindBidDecisions[i]}
+                onToggleBlind={toggleBlindBid}
+                onBidChange={handleBlindBidChange}
+              />
+            );
+          })}
         </div>
 
         {allPlayersBlind && allBlindBidsEntered && bidsEqualTricks && (
