@@ -248,33 +248,74 @@ export default function GameViewPage() {
                   ...playerIndices.slice(0, currentRound.firstBidderIndex)
                 ];
 
+                // Separate blind bidders from regular bidders
+                const blindBidders = currentRound.scores
+                  .map((ps, i) => ({ ps, i }))
+                  .filter(({ ps }) => ps.blindBid);
+
+                const nonBlindOrderedIndices = orderedIndices.filter(
+                  idx => !currentRound.scores[idx].blindBid
+                );
+
                 // Find next player who needs to bid (excluding blind bidders)
-                const nextBidderIndex = orderedIndices.find(idx => {
-                  if (currentRound.scores[idx].blindBid) return false; // Skip blind bidders
+                const nextBidderIndex = nonBlindOrderedIndices.find(idx => {
                   return currentRound.scores[idx].bid === -1; // Find first player without a bid
                 });
 
-                return orderedIndices.map((i) => {
-                  const ps = currentRound.scores[i];
-                  const hasBidChange = changedBids.has(i);
-                  const hasResultChange = changedResults.has(i);
-                  const hasAnyChange = hasBidChange || hasResultChange;
-                  const isFirstBidder = i === currentRound.firstBidderIndex;
-                  const isCurrentBidder = i === nextBidderIndex;
-                  const hasBid = ps.bid >= 0;
+                // First bidder is the first non-blind player in order
+                const firstNonBlindBidderIndex = nonBlindOrderedIndices[0];
 
-                  return (
-                    <ViewOnlyPlayerCard
-                      key={i}
-                      player={ps}
-                      currentPhase={currentPhase}
-                      hasChange={hasAnyChange}
-                      isFirstBidder={isFirstBidder}
-                      isCurrentBidder={isCurrentBidder}
-                      hasBid={hasBid}
-                    />
-                  );
-                });
+                return (
+                  <>
+                    {/* Show blind bidders separately */}
+                    {blindBidders.length > 0 && (
+                      <div className="mb-4 p-4 bg-purple-100 rounded-xl border-2 border-purple-400">
+                        <p className="text-sm font-bold text-purple-700 mb-3">
+                          Blind Bids (already submitted):
+                        </p>
+                        <div className="space-y-2">
+                          {blindBidders.map(({ ps, i }) => {
+                            const hasBidChange = changedBids.has(i);
+                            const hasResultChange = changedResults.has(i);
+                            const hasAnyChange = hasBidChange || hasResultChange;
+
+                            return (
+                              <ViewOnlyPlayerCard
+                                key={i}
+                                player={ps}
+                                currentPhase={currentPhase}
+                                hasChange={hasAnyChange}
+                              />
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Show non-blind bidders in order */}
+                    {nonBlindOrderedIndices.map((i) => {
+                      const ps = currentRound.scores[i];
+                      const hasBidChange = changedBids.has(i);
+                      const hasResultChange = changedResults.has(i);
+                      const hasAnyChange = hasBidChange || hasResultChange;
+                      const isFirstBidder = i === firstNonBlindBidderIndex;
+                      const isCurrentBidder = i === nextBidderIndex;
+                      const hasBid = ps.bid >= 0;
+
+                      return (
+                        <ViewOnlyPlayerCard
+                          key={i}
+                          player={ps}
+                          currentPhase={currentPhase}
+                          hasChange={hasAnyChange}
+                          isFirstBidder={isFirstBidder}
+                          isCurrentBidder={isCurrentBidder}
+                          hasBid={hasBid}
+                        />
+                      );
+                    })}
+                  </>
+                );
               }
 
               // Default rendering (blind bidding phase, results phase, etc.)
