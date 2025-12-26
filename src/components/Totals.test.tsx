@@ -9,16 +9,16 @@ describe('Totals', () => {
       roundNumber: 1,
       firstBidderIndex: 0,
       scores: [
-        { name: 'Alice', bid: 1, tricks: 1, met: true, score: 11, blindBid: false },
-        { name: 'Bob', bid: 0, tricks: 0, met: true, score: 10, blindBid: false },
+        { name: 'Alice', bid: 1, met: true, score: 11, blindBid: false },
+        { name: 'Bob', bid: 0, met: true, score: 10, blindBid: false },
       ],
     },
     {
       roundNumber: 2,
       firstBidderIndex: 1,
       scores: [
-        { name: 'Alice', bid: 2, tricks: 2, met: true, score: 14, blindBid: false },
-        { name: 'Bob', bid: 1, tricks: 0, met: false, score: -1, blindBid: false },
+        { name: 'Alice', bid: 2, met: true, score: 14, blindBid: false },
+        { name: 'Bob', bid: 1, met: false, score: -1, blindBid: false },
       ],
     },
   ];
@@ -99,9 +99,9 @@ describe('Totals', () => {
         roundNumber: 1,
         firstBidderIndex: 0,
         scores: [
-          { name: 'Alice', bid: 1, tricks: 1, met: true, score: 11, blindBid: false },
-          { name: 'Bob', bid: 1, tricks: 1, met: true, score: 11, blindBid: false },
-          { name: 'Charlie', bid: 0, tricks: 0, met: true, score: 10, blindBid: false },
+          { name: 'Alice', bid: 1, met: true, score: 11, blindBid: false },
+          { name: 'Bob', bid: 1, met: true, score: 11, blindBid: false },
+          { name: 'Charlie', bid: 0, met: true, score: 10, blindBid: false },
         ],
       },
     ];

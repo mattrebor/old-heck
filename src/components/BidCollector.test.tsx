@@ -8,9 +8,9 @@ describe('BidCollector', () => {
     roundNumber: 1,
     firstBidderIndex: 0,
     scores: [
-      { name: 'Alice', bid: -1, tricks: 0, met: false, score: 0, blindBid: false },
-      { name: 'Bob', bid: -1, tricks: 0, met: false, score: 0, blindBid: false },
-      { name: 'Charlie', bid: -1, tricks: 0, met: false, score: 0, blindBid: false },
+      { name: 'Alice', bid: -1, met: null, score: 0, blindBid: false },
+      { name: 'Bob', bid: -1, met: null, score: 0, blindBid: false },
+      { name: 'Charlie', bid: -1, met: null, score: 0, blindBid: false },
     ],
   };
 
@@ -98,9 +98,9 @@ describe('BidCollector', () => {
     const roundWithBids: Round = {
       ...mockRound,
       scores: [
-        { name: 'Alice', bid: 1, tricks: 0, met: false, score: 0, blindBid: false },
-        { name: 'Bob', bid: 0, tricks: 0, met: false, score: 0, blindBid: false },
-        { name: 'Charlie', bid: 0, tricks: 0, met: false, score: 0, blindBid: false },
+        { name: 'Alice', bid: 1, met: null, score: 0, blindBid: false },
+        { name: 'Bob', bid: 0, met: null, score: 0, blindBid: false },
+        { name: 'Charlie', bid: 0, met: null, score: 0, blindBid: false },
       ],
     };
 
