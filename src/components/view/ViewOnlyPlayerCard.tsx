@@ -1,5 +1,6 @@
 import type { PlayerScore } from "../../types";
 import PlayerAvatar from "../PlayerAvatar";
+import BidDisplay from "../BidDisplay";
 
 type ViewOnlyPlayerCardProps = {
   player: PlayerScore;
@@ -20,22 +21,12 @@ export default function ViewOnlyPlayerCard({
     >
       <PlayerAvatar name={player.name} size="md" showName={true} />
 
-      {/* Bid display with badge on top */}
-      <div className="flex flex-col gap-1 min-w-0">
-        {/* Badge container - always reserves space */}
-        <div className="h-5">
-          {player.blindBid && player.bid >= 0 && (
-            <span className="px-2 py-0.5 bg-purple-600 text-white rounded text-xs font-bold inline-block">
-              ⚡ BLIND
-            </span>
-          )}
-        </div>
-        {player.bid >= 0 ? (
-          <span className="text-gray-700 font-semibold whitespace-nowrap">Bid: {player.bid}</span>
-        ) : (
-          <span className="text-gray-400 italic whitespace-nowrap">Bid: waiting...</span>
-        )}
-      </div>
+      <BidDisplay
+        bid={player.bid}
+        isBlind={player.blindBid}
+        size="md"
+        waiting={player.bid < 0}
+      />
 
       {/* Show result if phase is results or completed */}
       {currentPhase === "results" && player.tricks >= 0 && (

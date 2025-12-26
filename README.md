@@ -419,10 +419,12 @@ The app follows a **composition-based architecture** to maintain low cyclomatic 
 - **GameViewPage.tsx** (refactored): View-only page for spectators using sub-components
   - Delegates player display to `ViewOnlyPlayerCard` with real-time change animations
 
-**Consistent Blind Bid Display**: All components display blind bids with inline badges (no extra vertical spacing):
-- Badge shows "⚡ BLIND" next to the bid
+**Consistent Blind Bid Display**: All components use the `BidDisplay` component for uniform display:
+- Badge shows "⚡ BLIND" **above** the bid count (centered)
+- Reserved space ensures consistent height with or without badge
+- Three size variants: `sm`, `md`, `lg` for different contexts
+- Optional `suffix` prop for additional inline content (e.g., met/missed indicators)
 - No duplicative text or "2X" notation
-- Ensures consistent spacing whether player bid blind or not
 
 This architecture ensures each component has a **single responsibility**, making the codebase more maintainable, testable, and easier to understand.
 

@@ -1,5 +1,6 @@
 import type { PlayerScore } from "../../types";
 import PlayerAvatar from "../PlayerAvatar";
+import BidDisplay from "../BidDisplay";
 
 type BlindBidSummaryProps = {
   players: PlayerScore[];
@@ -31,18 +32,13 @@ export default function BlindBidSummary({
             <div className="flex items-center justify-between mb-2 p-4 bg-purple-100 rounded-xl border-2 border-purple-400">
               <div className="flex items-center gap-2">
                 <PlayerAvatar name={player.name} size="md" showName={true} />
-                <span className="px-2 py-1 bg-purple-600 text-white rounded text-xs font-bold">
-                  ⚡ BLIND
-                </span>
                 {bidTooHigh && (
                   <span className="px-1.5 py-0.5 bg-orange-500 text-white rounded text-xs font-bold whitespace-nowrap">
                     ⚠
                   </span>
                 )}
               </div>
-              <span className="text-xl font-bold text-purple-700">
-                Bid: {player.bid}
-              </span>
+              <BidDisplay bid={player.bid} isBlind={true} size="md" />
             </div>
             {bidTooHigh && (
               <div className="mb-3 px-3 py-2 bg-orange-100 border-2 border-orange-400 rounded-lg text-sm text-orange-800 font-semibold">

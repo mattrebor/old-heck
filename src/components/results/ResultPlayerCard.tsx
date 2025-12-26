@@ -1,5 +1,6 @@
 import type { PlayerScore } from "../../types";
 import PlayerAvatar from "../PlayerAvatar";
+import BidDisplay from "../BidDisplay";
 
 type ResultPlayerCardProps = {
   player: PlayerScore;
@@ -18,19 +19,7 @@ export default function ResultPlayerCard({
         {/* Player info */}
         <div className="flex items-center gap-4">
           <PlayerAvatar name={player.name} size="lg" showName={true} />
-          <div className="flex flex-col gap-1 flex-1">
-            {/* Badge container - always reserves space */}
-            <div className="h-6">
-              {player.blindBid && (
-                <span className="px-2 py-1 bg-purple-600 text-white rounded-lg text-xs sm:text-sm font-bold inline-block">
-                  ⚡ BLIND
-                </span>
-              )}
-            </div>
-            <div className="text-sm sm:text-base text-gray-600 font-semibold">
-              Bid: {player.bid}
-            </div>
-          </div>
+          <BidDisplay bid={player.bid} isBlind={player.blindBid} size="lg" />
         </div>
 
         {/* Radio buttons - stacked on mobile, side by side on larger screens */}

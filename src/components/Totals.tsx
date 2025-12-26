@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import type { Round } from "../types";
 import PlayerAvatar from "./PlayerAvatar";
+import BidDisplay from "./BidDisplay";
 
 export default function Totals({
   rounds,
@@ -154,14 +155,11 @@ export default function Totals({
                       >
                         <PlayerAvatar name={name} size="md" showName={true} />
                         <div className="flex items-center gap-3">
-                          <div className="text-xs text-gray-600 flex flex-col items-end gap-1">
-                            {playerScore.blindBid && (
-                              <div className="text-purple-600 font-bold">
-                                ⚡ BLIND
-                              </div>
-                            )}
-                            <div>
-                              Bid: {playerScore.bid}
+                          <BidDisplay
+                            bid={playerScore.bid}
+                            isBlind={playerScore.blindBid}
+                            size="sm"
+                            suffix={
                               <span
                                 className={
                                   playerScore.met
@@ -171,8 +169,8 @@ export default function Totals({
                               >
                                 {playerScore.met ? " ✓" : " ✗"}
                               </span>
-                            </div>
-                          </div>
+                            }
+                          />
                           <span
                             className={`font-mono text-lg font-bold ${
                               playerScore.score < 0
@@ -335,12 +333,11 @@ export default function Totals({
 
                         return (
                           <td key={name} className="px-5 pb-5 pt-2 text-center">
-                            <div className="text-xs text-gray-600 flex flex-col items-center gap-1">
-                              <div className="text-purple-600 font-bold min-h-[16px]">
-                                {playerScore.blindBid ? "⚡ BLIND" : "\u00A0"}
-                              </div>
-                              <div>
-                                Bid: {playerScore.bid}
+                            <BidDisplay
+                              bid={playerScore.bid}
+                              isBlind={playerScore.blindBid}
+                              size="sm"
+                              suffix={
                                 <span
                                   className={
                                     playerScore.met
@@ -350,8 +347,8 @@ export default function Totals({
                                 >
                                   {playerScore.met ? " ✓" : " ✗"}
                                 </span>
-                              </div>
-                            </div>
+                              }
+                            />
                           </td>
                         );
                       })}
