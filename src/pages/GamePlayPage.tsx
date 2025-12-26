@@ -552,7 +552,7 @@ export default function GamePlayPage() {
       )}
 
       {/* Score Review Phase - After Round 2+ */}
-      {currentPhase === "score-review" && (
+      {currentPhase === "score-review" && setup && (
         <div className="mt-6">
           {/* Header */}
           <div className="bg-gradient-to-r from-green-100 to-green-200 border-3 border-green-500 rounded-xl p-5 mb-6">
@@ -560,7 +560,12 @@ export default function GamePlayPage() {
               ✅ Round {completedRounds.length} Complete!
             </h2>
             <p className="text-green-800">
-              Review the scores below and click "Start Round {completedRounds.length + 1}" when ready.
+              {(() => {
+                const nextRoundNumber = completedRounds.length + 1;
+                const nextFirstBidderIndex = (setup.firstPlayerIndex + (nextRoundNumber - 1)) % setup.players.length;
+                const nextFirstBidderName = setup.players[nextFirstBidderIndex];
+                return `Review the scores below and click "Start Round ${nextRoundNumber}" when ready. ${nextFirstBidderName} will start the bidding.`;
+              })()}
             </p>
           </div>
 
