@@ -42,8 +42,8 @@ export default function ViewOnlyPlayerCard({
 
       {/* Always reserve space for results to maintain consistent layout */}
       <div
-        className={`flex items-center gap-2 min-w-[120px] justify-end transition-all ring-2 rounded px-2 ${
-          resultsAnimating ? "animate-pulse ring-blue-400" : "ring-transparent"
+        className={`flex items-center gap-2 min-w-[120px] justify-end transition-all ${
+          resultsAnimating ? "animate-pulse" : ""
         }`}
       >
         {currentPhase === "results" && player.tricks >= 0 ? (
