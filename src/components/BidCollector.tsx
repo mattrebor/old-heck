@@ -65,6 +65,27 @@ export default function BidCollector({
   );
   const { allPlayersBlind } = validation;
 
+  // Sync biddingPhase when initialPhase changes (for real-time updates from other users)
+  useEffect(() => {
+    if (initialPhase !== biddingPhase) {
+      setBiddingPhase(initialPhase);
+
+      // If transitioning to regular bidding, set the active bidder
+      if (initialPhase === "regular-bid-entry") {
+        // Sync local bids from server
+        setLocalBids(round.scores.map(ps => ps.bid));
+
+        const orderedIndices = getOrderedPlayerIndices(
+          round.firstBidderIndex,
+          round.scores.length
+        );
+        const blindBidDecisions = round.scores.map(ps => ps.blindBid);
+        const nextBidder = getNextBidder(orderedIndices, round.scores, blindBidDecisions);
+        setActiveBidderIndex(nextBidder);
+      }
+    }
+  }, [initialPhase, biddingPhase, round]);
+
   // Sync blindBidDecisions when round changes (for real-time updates from other users)
   // Create a stable key from blind bid flags
   const blindBidsKey = useMemo(
