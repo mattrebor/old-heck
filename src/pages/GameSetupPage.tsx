@@ -173,6 +173,15 @@ export default function GameSetupPage() {
             const isEmpty = p.trim() === "";
             return (
               <div key={i} className="flex items-center gap-3 mb-4">
+                {players.length > 2 && (
+                  <button
+                    onClick={() => setPlayers(players.filter((_, idx) => idx !== i))}
+                    className="text-red-600 hover:text-red-700 font-bold text-xl px-2"
+                    title="Remove player"
+                  >
+                    ×
+                  </button>
+                )}
                 <PlayerAvatar name={p || "?"} size="lg" />
                 <input
                   value={p}
@@ -202,15 +211,6 @@ export default function GameSetupPage() {
                     ▼
                   </button>
                 </div>
-                {players.length > 2 && (
-                  <button
-                    onClick={() => setPlayers(players.filter((_, idx) => idx !== i))}
-                    className="text-red-600 hover:text-red-700 font-bold text-xl px-2"
-                    title="Remove player"
-                  >
-                    ×
-                  </button>
-                )}
               </div>
             );
           })}
