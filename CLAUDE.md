@@ -64,7 +64,7 @@ The application uses a multi-phase round system with auto-save at each step:
    - **Auto-scroll**: Page scrolls to top when transitioning to score review or next round
    - Manual completion - user must click "Complete Round" button
 
-3. **Score Review Phase** (`currentPhase: "score-review"`) - *After Round 2+ only*
+3. **Score Review Phase** (`currentPhase: "score-review"`) - _After Round 2+ only_
 
    - Shows score breakdown with point deltas on mobile
    - Manual "Start Next Round" button to continue
@@ -155,6 +155,7 @@ Phase transitions save immediately (not debounced) for reliability.
 **Auto-Scroll on Phase Transitions**
 
 Uses `window.scrollTo({ top: 0, behavior: 'smooth' })` at key transition points:
+
 - Bidding → Results
 - Results → Score Review (round 2+)
 - Results → Next Round (auto-start after round 1)
@@ -176,12 +177,14 @@ const [phaseChanged, setPhaseChanged] = useState(false);
 ```
 
 On Firestore update (via `onSnapshot`):
+
 - Compare current vs previous values
 - Set animation state for changed items
 - Apply Tailwind classes: `animate-pulse ring-4 ring-yellow-400`
 - Clear animation after 2 seconds using `setTimeout`
 
 Provides visual feedback to spectators when:
+
 - A player's bid is entered (yellow pulse)
 - A player's result is recorded (yellow pulse)
 - Game phase changes (blue pulse)
@@ -199,6 +202,7 @@ Provides visual feedback to spectators when:
 **Game Settings Edit**
 
 Before any bids are entered (round 1, bidding phase, all bids = -1):
+
 - "✏️ Edit Setup" button appears
 - Opens modal dialog to edit players, decks, first player
 - Creates new round with updated settings
@@ -303,6 +307,7 @@ src/
 - create a hook in hook directory if there's some reuse. Do not create hook that are very complex in the component
 - ensure that eslint is cleared
 - ensure that the README.md is updated
+- ensure all database changes are backwards compatible. If not possible, please notify and suggest and alternative.
 
 ### TypeScript Conventions
 
@@ -431,15 +436,11 @@ export default function BidCollector({ round, onUpdate }: Props) {
         <div className="...">
           {/* 100+ lines of blind bid UI */}
           {round.scores.map((ps, i) => (
-            <div key={i}>
-              {/* 50+ lines of player card UI */}
-            </div>
+            <div key={i}>{/* 50+ lines of player card UI */}</div>
           ))}
         </div>
       ) : (
-        <div className="...">
-          {/* 100+ lines of regular bid UI */}
-        </div>
+        <div className="...">{/* 100+ lines of regular bid UI */}</div>
       )}
     </div>
   );
@@ -486,6 +487,7 @@ export default function BidCollector({ round, onUpdate }: Props) {
 ```
 
 **Benefits of Composition:**
+
 - **Reduced Complexity**: Each component has single responsibility
 - **Easier Testing**: Test sub-components in isolation
 - **Better Maintainability**: Changes to player card UI only affect one file
@@ -493,6 +495,7 @@ export default function BidCollector({ round, onUpdate }: Props) {
 - **Readability**: Parent component shows high-level flow, sub-components handle details
 
 **When to Create Sub-Components:**
+
 - Component exceeds ~200 lines
 - Multiple conditional rendering blocks (>3)
 - Repeated UI patterns (player cards, form fields)
@@ -725,9 +728,10 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ✅ Edit game settings before any bids are entered
 ✅ Comprehensive test coverage for components and utilities
 ✅ **Component refactoring for reduced cyclomatic complexity**:
-  - BidCollector.tsx reduced from 424 to 206 lines (52% reduction)
-  - RoundEditor.tsx reduced from 91 to 31 lines (66% reduction)
-  - Created 5 focused sub-components in `components/bid/` and `components/results/`
-  - Each sub-component has single responsibility (easier testing and maintenance)
+
+- BidCollector.tsx reduced from 424 to 206 lines (52% reduction)
+- RoundEditor.tsx reduced from 91 to 31 lines (66% reduction)
+- Created 5 focused sub-components in `components/bid/` and `components/results/`
+- Each sub-component has single responsibility (easier testing and maintenance)
 
 See `TODO.md` for future feature priorities.

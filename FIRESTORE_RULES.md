@@ -22,11 +22,12 @@ The security rules implement the following permissions model:
 #### Update Access (Owner Only)
 - Only the **game creator** can update their games
 - The creator is identified by matching `createdBy.uid` with the authenticated user's UID
+- **Legacy games** (created before authentication) without `createdBy` can be updated by any authenticated user
 - Critical fields cannot be modified:
-  - `createdBy` (prevents ownership transfer)
-  - `setup` (prevents changing game configuration after creation)
+  - `createdBy` (prevents ownership transfer, if it exists)
+  - `setup` (can only be edited before first round, when no bids entered)
   - `createdAt` (prevents tampering with creation timestamp)
-- Allowed updates: `rounds`, `inProgressRound`, `currentPhase`, `status`, `updatedAt`
+- Allowed updates: `rounds`, `inProgressRound`, `currentPhase`, `biddingPhase`, `status`, `updatedAt`
 
 #### Delete Access (Owner Only)
 - Only the **game creator** can delete their games
@@ -110,7 +111,10 @@ To deploy rules across dev/staging/production:
 ### "Permission denied" errors
 - **For reads**: This shouldn't happen as all games are publicly readable
 - **For creates**: User must be authenticated and include valid `createdBy` data
-- **For updates/deletes**: User must be the game owner (matching `createdBy.uid`)
+- **For updates/deletes**:
+  - For games with `createdBy`: User must be the game owner (matching `createdBy.uid`)
+  - For legacy games without `createdBy`: Any authenticated user can update
+  - If you get permission errors on auto-save, check if the game has a `createdBy` field
 
 ### Rules not taking effect
 - Rules can take a few seconds to propagate after deployment
@@ -120,13 +124,31 @@ To deploy rules across dev/staging/production:
 ### Testing rules
 Check the Firebase Console → Firestore → Rules tab for a built-in simulator to test your rules before deploying.
 
+## Backwards Compatibility
+
+### Legacy Games (No createdBy field)
+
+The app supports **legacy games** created before authentication was added:
+
+- **Type Definition**: `createdBy` is optional in the `Game` type (`createdBy?: {...}`)
+- **Security Rules**: Games without `createdBy` can be updated by any authenticated user
+- **Ownership Check**: The `isGameOwner()` function allows access if:
+  - Game has no `createdBy` field (legacy game), OR
+  - User's UID matches `createdBy.uid` (owner)
+- **Validation**: The `isValidGameUpdate()` function allows updates if:
+  - Game has no `createdBy` field (skip creator check), OR
+  - `createdBy` field hasn't changed
+
+This ensures **backwards compatibility** - old games continue to work while new games enforce proper ownership.
+
 ## Security Best Practices
 
 1. **Never trust client data**: The rules validate all incoming data
 2. **Principle of least privilege**: Users can only access what they need
-3. **Immutable creator**: Prevents games from being hijacked by changing ownership
+3. **Immutable creator**: Prevents games from being hijacked by changing ownership (for games with `createdBy`)
 4. **Public reads, private writes**: Anyone can view, only owners can modify
 5. **Version control**: Keep rules in source control for audit trail
+6. **Backwards compatibility**: Support legacy data structures to avoid breaking existing games
 
 ## Example Scenarios
 

@@ -9,7 +9,10 @@ service cloud.firestore {
 
     // Helper function to check if user is the owner of the game
     function isGameOwner(gameData) {
-      return isSignedIn() && request.auth.uid == gameData.createdBy.uid;
+      // For legacy games without createdBy, allow any authenticated user to update
+      // For games with createdBy, only allow the owner
+      return isSignedIn() &&
+        (!gameData.keys().hasAll(['createdBy']) || request.auth.uid == gameData.createdBy.uid);
     }
 
     // Helper function to validate game creation data
@@ -38,9 +41,12 @@ service cloud.firestore {
       let data = request.resource.data;
       let setupChanged = data.setup != resource.data.setup;
 
-      // Prevent changing the creator
+      // Prevent changing the creator (if it exists)
       // Allow setup changes only if canEditSetup() returns true
-      return data.createdBy == resource.data.createdBy
+      let createdByUnchanged = !data.keys().hasAll(['createdBy']) ||
+                                data.createdBy == resource.data.createdBy;
+
+      return createdByUnchanged
           && data.createdAt == resource.data.createdAt
           && (!setupChanged || canEditSetup());
     }
