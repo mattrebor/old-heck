@@ -23,8 +23,8 @@ export default function ResultPlayerCard({
           <BidDisplay bid={player.bid} isBlind={player.blindBid} size="lg" />
         </div>
 
-        {/* Radio buttons - stacked on mobile, side by side on larger screens */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+        {/* Radio buttons - side by side on all screen sizes */}
+        <div className="flex flex-row gap-3">
           <label className="flex items-center gap-3 cursor-pointer px-4 py-3 rounded-xl bg-success-50 hover:bg-success-500 hover:text-white border-2 border-success-500 transition-all flex-1">
             <input
               type="radio"
