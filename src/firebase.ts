@@ -15,8 +15,10 @@ import {
   signInWithPopup,
   signOut as firebaseSignOut,
 } from "firebase/auth";
-import type { Game, GameSetup, Round } from "./types";
+import type { Game, GameSetup, Round, ShareToken } from "./types";
 import { getAnalytics } from "firebase/analytics";
+import { nanoid } from "nanoid";
+import { getShareSession, createShareSession } from "./utils/shareAccess";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -165,4 +167,85 @@ export async function signOut() {
     console.error("Error signing out:", error);
     throw error;
   }
+}
+
+/**
+ * Generate a one-time use share token for collaborative editing.
+ * Creates a cryptographically random 32-character token and stores it in the game document.
+ * Returns the token string for use in the share link.
+ */
+export async function generateShareToken(gameId: string): Promise<string> {
+  const gameRef = doc(db, "games", gameId);
+
+  // Generate cryptographically random 32-char token
+  const token = nanoid(32);
+
+  const shareToken: ShareToken = {
+    token,
+    createdAt: Date.now(),
+    usedAt: null,
+    usedBy: null,
+  };
+
+  await updateDoc(gameRef, {
+    shareToken,
+    updatedAt: Timestamp.now(),
+  });
+
+  return token;
+}
+
+/**
+ * Claim a share token for the current browser session.
+ * Validates the token and marks it as used by storing the session ID.
+ * Returns success: true if the token is valid and claimed, or false with an error message.
+ *
+ * Token claim rules:
+ * 1. If this browser already claimed it (session ID matches), allow access
+ * 2. If token is unused, claim it for this browser
+ * 3. If token was claimed by a different browser, deny access
+ */
+export async function claimShareToken(
+  gameId: string,
+  token: string
+): Promise<{ success: boolean; error?: string }> {
+  const gameRef = doc(db, "games", gameId);
+  const gameSnap = await getDoc(gameRef);
+
+  if (!gameSnap.exists()) {
+    return { success: false, error: "Game not found" };
+  }
+
+  const game = gameSnap.data() as Game;
+
+  // Validate token exists and matches
+  if (!game.shareToken || game.shareToken.token !== token) {
+    return { success: false, error: "Invalid token" };
+  }
+
+  // Check if this browser already claimed the token
+  const existingSession = getShareSession(gameId);
+  if (
+    existingSession &&
+    existingSession.sessionId === game.shareToken.usedBy
+  ) {
+    // This browser already claimed it - allow access
+    return { success: true };
+  }
+
+  // Check if token already used by different session
+  if (game.shareToken.usedAt !== null && game.shareToken.usedBy !== null) {
+    return { success: false, error: "This link has already been used" };
+  }
+
+  // Claim the token for this browser
+  const session = createShareSession(gameId, token);
+
+  await updateDoc(gameRef, {
+    "shareToken.usedAt": Date.now(),
+    "shareToken.usedBy": session.sessionId,
+    updatedAt: Timestamp.now(),
+  });
+
+  return { success: true };
 }
