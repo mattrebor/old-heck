@@ -26,7 +26,8 @@ export function calculateMaxRounds(decks: number, players: number): number {
  * Create a new round with initialized player scores
  *
  * Automatically rotates the first bidder based on round number.
- * All bids are initialized to -1 (not entered yet), and scores start at 0.
+ * All bids are initialized to -1 (not entered yet), met is null (result not recorded yet),
+ * and scores start at 0.
  *
  * @param gameSetup - Game configuration including players and first player index
  * @param roundNumber - The round number to create (1-indexed)
@@ -51,8 +52,7 @@ export function createRound(
     scores: gameSetup.players.map((name) => ({
       name,
       bid: -1, // -1 indicates bid not entered yet
-      tricks: 0,
-      met: false,
+      met: null, // null indicates result not recorded yet
       score: 0,
       blindBid: false,
     })),

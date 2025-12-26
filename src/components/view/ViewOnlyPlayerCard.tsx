@@ -1,4 +1,5 @@
 import type { PlayerScore } from "../../types";
+import { hasResultRecorded } from "../../types";
 import PlayerAvatar from "../PlayerAvatar";
 import BidDisplay from "../BidDisplay";
 
@@ -30,7 +31,7 @@ export default function ViewOnlyPlayerCard({
 
       {/* Always reserve space for results to maintain consistent layout */}
       <div className="flex items-center gap-2 min-w-[120px] justify-end">
-        {currentPhase === "results" && player.tricks >= 0 ? (
+        {currentPhase === "results" && hasResultRecorded(player) ? (
           <>
             <span
               className={`font-medium ${

@@ -4,6 +4,7 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../contexts/AuthContext";
 import type { Game, GameSetup, Round } from "../types";
+import { hasResultRecorded } from "../types";
 import Header from "../components/Header";
 import Totals from "../components/Totals";
 import ViewOnlyPlayerCard from "../components/view/ViewOnlyPlayerCard";
@@ -84,12 +85,11 @@ export default function GameViewPage() {
         if (prevScore && prevScore.bid !== score.bid && score.bid >= 0) {
           newChangedBids.add(idx);
         }
-        // Detect any result changes (tricks, score, or met status)
+        // Detect any result changes (score or met status)
         if (prevScore && (
-          prevScore.tricks !== score.tricks ||
           prevScore.score !== score.score ||
           prevScore.met !== score.met
-        ) && score.tricks >= 0) {
+        ) && hasResultRecorded(score)) {
           newChangedResults.add(idx);
         }
       });

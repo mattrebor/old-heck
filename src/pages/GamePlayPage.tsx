@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { loadGame, updateGameRound, markGameComplete } from "../firebase";
 import type { GameSetup, Round } from "../types";
+import { hasResultRecorded } from "../types";
 import { calculateOldHeckScore } from "../scoring";
 import { debounce } from "../utils/debounce";
 import { createRound } from "../utils/rounds";
@@ -207,10 +208,9 @@ export default function GamePlayPage() {
 
     const updatedScores = currentRound.scores.map((ps, i) => {
       if (i === playerIndex) {
-        // Use bid value for tricks in both cases (for scoring calculation)
-        const tricks = ps.bid;
-        const score = calculateOldHeckScore(tricks, madeBid, ps.blindBid);
-        return { ...ps, tricks, met: madeBid, score };
+        // Calculate score based on whether they made their bid
+        const score = calculateOldHeckScore(ps.bid, madeBid, ps.blindBid);
+        return { ...ps, met: madeBid, score };
       }
       return ps;
     });
@@ -226,7 +226,7 @@ export default function GamePlayPage() {
     if (!currentRound || !gameId || !setup) return;
 
     // Safety check - should never happen since button is disabled
-    const allPlayersMarked = currentRound.scores.every((ps) => ps.tricks >= 0);
+    const allPlayersMarked = currentRound.scores.every(hasResultRecorded);
     if (!allPlayersMarked) {
       return; // Silently ignore if called when not ready
     }
@@ -535,13 +535,13 @@ export default function GamePlayPage() {
         <div>
           <RoundEditor round={currentRound} onUpdate={handleUpdateResult} />
           <div className="mb-6 p-5 bg-felt-100 border-2 border-felt-400 rounded-xl text-base text-gray-700 font-semibold">
-            {currentRound.scores.every((ps) => ps.tricks >= 0)
+            {currentRound.scores.every(hasResultRecorded)
               ? "✅ All players marked! Click 'Complete Round' to continue."
               : "⏳ Mark all players to continue."}
           </div>
           <button
             onClick={handleCompleteRound}
-            disabled={!currentRound.scores.every((ps) => ps.tricks >= 0)}
+            disabled={!currentRound.scores.every(hasResultRecorded)}
             className="mb-6 bg-gradient-to-r from-success-500 to-success-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:shadow-card-hover hover:scale-105 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all w-full"
           >
             Complete Round

@@ -5,11 +5,17 @@ export type Suit = "♠" | "♥" | "♦" | "♣";
 export type PlayerScore = {
   name: string;
   bid: number;
-  tricks: number;
-  met: boolean;
+  tricks?: number; // Deprecated: kept for backwards compatibility with existing games
+  met: boolean | null; // null = not yet recorded, true/false = result
   score: number;
   blindBid: boolean;
 };
+
+// Helper function to check if a player's result has been recorded
+export function hasResultRecorded(player: PlayerScore): boolean {
+  // Check new way (met is not null) or old way (tricks >= 0) for backwards compatibility
+  return player.met !== null || (player.tricks !== undefined && player.tricks >= 0);
+}
 
 export type Round = {
   roundNumber: number;

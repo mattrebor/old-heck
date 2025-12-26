@@ -1,4 +1,5 @@
 import type { PlayerScore } from "../../types";
+import { hasResultRecorded } from "../../types";
 import PlayerAvatar from "../PlayerAvatar";
 import BidDisplay from "../BidDisplay";
 
@@ -28,7 +29,7 @@ export default function ResultPlayerCard({
             <input
               type="radio"
               name={`player-${index}`}
-              checked={player.met}
+              checked={player.met === true}
               onChange={() => onUpdate(index, true)}
               className="w-5 h-5 sm:w-6 sm:h-6 text-success-500"
             />
@@ -38,7 +39,7 @@ export default function ResultPlayerCard({
             <input
               type="radio"
               name={`player-${index}`}
-              checked={player.tricks >= 0 && !player.met}
+              checked={player.met === false}
               onChange={() => onUpdate(index, false)}
               className="w-5 h-5 sm:w-6 sm:h-6 text-danger-500"
             />
@@ -47,7 +48,7 @@ export default function ResultPlayerCard({
         </div>
 
         {/* Score display */}
-        {player.tricks >= 0 && (
+        {hasResultRecorded(player) && (
           <div className="text-center sm:text-right pt-2 border-t-2 border-gray-200">
             <div
               className={`font-mono text-3xl sm:text-4xl font-bold ${
