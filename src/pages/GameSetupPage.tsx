@@ -128,7 +128,7 @@ export default function GameSetupPage() {
               onChange={(e) =>
                 setDecks(e.target.value === "" ? "" : Number(e.target.value))
               }
-              className="border-3 border-felt-400 rounded-xl px-5 py-4 flex-1 text-center text-xl font-bold focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-500/30 transition-all bg-white"
+              className="border-3 border-felt-400 rounded-xl px-5 py-4 w-20 text-center text-xl font-bold focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-500/30 transition-all bg-white"
             />
             <button
               onClick={() => setDecks((typeof decks === "number" ? decks : 1) + 1)}
