@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { doc, onSnapshot } from "firebase/firestore";
 import {
+  db,
   loadGame,
   updateGameRound,
   markGameComplete,
@@ -8,6 +10,7 @@ import {
   claimShareToken,
 } from "../firebase";
 import { useAuth } from "../contexts/AuthContext";
+import type { Game } from "../types";
 import type { GameSetup, Round } from "../types";
 import { hasResultRecorded } from "../types";
 import { calculateOldHeckScore } from "../scoring";
@@ -75,9 +78,11 @@ export default function GamePlayPage({
     }, AUTO_SAVE_DEBOUNCE_MS)
   );
 
-  // Verify access and load game
+  // Verify access and set up real-time game updates
   useEffect(() => {
-    async function verifyAccessAndLoad() {
+    let unsubscribe: (() => void) | null = null;
+
+    async function verifyAccessAndSubscribe() {
       if (!gameId) {
         setTokenError("No game ID provided");
         setLoading(false);
@@ -85,6 +90,7 @@ export default function GamePlayPage({
       }
 
       try {
+        // First, do one-time load to verify access
         const game = await loadGame(gameId);
         if (!game) {
           setTokenError("Game not found");
@@ -116,37 +122,65 @@ export default function GamePlayPage({
           return;
         }
 
-        // Load game data
-        setSetup(game.setup);
-        setCompletedRounds(game.rounds || []);
-        setCurrentRound(game.inProgressRound || null);
-        setCurrentPhase(game.currentPhase || "completed");
-        setBiddingPhase(game.biddingPhase || "blind-declaration-and-entry");
+        // Access granted - set up real-time subscription
+        const gameRef = doc(db, "games", gameId);
+        unsubscribe = onSnapshot(
+          gameRef,
+          async (snapshot) => {
+            if (!snapshot.exists()) {
+              setError("Game not found");
+              setLoading(false);
+              return;
+            }
 
-        // If no round in progress and not at max rounds, start first round
-        if (!game.inProgressRound && game.rounds.length === 0) {
-          const firstRound = createRound(game.setup, 1);
-          setCurrentRound(firstRound);
-          setCurrentPhase("bidding");
-          setBiddingPhase("blind-declaration-and-entry");
+            const gameData = { id: snapshot.id, ...snapshot.data() } as Game;
 
-          // Save initial round to Firestore
-          await updateGameRound(gameId, {
-            inProgressRound: firstRound,
-            currentPhase: "bidding",
-            biddingPhase: "blind-declaration-and-entry",
-          });
-        }
+            // Update game state
+            setSetup(gameData.setup);
+            setCompletedRounds(gameData.rounds || []);
+            setCurrentRound(gameData.inProgressRound || null);
+            setCurrentPhase(gameData.currentPhase || "completed");
+            setBiddingPhase(gameData.biddingPhase || "blind-declaration-and-entry");
 
-        setLoading(false);
+            // If no round in progress and not at max rounds, start first round
+            // Only do this on initial load, not on subsequent updates
+            if (!gameData.inProgressRound && gameData.rounds.length === 0 && loading) {
+              const firstRound = createRound(gameData.setup, 1);
+              setCurrentRound(firstRound);
+              setCurrentPhase("bidding");
+              setBiddingPhase("blind-declaration-and-entry");
+
+              // Save initial round to Firestore
+              await updateGameRound(gameId, {
+                inProgressRound: firstRound,
+                currentPhase: "bidding",
+                biddingPhase: "blind-declaration-and-entry",
+              });
+            }
+
+            setLoading(false);
+          },
+          (err) => {
+            console.error("Error loading game:", err);
+            setError("Failed to load game");
+            setLoading(false);
+          }
+        );
       } catch (err) {
-        console.error("Error loading game:", err);
+        console.error("Error verifying access:", err);
         setError("Failed to load game");
         setLoading(false);
       }
     }
 
-    verifyAccessAndLoad();
+    verifyAccessAndSubscribe();
+
+    // Cleanup: unsubscribe from real-time updates
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, [gameId, token, user, isSharedAccess]);
 
   // Show loading state
