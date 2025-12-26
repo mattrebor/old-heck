@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import type { Round } from "../types";
 import BlindBiddingPhase from "./bid/BlindBiddingPhase";
 import RegularBiddingPhase from "./bid/RegularBiddingPhase";
@@ -65,6 +65,22 @@ export default function BidCollector({
   );
   const { allPlayersBlind } = validation;
 
+  // Sync blindBidDecisions when round changes (for real-time updates from other users)
+  // Create a stable key from blind bid flags
+  const blindBidsKey = useMemo(
+    () => round.scores.map((ps) => ps.blindBid).join(','),
+    [round.scores]
+  );
+
+  useEffect(() => {
+    const serverBlindBids = round.scores.map((ps) => ps.blindBid);
+    const hasChanged = serverBlindBids.some((serverBid, i) => serverBid !== blindBidDecisions[i]);
+
+    if (hasChanged) {
+      setBlindBidDecisions(serverBlindBids);
+    }
+  }, [blindBidsKey, blindBidDecisions, round.scores]);
+
   // Cleanup timer on unmount
   useEffect(() => {
     return () => {
@@ -79,8 +95,13 @@ export default function BidCollector({
     updated[index] = !updated[index];
     setBlindBidDecisions(updated);
 
-    // Clear the bid if unchecking blind bid
-    if (!updated[index] && round.scores[index].bid >= 0) {
+    // Save blind bid decision to Firebase immediately for real-time sync
+    const currentBid = round.scores[index].bid;
+    if (updated[index]) {
+      // Checking blind bid - keep current bid (or -1 if none) and set blindBid flag
+      onUpdate(index, currentBid, true);
+    } else {
+      // Unchecking blind bid - clear the bid
       onUpdate(index, -1, false);
     }
   }
