@@ -29,23 +29,26 @@ export default function ViewOnlyPlayerCard({
       }`}
     >
       <div className="flex items-center gap-2">
-        {showBiddingIndicators && (
-          <div className="flex items-center flex-shrink-0 w-6">
-            {isFirstBidder ? (
-              <span className="px-1.5 py-0.5 bg-blue-500 text-white rounded text-xs font-bold whitespace-nowrap">
-                🎯
-              </span>
-            ) : isCurrentBidder && !hasBid ? (
-              <span className="px-1.5 py-0.5 bg-green-600 text-white rounded text-xs font-bold whitespace-nowrap">
-                👉
-              </span>
-            ) : hasBid ? (
-              <span className="px-1.5 py-0.5 bg-gray-500 text-white rounded text-xs font-bold whitespace-nowrap">
-                ✓
-              </span>
-            ) : null}
-          </div>
-        )}
+        {/* Always reserve space for bidding indicator to prevent layout shift */}
+        <div className="flex items-center flex-shrink-0 w-6">
+          {showBiddingIndicators ? (
+            <>
+              {isFirstBidder ? (
+                <span className="px-1.5 py-0.5 bg-blue-500 text-white rounded text-xs font-bold whitespace-nowrap">
+                  🎯
+                </span>
+              ) : isCurrentBidder && !hasBid ? (
+                <span className="px-1.5 py-0.5 bg-green-600 text-white rounded text-xs font-bold whitespace-nowrap">
+                  👉
+                </span>
+              ) : hasBid ? (
+                <span className="px-1.5 py-0.5 bg-gray-500 text-white rounded text-xs font-bold whitespace-nowrap">
+                  ✓
+                </span>
+              ) : null}
+            </>
+          ) : null}
+        </div>
         <PlayerAvatar name={player.name} size="md" showName={true} />
       </div>
 
