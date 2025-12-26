@@ -50,6 +50,7 @@ export default function BidCollector({
   });
 
   const bidTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const activeBidIndexRef = useRef<number | null>(null); // Track which index has an active timer
 
   // Create scores with local bids for validation
   const scoresWithLocalBids = round.scores.map((ps, i) => ({
@@ -102,11 +103,38 @@ export default function BidCollector({
     }
   }, [blindBidsKey, blindBidDecisions, round.scores]);
 
+  // Sync localBids from server when bids change (for real-time updates from other users)
+  // Skip the index that has an active timer to preserve local edits
+  const bidsKey = useMemo(
+    () => round.scores.map((ps) => ps.bid).join(','),
+    [round.scores]
+  );
+
+  useEffect(() => {
+    const serverBids = round.scores.map((ps) => ps.bid);
+    const updatedLocalBids = [...localBids];
+    let hasChanges = false;
+
+    serverBids.forEach((serverBid, i) => {
+      // Don't overwrite the bid at the index with an active timer
+      if (i !== activeBidIndexRef.current && serverBid !== localBids[i]) {
+        updatedLocalBids[i] = serverBid;
+        hasChanges = true;
+      }
+    });
+
+    if (hasChanges) {
+      setLocalBids(updatedLocalBids);
+    }
+  }, [bidsKey, localBids]);
+
   // Cleanup timer on unmount
   useEffect(() => {
     return () => {
       if (bidTimerRef.current) {
         clearTimeout(bidTimerRef.current);
+        bidTimerRef.current = null;
+        activeBidIndexRef.current = null;
       }
     };
   }, []);
@@ -168,6 +196,7 @@ export default function BidCollector({
     if (bidTimerRef.current) {
       clearTimeout(bidTimerRef.current);
       bidTimerRef.current = null;
+      activeBidIndexRef.current = null;
     }
 
     // Update local bid state (not saved to Firebase yet)
@@ -178,6 +207,7 @@ export default function BidCollector({
     // Always start timer when a valid bid is entered
     // The timer allows 2 seconds for adjustments before saving and advancing
     if (bid >= 0) {
+      activeBidIndexRef.current = index; // Track which index has active timer
       bidTimerRef.current = setTimeout(() => {
         // Save the bid to Firebase
         onUpdate(index, bid, false);
@@ -201,6 +231,7 @@ export default function BidCollector({
 
         setActiveBidderIndex(nextBidder);
         bidTimerRef.current = null;
+        activeBidIndexRef.current = null; // Clear active index when timer completes
       }, BID_ADVANCE_DELAY_MS);
     }
   }
