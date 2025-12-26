@@ -84,7 +84,12 @@ export default function GameViewPage() {
         if (prevScore && prevScore.bid !== score.bid && score.bid >= 0) {
           newChangedBids.add(idx);
         }
-        if (prevScore && prevScore.tricks !== score.tricks && score.tricks >= 0) {
+        // Detect any result changes (tricks, score, or met status)
+        if (prevScore && (
+          prevScore.tricks !== score.tricks ||
+          prevScore.score !== score.score ||
+          prevScore.met !== score.met
+        ) && score.tricks >= 0) {
           newChangedResults.add(idx);
         }
       });
