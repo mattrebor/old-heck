@@ -2,7 +2,11 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
-export default function Header() {
+interface HeaderProps {
+  onShareClick?: () => void;
+}
+
+export default function Header({ onShareClick }: HeaderProps = {}) {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -28,6 +32,14 @@ export default function Header() {
           <>
             {/* Desktop navigation - hidden on small screens */}
             <div className="hidden sm:flex gap-2">
+              {onShareClick && (
+                <button
+                  onClick={onShareClick}
+                  className="px-4 py-3 bg-gradient-to-r from-purple-500 to-purple-400 text-white rounded-xl hover:from-purple-600 hover:to-purple-500 transition-all font-bold shadow-card hover:shadow-card-hover hover:scale-105 text-base whitespace-nowrap"
+                >
+                  🔗 Share
+                </button>
+              )}
               <Link
                 to="/my-games"
                 className="px-4 py-3 bg-gradient-to-r from-felt-500 to-felt-400 text-white rounded-xl hover:from-felt-600 hover:to-felt-500 transition-all font-bold shadow-card hover:shadow-card-hover hover:scale-105 text-base whitespace-nowrap"
@@ -84,6 +96,17 @@ export default function Header() {
       {/* Mobile menu dropdown */}
       {user && menuOpen && (
         <div className="sm:hidden mt-4 flex flex-col gap-2">
+          {onShareClick && (
+            <button
+              onClick={() => {
+                onShareClick();
+                setMenuOpen(false);
+              }}
+              className="px-4 py-3 bg-gradient-to-r from-purple-500 to-purple-400 text-white rounded-xl hover:from-purple-600 hover:to-purple-500 transition-all font-bold shadow-card text-center"
+            >
+              🔗 Share
+            </button>
+          )}
           <Link
             to="/my-games"
             onClick={() => setMenuOpen(false)}

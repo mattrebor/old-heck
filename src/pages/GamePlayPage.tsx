@@ -20,12 +20,12 @@ import Header from "../components/Header";
 import BidCollector from "../components/BidCollector";
 import RoundEditor from "../components/RoundEditor";
 import Totals from "../components/Totals";
+import ShareModal from "../components/ShareModal";
 
 type RoundPhase = "bidding" | "results" | "score-review" | "completed";
 
 // Constants
 const AUTO_SAVE_DEBOUNCE_MS = 500;
-const LINK_COPIED_TIMEOUT_MS = 2000;
 const NAVIGATION_DELAY_MS = 500;
 
 export default function GamePlayPage({
@@ -46,6 +46,7 @@ export default function GamePlayPage({
   const [shareLink, setShareLink] = useState<string | null>(null);
   const [generatingLink, setGeneratingLink] = useState(false);
   const [shareLinkCopied, setShareLinkCopied] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const [setup, setSetup] = useState<GameSetup | null>(null);
   const [completedRounds, setCompletedRounds] = useState<Round[]>([]);
@@ -57,7 +58,6 @@ export default function GamePlayPage({
   const [isSaving, setIsSaving] = useState(false);
   const [playersExpanded, setPlayersExpanded] = useState(false);
   const [showEndGameDialog, setShowEndGameDialog] = useState(false);
-  const [linkCopied, setLinkCopied] = useState(false);
   const [showEditSetup, setShowEditSetup] = useState(false);
   const [editPlayers, setEditPlayers] = useState<string[]>([]);
   const [editDecks, setEditDecks] = useState<number | "">(1);
@@ -563,7 +563,7 @@ export default function GamePlayPage({
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <Header />
+      <Header onShareClick={() => setShowShareModal(true)} />
 
       {/* Auto-save indicator */}
       {isSaving && (
@@ -571,86 +571,6 @@ export default function GamePlayPage({
           💾 Saving...
         </div>
       )}
-
-      {/* Shared access indicator (only for shared users) */}
-      {accessType === "shared" && (
-        <div className="mb-4 p-4 bg-purple-50 border-2 border-purple-300 rounded-lg">
-          <p className="text-sm text-purple-800 font-semibold">
-            👥 You're editing via shared access
-          </p>
-        </div>
-      )}
-
-      {/* Share edit access (only for owners) */}
-      {accessType === "owner" && (
-        <div className="mb-4 p-4 bg-blue-50 border-2 border-blue-300 rounded-lg">
-          <h4 className="font-bold text-blue-800 mb-2">Share Edit Access</h4>
-          <p className="text-sm text-blue-700 mb-3">
-            Generate a one-time link to let someone else edit this game with you.
-          </p>
-
-          {!shareLink ? (
-            <button
-              onClick={handleGenerateShareLink}
-              disabled={generatingLink}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 transition-all"
-            >
-              {generatingLink ? "Generating..." : "🔗 Generate Share Link"}
-            </button>
-          ) : (
-            <div className="space-y-2">
-              <div className="p-3 bg-white border-2 border-blue-400 rounded-lg font-mono text-sm break-all">
-                {shareLink}
-              </div>
-              <p
-                className={`text-sm font-semibold ${
-                  shareLinkCopied ? "text-green-600" : "text-blue-600"
-                }`}
-              >
-                {shareLinkCopied
-                  ? "✓ Copied to clipboard!"
-                  : "Link copied to clipboard"}
-              </p>
-              <p className="text-xs text-gray-600">
-                This link can only be used once. Share it carefully!
-              </p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* View-only link - Compact */}
-      <div className="mb-3 bg-gradient-to-r from-purple-100 to-purple-200 border-2 border-purple-400 rounded-lg p-2">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
-          <div className="flex items-center gap-2 text-xs font-semibold text-purple-800">
-            <span>👁️</span>
-            <span>Share view-only link</span>
-          </div>
-          <div className="flex gap-2 w-full sm:w-auto">
-            <button
-              onClick={() => navigate(`/game/${gameId}/view`)}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs font-bold transition-all flex-1 sm:flex-none"
-            >
-              Open View
-            </button>
-            <button
-              onClick={() => {
-                const viewUrl = `${window.location.origin}/game/${gameId}/view`;
-                navigator.clipboard.writeText(viewUrl);
-                setLinkCopied(true);
-                setTimeout(() => setLinkCopied(false), LINK_COPIED_TIMEOUT_MS);
-              }}
-              className={`${
-                linkCopied
-                  ? "bg-green-500 hover:bg-green-600"
-                  : "bg-purple-500 hover:bg-purple-600"
-              } text-white px-3 py-1 rounded text-xs font-bold transition-all flex-1 sm:flex-none`}
-            >
-              {linkCopied ? "✓ Copied!" : "📋 Copy"}
-            </button>
-          </div>
-        </div>
-      </div>
 
       {/* Game Info - Compact */}
       <div className="bg-gradient-to-r from-bid-100 to-accent-500/20 border-2 border-bid-400 rounded-lg p-3 mb-4 shadow-card">
@@ -956,6 +876,19 @@ export default function GamePlayPage({
           </div>
         </div>
       )}
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        gameId={gameId!}
+        accessType={accessType!}
+        onGenerateEditLink={handleGenerateShareLink}
+        shareLink={shareLink}
+        generatingLink={generatingLink}
+        shareLinkCopied={shareLinkCopied}
+        setShareLinkCopied={setShareLinkCopied}
+      />
     </div>
   );
 }
