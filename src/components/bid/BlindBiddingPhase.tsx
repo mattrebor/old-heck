@@ -41,11 +41,25 @@ export default function BlindBiddingPhase({
         <span className="text-2xl sm:text-3xl md:text-4xl">👁️</span>
         Round {round.roundNumber} - Blind Bid Phase
       </h3>
-      <p className="text-base text-purple-600 mb-6 font-semibold">
+      <p className="text-base text-purple-600 mb-4 font-semibold">
         Will any players bid blind (without seeing their cards)? Check "Blind
         Bid" and enter your bid now. Blind bids earn{" "}
         <span className="text-purple-800 font-bold">DOUBLE</span> points!
       </p>
+
+      <button
+        onClick={onProceed}
+        disabled={!canProceedFromBlindPhase}
+        className="w-full bg-gradient-to-r from-purple-600 to-purple-400 text-white px-6 py-4 rounded-xl text-lg font-bold shadow-card-hover hover:shadow-2xl hover:scale-105 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all mb-6"
+      >
+        {!allBlindBidsEntered
+          ? "Enter all blind bids to continue"
+          : allPlayersBlind && bidsEqualTricks
+          ? "Adjust bids - total cannot equal books available"
+          : allPlayersBlind
+          ? "Start Round →"
+          : "Continue to Regular Bidding →"}
+      </button>
 
       <BidTrackerCard
         tricksAvailable={tricksAvailable}
