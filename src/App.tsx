@@ -14,6 +14,7 @@ export default function App() {
           <Route path="/" element={<GameSetupPage />} />
           <Route path="/my-games" element={<MyGamesPage />} />
           <Route path="/game/:gameId" element={<GamePlayPage />} />
+          <Route path="/game/:gameId/shared/:token" element={<GamePlayPage isSharedAccess={true} />} />
           <Route path="/game/:gameId/view" element={<GameViewPage />} />
         </Routes>
       </Router>

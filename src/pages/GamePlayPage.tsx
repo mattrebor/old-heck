@@ -1,6 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { loadGame, updateGameRound, markGameComplete } from "../firebase";
+import {
+  loadGame,
+  updateGameRound,
+  markGameComplete,
+  generateShareToken,
+  claimShareToken,
+} from "../firebase";
+import { useAuth } from "../contexts/AuthContext";
 import type { GameSetup, Round } from "../types";
 import { hasResultRecorded } from "../types";
 import { calculateOldHeckScore } from "../scoring";
@@ -18,9 +25,24 @@ const AUTO_SAVE_DEBOUNCE_MS = 500;
 const LINK_COPIED_TIMEOUT_MS = 2000;
 const NAVIGATION_DELAY_MS = 500;
 
-export default function GamePlayPage() {
-  const { gameId } = useParams<{ gameId: string }>();
+export default function GamePlayPage({
+  isSharedAccess = false,
+}: {
+  isSharedAccess?: boolean;
+}) {
+  const { gameId, token } = useParams<{ gameId: string; token?: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // Access control state
+  const [hasAccess, setHasAccess] = useState(false);
+  const [accessType, setAccessType] = useState<"owner" | "shared" | null>(null);
+  const [tokenError, setTokenError] = useState<string | null>(null);
+
+  // Share link generation state
+  const [shareLink, setShareLink] = useState<string | null>(null);
+  const [generatingLink, setGeneratingLink] = useState(false);
+  const [shareLinkCopied, setShareLinkCopied] = useState(false);
 
   const [setup, setSetup] = useState<GameSetup | null>(null);
   const [completedRounds, setCompletedRounds] = useState<Round[]>([]);
@@ -53,11 +75,11 @@ export default function GamePlayPage() {
     }, AUTO_SAVE_DEBOUNCE_MS)
   );
 
-  // Load game from Firestore on mount
+  // Verify access and load game
   useEffect(() => {
-    async function load() {
+    async function verifyAccessAndLoad() {
       if (!gameId) {
-        setError("No game ID provided");
+        setTokenError("No game ID provided");
         setLoading(false);
         return;
       }
@@ -65,11 +87,36 @@ export default function GamePlayPage() {
       try {
         const game = await loadGame(gameId);
         if (!game) {
-          setError("Game not found");
+          setTokenError("Game not found");
           setLoading(false);
           return;
         }
 
+        // Check if user is owner
+        if (user && game.createdBy?.uid === user.uid) {
+          setHasAccess(true);
+          setAccessType("owner");
+        }
+        // Check if accessing via share token
+        else if (isSharedAccess && token) {
+          const result = await claimShareToken(gameId, token);
+          if (result.success) {
+            setHasAccess(true);
+            setAccessType("shared");
+          } else {
+            setTokenError(result.error || "Invalid or expired link");
+            setLoading(false);
+            return;
+          }
+        }
+        // No access
+        else {
+          setTokenError("You don't have permission to edit this game");
+          setLoading(false);
+          return;
+        }
+
+        // Load game data
         setSetup(game.setup);
         setCompletedRounds(game.rounds || []);
         setCurrentRound(game.inProgressRound || null);
@@ -99,8 +146,8 @@ export default function GamePlayPage() {
       }
     }
 
-    load();
-  }, [gameId]);
+    verifyAccessAndLoad();
+  }, [gameId, token, user, isSharedAccess]);
 
   // Show loading state
   if (loading) {
@@ -108,14 +155,42 @@ export default function GamePlayPage() {
       <div className="max-w-4xl mx-auto p-6">
         <Header />
         <div className="text-center py-12">
-          <div className="text-xl font-semibold">Loading game...</div>
+          <div className="text-xl font-semibold">
+            {isSharedAccess ? "Verifying access..." : "Loading game..."}
+          </div>
         </div>
       </div>
     );
   }
 
-  // Show error state
-  if (error || !setup) {
+  // Show access denied state
+  if (tokenError) {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <Header />
+        <div className="mt-12 p-6 bg-red-50 border-2 border-red-300 rounded-lg text-center">
+          <h2 className="text-2xl font-bold text-red-800 mb-2">
+            Access Denied
+          </h2>
+          <p className="text-red-700 mb-4">{tokenError}</p>
+          {isSharedAccess && (
+            <p className="text-sm text-gray-600 mb-4">
+              This link may have already been used or expired.
+            </p>
+          )}
+          <button
+            onClick={() => navigate("/")}
+            className="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:shadow-card-hover hover:scale-105 transition-all"
+          >
+            ← Back to Setup
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Show general error state
+  if (error || !setup || !hasAccess) {
     return (
       <div className="max-w-4xl mx-auto p-6">
         <Header />
@@ -356,6 +431,26 @@ export default function GamePlayPage() {
     navigate("/", { state: { setup } });
   }
 
+  async function handleGenerateShareLink() {
+    if (!gameId) return;
+
+    setGeneratingLink(true);
+    try {
+      const generatedToken = await generateShareToken(gameId);
+      const link = `${window.location.origin}/game/${gameId}/shared/${generatedToken}`;
+      setShareLink(link);
+
+      // Auto-copy to clipboard
+      await navigator.clipboard.writeText(link);
+      setShareLinkCopied(true);
+      setTimeout(() => setShareLinkCopied(false), 3000);
+    } catch (err) {
+      console.error("Failed to generate share link:", err);
+    } finally {
+      setGeneratingLink(false);
+    }
+  }
+
   // Check if setup can be edited (round 1, bidding phase, no bids entered)
   const canEditSetup =
     completedRounds.length === 0 &&
@@ -440,6 +535,53 @@ export default function GamePlayPage() {
       {isSaving && (
         <div className="mb-4 bg-gradient-to-r from-blue-100 to-blue-200 border-2 border-blue-400 rounded-xl p-3 text-sm text-blue-800 font-semibold text-center">
           💾 Saving...
+        </div>
+      )}
+
+      {/* Shared access indicator (only for shared users) */}
+      {accessType === "shared" && (
+        <div className="mb-4 p-4 bg-purple-50 border-2 border-purple-300 rounded-lg">
+          <p className="text-sm text-purple-800 font-semibold">
+            👥 You're editing via shared access
+          </p>
+        </div>
+      )}
+
+      {/* Share edit access (only for owners) */}
+      {accessType === "owner" && (
+        <div className="mb-4 p-4 bg-blue-50 border-2 border-blue-300 rounded-lg">
+          <h4 className="font-bold text-blue-800 mb-2">Share Edit Access</h4>
+          <p className="text-sm text-blue-700 mb-3">
+            Generate a one-time link to let someone else edit this game with you.
+          </p>
+
+          {!shareLink ? (
+            <button
+              onClick={handleGenerateShareLink}
+              disabled={generatingLink}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 transition-all"
+            >
+              {generatingLink ? "Generating..." : "🔗 Generate Share Link"}
+            </button>
+          ) : (
+            <div className="space-y-2">
+              <div className="p-3 bg-white border-2 border-blue-400 rounded-lg font-mono text-sm break-all">
+                {shareLink}
+              </div>
+              <p
+                className={`text-sm font-semibold ${
+                  shareLinkCopied ? "text-green-600" : "text-blue-600"
+                }`}
+              >
+                {shareLinkCopied
+                  ? "✓ Copied to clipboard!"
+                  : "Link copied to clipboard"}
+              </p>
+              <p className="text-xs text-gray-600">
+                This link can only be used once. Share it carefully!
+              </p>
+            </div>
+          )}
         </div>
       )}
 
