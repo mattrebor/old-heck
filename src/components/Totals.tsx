@@ -108,22 +108,8 @@ export default function Totals({
                     <PlayerAvatar name={name} size="md" showName={true} />
                     {isWinner && <span className="text-xl">👑</span>}
                   </div>
-                  <div className="flex items-center gap-2">
-                    {/* Delta indicator */}
-                    {showDeltas && (
-                      <span
-                        className={`text-sm font-bold ${
-                          deltas[name] > 0
-                            ? "text-green-600"
-                            : deltas[name] < 0
-                            ? "text-red-600"
-                            : "text-gray-500"
-                        }`}
-                      >
-                        {deltas[name] > 0 ? `+${deltas[name]}` : deltas[name]}
-                      </span>
-                    )}
-                    {/* Total score */}
+                  <div className="flex items-center gap-1">
+                    {/* Total score with delta in parentheses */}
                     <span
                       className={`font-mono text-xl font-bold ${
                         totals[name] < 0 ? "text-red-700" : "text-green-700"
@@ -131,6 +117,19 @@ export default function Totals({
                     >
                       {totals[name]}
                     </span>
+                    {showDeltas && (
+                      <span
+                        className={`font-mono text-sm ${
+                          deltas[name] > 0
+                            ? "text-green-600"
+                            : deltas[name] < 0
+                            ? "text-red-600"
+                            : "text-gray-500"
+                        }`}
+                      >
+                        ({deltas[name] > 0 ? `+${deltas[name]}` : deltas[name]})
+                      </span>
+                    )}
                   </div>
                 </div>
               );
@@ -236,18 +235,7 @@ export default function Totals({
                           className="flex flex-col items-center gap-1 flex-shrink-0"
                         >
                           <PlayerAvatar name={name} size="sm" />
-                          {/* Per-round delta - less prominent */}
-                          <span
-                            className={`font-mono text-xs ${
-                              playerScore.score < 0
-                                ? "text-danger-500"
-                                : "text-success-500"
-                            }`}
-                          >
-                            ({playerScore.score > 0 ? "+" : ""}
-                            {playerScore.score})
-                          </span>
-                          {/* Running total - prominent */}
+                          {/* Running total only in collapsed state */}
                           <span className="font-mono text-base font-bold text-gray-800">
                             {runningTotal}
                           </span>
