@@ -398,7 +398,12 @@ export default function GameViewPage() {
       )}
 
       {/* Running Totals */}
-      {completedRounds.length > 0 && <Totals rounds={completedRounds} />}
+      {completedRounds.length > 0 && (
+        <Totals
+          rounds={completedRounds}
+          showDeltas={currentPhase === "score-review"}
+        />
+      )}
 
       {/* Game Complete Message */}
       {gameStatus === "completed" && (

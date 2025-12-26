@@ -27,6 +27,17 @@
 - ✅ (MEDIUM) fix view-only page spacing/overflow with blind bid results
 - ✅ (MEDIUM) remove bullseye (🎯) first bidder indicator, keep only pointer and checkmark
 - ✅ (HIGH) add collaborative share link feature for one-time edit access
+- ✅ (HIGH) move share links to header menu in modal (less prominent, saves space above fold)
+- ✅ (HIGH) add running totals to score breakdown with per-round deltas
+- ✅ (MEDIUM) simplify mobile score breakdown collapsed view to show only running totals
+- ✅ (HIGH) add player reordering capability on game setup page with up/down arrows
+- ✅ (MEDIUM) move delete player button to left of avatar (away from reorder arrows)
+- ✅ (HIGH) add player reordering to edit game setup dialog
+- ✅ (MEDIUM) add "Continue to Regular Bidding" button at top of blind bid phase (skip scrolling)
+- ✅ (MEDIUM) reduce bid input delay from 2 seconds to 1.5 seconds
+- ✅ (HIGH) make result buttons (Made it/Missed it) side by side on mobile for compact layout
+- ✅ (MEDIUM) hide radio buttons in result cards for cleaner appearance
+- ✅ (HIGH) show score review phase after round 1 (was auto-starting round 2)
 
 ## Remaining
 
