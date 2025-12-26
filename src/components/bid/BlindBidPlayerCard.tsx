@@ -33,7 +33,7 @@ export default function BlindBidPlayerCard({
           <div className="flex items-center gap-2">
             <PlayerAvatar name={player.name} size="md" showName={true} />
             {isBlindBidder && (
-              <span className="px-3 py-1 bg-purple-600 text-white rounded-lg text-sm font-bold">
+              <span className="px-2 py-0.5 bg-purple-600 text-white rounded-lg text-xs font-bold whitespace-nowrap">
                 ⚡ BLIND
               </span>
             )}
