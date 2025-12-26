@@ -28,27 +28,29 @@ export default function ViewOnlyPlayerCard({
         hasChange ? "animate-pulse ring-4 ring-yellow-400 shadow-lg" : ""
       }`}
     >
-      <div className="flex items-center gap-2">
-        {/* Always reserve space for bidding indicator to prevent layout shift */}
-        <div className="flex items-center flex-shrink-0 w-6">
-          {showBiddingIndicators ? (
-            <>
-              {isFirstBidder ? (
-                <span className="px-1.5 py-0.5 bg-blue-500 text-white rounded text-xs font-bold whitespace-nowrap">
-                  🎯
-                </span>
-              ) : isCurrentBidder && !hasBid ? (
-                <span className="px-1.5 py-0.5 bg-green-600 text-white rounded text-xs font-bold whitespace-nowrap">
-                  👉
-                </span>
-              ) : hasBid ? (
-                <span className="px-1.5 py-0.5 bg-gray-500 text-white rounded text-xs font-bold whitespace-nowrap">
-                  ✓
-                </span>
-              ) : null}
-            </>
-          ) : null}
-        </div>
+      <div className="flex items-center gap-2 min-w-0 flex-shrink">
+        {/* Only reserve space for bidding indicator during bidding phase */}
+        {currentPhase === "bidding" && (
+          <div className="flex items-center flex-shrink-0 w-6">
+            {showBiddingIndicators ? (
+              <>
+                {isFirstBidder ? (
+                  <span className="px-1.5 py-0.5 bg-blue-500 text-white rounded text-xs font-bold whitespace-nowrap">
+                    🎯
+                  </span>
+                ) : isCurrentBidder && !hasBid ? (
+                  <span className="px-1.5 py-0.5 bg-green-600 text-white rounded text-xs font-bold whitespace-nowrap">
+                    👉
+                  </span>
+                ) : hasBid ? (
+                  <span className="px-1.5 py-0.5 bg-gray-500 text-white rounded text-xs font-bold whitespace-nowrap">
+                    ✓
+                  </span>
+                ) : null}
+              </>
+            ) : null}
+          </div>
+        )}
         <PlayerAvatar name={player.name} size="md" showName={true} />
       </div>
 
@@ -60,7 +62,7 @@ export default function ViewOnlyPlayerCard({
       />
 
       {/* Always reserve space for results to maintain consistent layout */}
-      <div className="flex items-center gap-2 min-w-[120px] justify-end">
+      <div className="flex items-center gap-2 justify-end flex-shrink-0" style={{ minWidth: '120px' }}>
         {currentPhase === "results" && hasResultRecorded(player) ? (
           <>
             <span
