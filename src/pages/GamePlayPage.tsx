@@ -560,7 +560,7 @@ export default function GamePlayPage() {
               ✅ Round {completedRounds.length} Complete!
             </h2>
             <p className="text-green-800">
-              Review the scores below and click "Start Next Round" when ready.
+              Review the scores below and click "Start Round {completedRounds.length + 1}" when ready.
             </p>
           </div>
 
@@ -570,7 +570,7 @@ export default function GamePlayPage() {
             disabled={isSaving}
             className="w-full bg-gradient-to-r from-bid-500 to-bid-600 text-white px-6 py-4 rounded-xl text-xl font-bold hover:shadow-card-hover hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed mb-6"
           >
-            {isSaving ? "💾 Saving..." : "▶️ Start Next Round"}
+            {isSaving ? "💾 Saving..." : `▶️ Start Round ${completedRounds.length + 1}`}
           </button>
         </div>
       )}
