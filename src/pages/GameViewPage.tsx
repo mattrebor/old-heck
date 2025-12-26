@@ -332,7 +332,42 @@ export default function GameViewPage() {
                 );
               }
 
-              // Default rendering (blind bidding phase, results phase, etc.)
+              // Blind bidding phase
+              if (currentPhase === "bidding" && biddingPhase === "blind-declaration-and-entry") {
+                // Calculate tricks available and total bids
+                const tricksAvailable = currentRound.roundNumber;
+                const totalBids = currentRound.scores.reduce(
+                  (sum, ps) => sum + (ps.bid >= 0 ? ps.bid : 0),
+                  0
+                );
+
+                return (
+                  <>
+                    {/* Bid tracker card */}
+                    <BidTrackerCard
+                      tricksAvailable={tricksAvailable}
+                      totalBids={totalBids}
+                      variant="blind"
+                    />
+                    {currentRound.scores.map((ps, i) => {
+                      const hasBidChange = changedBids.has(i);
+                      const hasResultChange = changedResults.has(i);
+                      const hasAnyChange = hasBidChange || hasResultChange;
+
+                      return (
+                        <ViewOnlyPlayerCard
+                          key={i}
+                          player={ps}
+                          currentPhase={currentPhase}
+                          hasChange={hasAnyChange}
+                        />
+                      );
+                    })}
+                  </>
+                );
+              }
+
+              // Default rendering (results phase, etc.)
               return currentRound.scores.map((ps, i) => {
                 const hasBidChange = changedBids.has(i);
                 const hasResultChange = changedResults.has(i);
