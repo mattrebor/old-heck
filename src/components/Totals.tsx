@@ -10,7 +10,11 @@ export default function Totals({
   rounds: Round[];
   showDeltas?: boolean;
 }) {
-  const [expandedRounds, setExpandedRounds] = useState<Set<number>>(new Set());
+  // When showing deltas (score review mode), auto-expand the latest round
+  const latestRoundNumber = rounds.length > 0 ? rounds[rounds.length - 1].roundNumber : 0;
+  const [expandedRounds, setExpandedRounds] = useState<Set<number>>(
+    showDeltas && latestRoundNumber > 0 ? new Set([latestRoundNumber]) : new Set()
+  );
 
   if (rounds.length === 0) return null;
 
@@ -120,14 +124,19 @@ export default function Totals({
         {/* Rounds */}
         {rounds.map((round) => {
           const isExpanded = expandedRounds.has(round.roundNumber);
+          const isLatestRound = showDeltas && round.roundNumber === latestRoundNumber;
           return (
             <div
               key={round.roundNumber}
-              className="bg-white rounded-xl shadow-card overflow-hidden"
+              className={`bg-white rounded-xl shadow-card overflow-hidden ${
+                isLatestRound ? "ring-4 ring-green-400" : ""
+              }`}
             >
               <div
                 onClick={() => toggleRound(round.roundNumber)}
-                className={`bg-felt-500 text-white font-bold flex items-center justify-between cursor-pointer ${
+                className={`${
+                  isLatestRound ? "bg-green-600" : "bg-felt-500"
+                } text-white font-bold flex items-center justify-between cursor-pointer ${
                   isExpanded ? "p-4" : "p-2"
                 }`}
               >
@@ -136,7 +145,7 @@ export default function Totals({
                     {isExpanded ? "▼" : "▶"}
                   </span>
                   <span className={isExpanded ? "text-base" : "text-sm"}>
-                    Round {round.roundNumber}
+                    {isLatestRound && "📊 "}Round {round.roundNumber}{isLatestRound && " (Latest)"}
                   </span>
                 </span>
               </div>
@@ -248,18 +257,25 @@ export default function Totals({
           <tbody>
             {rounds.map((round, idx) => {
               const isExpanded = expandedRounds.has(round.roundNumber);
+              const isLatestRound = showDeltas && round.roundNumber === latestRoundNumber;
               return (
                 <React.Fragment key={round.roundNumber}>
                   <tr
                     onClick={() => toggleRound(round.roundNumber)}
-                    className={`border-t border-gray-200 hover:bg-gray-100 cursor-pointer transition-colors ${
+                    className={`border-t border-gray-200 cursor-pointer transition-colors ${
+                      isLatestRound
+                        ? "bg-green-100 hover:bg-green-200"
+                        : "hover:bg-gray-100"
+                    } ${
                       idx === rounds.length - 1 && !isExpanded
                         ? "border-b-2 border-felt-400"
                         : ""
                     }`}
                   >
                     <td
-                      className={`font-bold text-gray-700 ${
+                      className={`font-bold ${
+                        isLatestRound ? "text-green-700" : "text-gray-700"
+                      } ${
                         isExpanded ? "p-5" : "py-2 px-3"
                       }`}
                     >
@@ -268,7 +284,7 @@ export default function Totals({
                           {isExpanded ? "▼" : "▶"}
                         </span>
                         <span className={isExpanded ? "text-base" : "text-sm"}>
-                          Round {round.roundNumber}
+                          {isLatestRound && "📊 "}Round {round.roundNumber}{isLatestRound && " (Latest)"}
                         </span>
                       </div>
                     </td>
@@ -313,7 +329,9 @@ export default function Totals({
                   </tr>
                   {isExpanded && (
                     <tr
-                      className={`bg-gray-50 ${
+                      className={`${
+                        isLatestRound ? "bg-green-50" : "bg-gray-50"
+                      } ${
                         idx === rounds.length - 1
                           ? "border-b-2 border-felt-400"
                           : ""
