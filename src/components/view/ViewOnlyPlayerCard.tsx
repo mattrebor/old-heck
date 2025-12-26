@@ -28,7 +28,7 @@ export default function ViewOnlyPlayerCard({
         hasChange ? "animate-pulse ring-4 ring-yellow-400 shadow-lg" : ""
       }`}
     >
-      <div className="flex items-center gap-2 min-w-0 flex-shrink">
+      <div className="flex items-center gap-2 flex-shrink-0">
         {/* Only reserve space for bidding indicator during bidding phase */}
         {currentPhase === "bidding" && (
           <div className="flex items-center flex-shrink-0 w-6">
