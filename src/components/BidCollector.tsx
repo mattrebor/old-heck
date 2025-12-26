@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { Round } from "../types";
 import BidTrackerCard from "./bid/BidTrackerCard";
 import BlindBidPlayerCard from "./bid/BlindBidPlayerCard";
 import BlindBidSummary from "./bid/BlindBidSummary";
 import RegularBidPlayerRow from "./bid/RegularBidPlayerRow";
+
+const BID_ADVANCE_DELAY_MS = 2000; // 2 second delay before moving to next bidder
 
 export default function BidCollector({
   round,
@@ -26,6 +28,8 @@ export default function BidCollector({
   const [blindBidDecisions, setBlindBidDecisions] = useState<boolean[]>(
     round.scores.map((ps) => ps.blindBid)
   );
+  const [activeBidderIndex, setActiveBidderIndex] = useState<number | null>(null);
+  const bidTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const hasBlindBidders = blindBidDecisions.some((b) => b);
   const allBidsEntered = round.scores.every((ps) => ps.bid >= 0);
@@ -47,6 +51,36 @@ export default function BidCollector({
 
   // If all players are blind, can only proceed if bids don't equal tricks
   const canProceedFromBlindPhase = allBlindBidsEntered && (!allPlayersBlind || !bidsEqualTricks);
+
+  // Initialize active bidder when entering regular bidding phase
+  useEffect(() => {
+    if (biddingPhase === "regular-bid-entry" && activeBidderIndex === null) {
+      // Find first player who needs to bid (excluding blind bidders)
+      const playerIndices = Array.from({ length: round.scores.length }, (_, i) => i);
+      const orderedIndices = [
+        ...playerIndices.slice(round.firstBidderIndex),
+        ...playerIndices.slice(0, round.firstBidderIndex)
+      ];
+
+      const firstNonBlindBidder = orderedIndices.find(idx => {
+        if (blindBidDecisions[idx]) return false;
+        return round.scores[idx].bid === -1;
+      });
+
+      if (firstNonBlindBidder !== undefined) {
+        setActiveBidderIndex(firstNonBlindBidder);
+      }
+    }
+  }, [biddingPhase, activeBidderIndex, round.scores, round.firstBidderIndex, blindBidDecisions]);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (bidTimerRef.current) {
+        clearTimeout(bidTimerRef.current);
+      }
+    };
+  }, []);
 
   function toggleBlindBid(index: number) {
     const updated = [...blindBidDecisions];
@@ -82,6 +116,32 @@ export default function BidCollector({
 
   function handleRegularBidChange(index: number, bid: number) {
     onUpdate(index, bid, false);
+
+    // Clear existing timer
+    if (bidTimerRef.current) {
+      clearTimeout(bidTimerRef.current);
+      bidTimerRef.current = null;
+    }
+
+    // If this is the active bidder and they entered a valid bid, start delay timer
+    if (index === activeBidderIndex && bid >= 0) {
+      bidTimerRef.current = setTimeout(() => {
+        // Find next player who needs to bid
+        const playerIndices = Array.from({ length: round.scores.length }, (_, i) => i);
+        const orderedIndices = [
+          ...playerIndices.slice(round.firstBidderIndex),
+          ...playerIndices.slice(0, round.firstBidderIndex)
+        ];
+
+        const nextBidder = orderedIndices.find(idx => {
+          if (blindBidDecisions[idx]) return false;
+          return round.scores[idx].bid === -1;
+        });
+
+        setActiveBidderIndex(nextBidder ?? null);
+        bidTimerRef.current = null;
+      }, BID_ADVANCE_DELAY_MS);
+    }
   }
 
   // PHASE 1: Blind Bid Declaration and Entry (Combined)
@@ -163,11 +223,9 @@ export default function BidCollector({
     ...playerIndices.slice(0, round.firstBidderIndex)
   ];
 
-  // Find the next player who needs to bid (excluding blind bidders)
-  const nextBidderIndex = orderedIndices.find(idx => {
-    if (blindBidDecisions[idx]) return false; // Skip blind bidders
-    return round.scores[idx].bid === -1; // Find first player without a bid
-  });
+  // Use activeBidderIndex to control who can bid (with delay)
+  // This stays on the current bidder even after they enter a bid, allowing them to adjust
+  const currentBidderIndex = activeBidderIndex;
 
   return (
     <div className="border-4 border-bid-500 rounded-2xl p-8 mb-8 bg-gradient-to-br from-bid-100 to-bid-200 shadow-card-hover">
@@ -199,7 +257,7 @@ export default function BidCollector({
 
         const ps = round.scores[i];
         const isFirstBidder = i === round.firstBidderIndex;
-        const isCurrentBidder = i === nextBidderIndex;
+        const isCurrentBidder = i === currentBidderIndex;
         const hasBid = ps.bid >= 0;
 
         return (
