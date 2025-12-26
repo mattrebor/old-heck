@@ -199,10 +199,6 @@ export default function Totals({
                             }
                           />
                           <div className="flex flex-col items-end gap-0">
-                            {/* Running total - prominent */}
-                            <span className="font-mono text-xl font-bold text-gray-800">
-                              {runningTotal}
-                            </span>
                             {/* Per-round delta - less prominent */}
                             <span
                               className={`font-mono text-xs ${
@@ -213,6 +209,10 @@ export default function Totals({
                             >
                               ({playerScore.score > 0 ? "+" : ""}
                               {playerScore.score})
+                            </span>
+                            {/* Running total - prominent */}
+                            <span className="font-mono text-xl font-bold text-gray-800">
+                              {runningTotal}
                             </span>
                           </div>
                         </div>
@@ -236,10 +236,6 @@ export default function Totals({
                           className="flex flex-col items-center gap-1 flex-shrink-0"
                         >
                           <PlayerAvatar name={name} size="sm" />
-                          {/* Running total - prominent */}
-                          <span className="font-mono text-base font-bold text-gray-800">
-                            {runningTotal}
-                          </span>
                           {/* Per-round delta - less prominent */}
                           <span
                             className={`font-mono text-xs ${
@@ -250,6 +246,10 @@ export default function Totals({
                           >
                             ({playerScore.score > 0 ? "+" : ""}
                             {playerScore.score})
+                          </span>
+                          {/* Running total - prominent */}
+                          <span className="font-mono text-base font-bold text-gray-800">
+                            {runningTotal}
                           </span>
                         </div>
                       );
@@ -344,6 +344,17 @@ export default function Totals({
                           }`}
                         >
                           <div className="flex flex-col items-center gap-0.5">
+                            {/* Per-round delta - less prominent */}
+                            <span
+                              className={`font-mono text-xs ${
+                                playerScore.score < 0
+                                  ? "text-danger-500"
+                                  : "text-success-500"
+                              }`}
+                            >
+                              ({playerScore.score > 0 ? "+" : ""}
+                              {playerScore.score})
+                            </span>
                             {/* Running total - prominent */}
                             <span
                               className={`font-mono font-bold ${
@@ -355,17 +366,6 @@ export default function Totals({
                               }`}
                             >
                               {runningTotal}
-                            </span>
-                            {/* Per-round delta - less prominent */}
-                            <span
-                              className={`font-mono text-xs ${
-                                playerScore.score < 0
-                                  ? "text-danger-500"
-                                  : "text-success-500"
-                              }`}
-                            >
-                              ({playerScore.score > 0 ? "+" : ""}
-                              {playerScore.score})
                             </span>
                           </div>
                         </td>
