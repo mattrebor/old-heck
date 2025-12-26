@@ -4,15 +4,15 @@
  *
  * @param func The function to debounce
  * @param delay The number of milliseconds to delay
- * @returns A debounced version of the function
+ * @returns A debounced version of the function with a cancel method
  */
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
   delay: number
-): (...args: Parameters<T>) => void {
+): ((...args: Parameters<T>) => void) & { cancel: () => void } {
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
-  return function (...args: Parameters<T>) {
+  const debounced = function (...args: Parameters<T>) {
     if (timeoutId) {
       clearTimeout(timeoutId);
     }
@@ -22,4 +22,13 @@ export function debounce<T extends (...args: any[]) => any>(
       timeoutId = null;
     }, delay);
   };
+
+  debounced.cancel = function () {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    }
+  };
+
+  return debounced as typeof debounced & { cancel: () => void };
 }

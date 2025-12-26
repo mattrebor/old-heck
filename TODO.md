@@ -21,3 +21,5 @@
 
 - (MEDIUM) Show score breakdown at the top of the page when blind bid phase
 - (LOW) allow editing blind bid, bids and results
+- (HIGH) When all players made a blind bid and then we move into the results collection phase skipping the regular bids phase the view only page still shows the regular bid phase. It should switch the results collection instead. It currently switches only after the first result is inputted.
+- (MEDIUM) do not allow blind bids of 0. It needs to be greater than 0

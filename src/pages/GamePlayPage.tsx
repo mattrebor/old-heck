@@ -174,6 +174,9 @@ export default function GamePlayPage() {
   async function handleBidsComplete() {
     if (!currentRound || !gameId) return;
 
+    // Cancel any pending debounced saves to prevent overwriting the phase
+    debouncedSaveRef.current.cancel();
+
     // Reset results to unrecorded (met: null) for results phase
     const scoresWithResetResults = currentRound.scores.map((ps) => ({
       ...ps,
