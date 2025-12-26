@@ -25,23 +25,23 @@ export default function ResultPlayerCard({
 
         {/* Radio buttons - side by side on all screen sizes */}
         <div className="flex flex-row gap-3">
-          <label className="flex items-center gap-3 cursor-pointer px-4 py-3 rounded-xl bg-success-50 hover:bg-success-500 hover:text-white border-2 border-success-500 transition-all flex-1">
+          <label className="flex items-center justify-center cursor-pointer px-4 py-3 rounded-xl bg-success-50 hover:bg-success-500 hover:text-white border-2 border-success-500 transition-all flex-1">
             <input
               type="radio"
               name={`player-${index}`}
               checked={player.met === true}
               onChange={() => onUpdate(index, true)}
-              className="w-5 h-5 sm:w-6 sm:h-6 text-success-500"
+              className="sr-only"
             />
             <span className="text-sm sm:text-base font-bold">✓ Made it</span>
           </label>
-          <label className="flex items-center gap-3 cursor-pointer px-4 py-3 rounded-xl bg-danger-50 hover:bg-danger-500 hover:text-white border-2 border-danger-500 transition-all flex-1">
+          <label className="flex items-center justify-center cursor-pointer px-4 py-3 rounded-xl bg-danger-50 hover:bg-danger-500 hover:text-white border-2 border-danger-500 transition-all flex-1">
             <input
               type="radio"
               name={`player-${index}`}
               checked={player.met === false}
               onChange={() => onUpdate(index, false)}
-              className="w-5 h-5 sm:w-6 sm:h-6 text-danger-500"
+              className="sr-only"
             />
             <span className="text-sm sm:text-base font-bold">✗ Missed it</span>
           </label>
