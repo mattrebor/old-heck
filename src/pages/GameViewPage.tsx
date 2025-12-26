@@ -8,6 +8,7 @@ import { hasResultRecorded } from "../types";
 import Header from "../components/Header";
 import Totals from "../components/Totals";
 import ViewOnlyPlayerCard from "../components/view/ViewOnlyPlayerCard";
+import BidTrackerCard from "../components/bid/BidTrackerCard";
 
 export default function GameViewPage() {
   const { gameId } = useParams<{ gameId: string }>();
@@ -248,6 +249,13 @@ export default function GameViewPage() {
                   ...playerIndices.slice(0, currentRound.firstBidderIndex)
                 ];
 
+                // Calculate tricks available and total bids
+                const tricksAvailable = currentRound.roundNumber;
+                const totalBids = currentRound.scores.reduce(
+                  (sum, ps) => sum + (ps.bid >= 0 ? ps.bid : 0),
+                  0
+                );
+
                 // Separate blind bidders from regular bidders
                 const blindBidders = currentRound.scores
                   .map((ps, i) => ({ ps, i }))
@@ -267,6 +275,12 @@ export default function GameViewPage() {
 
                 return (
                   <>
+                    {/* Bid tracker card */}
+                    <BidTrackerCard
+                      tricksAvailable={tricksAvailable}
+                      totalBids={totalBids}
+                      variant="regular"
+                    />
                     {/* Show blind bidders separately */}
                     {blindBidders.length > 0 && (
                       <div className="mb-4 p-4 bg-purple-100 rounded-xl border-2 border-purple-400">
