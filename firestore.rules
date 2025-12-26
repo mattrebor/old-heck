@@ -51,6 +51,14 @@ service cloud.firestore {
           && (!setupChanged || canEditSetup());
     }
 
+    // Helper function to check if a valid share token exists
+    // Note: Client-side validates session ID, we just check token exists
+    function hasValidShareToken() {
+      let shareToken = resource.data.get('shareToken', null);
+      // Token must exist (client validates session in localStorage)
+      return shareToken != null && shareToken.token != null;
+    }
+
     // Games collection rules
     match /games/{gameId} {
       // Anyone can read games (for view-only links)
@@ -60,9 +68,9 @@ service cloud.firestore {
       // Must set correct createdBy fields
       allow create: if isSignedIn() && isValidNewGame();
 
-      // Only the game creator can update their game
+      // Game creator OR users with valid share token can update
       // Cannot modify createdBy, setup, or createdAt
-      allow update: if isGameOwner(resource.data) && isValidGameUpdate();
+      allow update: if (isGameOwner(resource.data) || hasValidShareToken()) && isValidGameUpdate();
 
       // Only the game creator can delete their game
       allow delete: if isGameOwner(resource.data);
