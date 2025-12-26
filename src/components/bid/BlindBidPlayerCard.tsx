@@ -34,7 +34,7 @@ export default function BlindBidPlayerCard({
             <PlayerAvatar name={player.name} size="md" showName={true} />
             {isBlindBidder && (
               <span className="px-3 py-1 bg-purple-600 text-white rounded-lg text-sm font-bold">
-                ⚡ BLIND 2X
+                ⚡ BLIND
               </span>
             )}
             {bidTooHigh && (

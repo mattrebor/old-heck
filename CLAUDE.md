@@ -284,6 +284,7 @@ src/
 ├── components/       # Reusable UI components
 │   ├── bid/          # Bidding phase sub-components (reduce complexity)
 │   ├── results/      # Results phase sub-components (reduce complexity)
+│   ├── view/         # View-only page sub-components (reduce complexity)
 │   └── *.tsx         # Top-level components (orchestrators)
 ├── pages/           # Route-level page components
 ├── contexts/        # React Context providers
@@ -731,7 +732,14 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 
 - BidCollector.tsx reduced from 424 to 206 lines (52% reduction)
 - RoundEditor.tsx reduced from 91 to 31 lines (66% reduction)
-- Created 5 focused sub-components in `components/bid/` and `components/results/`
+- GameViewPage.tsx refactored to use ViewOnlyPlayerCard sub-component
+- Created 6 focused sub-components in `components/bid/`, `components/results/`, and `components/view/`
 - Each sub-component has single responsibility (easier testing and maintenance)
+
+✅ **Consistent blind bid display across all components**:
+
+- Inline badge display ("⚡ BLIND") next to bid text
+- No extra vertical spacing for blind vs non-blind bids
+- No duplicative text or "2X" notation - simple badge is sufficient
 
 See `TODO.md` for future feature priorities.

@@ -6,7 +6,7 @@ import { useAuth } from "../contexts/AuthContext";
 import type { Game, GameSetup, Round } from "../types";
 import Header from "../components/Header";
 import Totals from "../components/Totals";
-import PlayerAvatar from "../components/PlayerAvatar";
+import ViewOnlyPlayerCard from "../components/view/ViewOnlyPlayerCard";
 
 export default function GameViewPage() {
   const { gameId } = useParams<{ gameId: string }>();
@@ -231,51 +231,12 @@ export default function GameViewPage() {
               const hasAnyChange = hasBidChange || hasResultChange;
 
               return (
-              <div
-                key={i}
-                className={`flex flex-wrap items-center gap-3 text-sm bg-white p-4 rounded-lg border-2 border-blue-200 justify-between transition-all ${
-                  hasAnyChange ? "animate-pulse ring-4 ring-yellow-400 shadow-lg" : ""
-                }`}
-              >
-                <PlayerAvatar name={ps.name} size="md" showName={true} />
-
-                {/* Bid display with blind indicator above */}
-                <div className="flex flex-col items-center gap-1">
-                  {ps.blindBid && (
-                    <span className="px-2 py-0.5 bg-purple-600 text-white rounded text-xs font-bold">
-                      ⚡ BLIND
-                    </span>
-                  )}
-                  {ps.bid >= 0 ? (
-                    <span className="text-gray-700 font-semibold">
-                      Bid: {ps.bid}
-                    </span>
-                  ) : (
-                    <span className="text-gray-400 italic">Bid: waiting...</span>
-                  )}
-                </div>
-
-                {/* Show result if phase is results or completed */}
-                {currentPhase === "results" && ps.tricks >= 0 && (
-                  <>
-                    <span
-                      className={`font-medium ${
-                        ps.met ? "text-green-700" : "text-red-600"
-                      }`}
-                    >
-                      {ps.met ? "✓ Met" : "✗ Missed"}
-                    </span>
-                    <span
-                      className={`font-mono font-bold ml-auto ${
-                        ps.score < 0 ? "text-red-600" : "text-green-700"
-                      }`}
-                    >
-                      {ps.score > 0 ? "+" : ""}
-                      {ps.score}
-                    </span>
-                  </>
-                )}
-              </div>
+                <ViewOnlyPlayerCard
+                  key={i}
+                  player={ps}
+                  currentPhase={currentPhase}
+                  hasChange={hasAnyChange}
+                />
               );
             })}
           </div>

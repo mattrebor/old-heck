@@ -379,6 +379,8 @@ src/
 │   │   └── RegularBidPlayerRow.tsx  # Regular bidding player row
 │   ├── results/         # Results phase sub-components
 │   │   └── ResultPlayerCard.tsx     # Result entry player card
+│   ├── view/            # View-only page sub-components
+│   │   └── ViewOnlyPlayerCard.tsx   # Read-only player card for spectators
 │   ├── Header.tsx       # Navigation with auth controls
 │   ├── BidCollector.tsx # Bidding phase orchestrator (52% smaller via composition)
 │   ├── RoundEditor.tsx  # Results phase orchestrator (66% smaller via composition)
@@ -387,7 +389,7 @@ src/
 ├── pages/               # Route-level page components
 │   ├── GameSetupPage.tsx    # Game creation
 │   ├── GamePlayPage.tsx     # Active game (owner)
-│   ├── GameViewPage.tsx     # View-only (spectators)
+│   ├── GameViewPage.tsx     # View-only (spectators, refactored)
 │   ├── MyGamesPage.tsx      # User's game list
 │   └── GameHistoryPage.tsx  # Legacy (deprecated)
 ├── contexts/            # React Context providers
@@ -413,6 +415,14 @@ The app follows a **composition-based architecture** to maintain low cyclomatic 
 
 - **RoundEditor.tsx** (31 lines, down from 91): Orchestrates results phase using sub-components
   - Delegates player result cards to `ResultPlayerCard`
+
+- **GameViewPage.tsx** (refactored): View-only page for spectators using sub-components
+  - Delegates player display to `ViewOnlyPlayerCard` with real-time change animations
+
+**Consistent Blind Bid Display**: All components display blind bids with inline badges (no extra vertical spacing):
+- Badge shows "⚡ BLIND" next to the bid
+- No duplicative text or "2X" notation
+- Ensures consistent spacing whether player bid blind or not
 
 This architecture ensures each component has a **single responsibility**, making the codebase more maintainable, testable, and easier to understand.
 
