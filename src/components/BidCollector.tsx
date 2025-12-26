@@ -8,7 +8,7 @@ import {
   calculateBiddingValidation,
 } from "../utils/bidding";
 
-const BID_ADVANCE_DELAY_MS = 2000; // 2 second delay before moving to next bidder
+const BID_ADVANCE_DELAY_MS = 1500; // 1.5 second delay before moving to next bidder
 
 export default function BidCollector({
   round,
