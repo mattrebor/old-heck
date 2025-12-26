@@ -19,6 +19,13 @@
 - ✅ (HIGH) When all players made a blind bid and then we move into the results collection phase skipping the regular bids phase the view only page still shows the regular bid phase. It should switch the results collection instead. It currently switches only after the first result is inputted.
 - ✅ (HIGH) In the bid collector, as soon as an input is made then the bidding is moved to the next player. There should some small delay to allow the owner to adjust up or down the bids. If there's no change for a certain time when move to the next player
 - ✅ (HIGH) the blind bid declaration and bid collection should be done in the same order as regular bids (showing indicators doesn't make sense since blind bidding is optional)
+- ✅ (HIGH) refactor duplicated bidding logic between BidCollector and GameViewPage into reusable utilities
+- ✅ (HIGH) fix number of decks input width - was too wide
+- ✅ (HIGH) fix 2-second bid delay timer to start on first click instead of second
+- ✅ (HIGH) fix bid synchronization between entry and view-only pages during 2-second delay window
+- ✅ (HIGH) fix blind bids showing -1 when transitioning to regular bidding phase
+- ✅ (MEDIUM) fix view-only page spacing/overflow with blind bid results
+- ✅ (MEDIUM) remove bullseye (🎯) first bidder indicator, keep only pointer and checkmark
 
 ## Remaining
 
