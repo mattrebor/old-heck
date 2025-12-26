@@ -33,7 +33,7 @@ export default function ResultPlayerCard({
               onChange={() => onUpdate(index, true)}
               className="sr-only"
             />
-            <span className="text-sm sm:text-base font-bold">✓ Made it</span>
+            <span className="text-sm sm:text-base font-bold">✓ Made</span>
           </label>
           <label className="flex items-center justify-center cursor-pointer px-4 py-3 rounded-xl bg-danger-50 hover:bg-danger-500 hover:text-white border-2 border-danger-500 transition-all flex-1">
             <input
@@ -43,7 +43,7 @@ export default function ResultPlayerCard({
               onChange={() => onUpdate(index, false)}
               className="sr-only"
             />
-            <span className="text-sm sm:text-base font-bold">✗ Missed it</span>
+            <span className="text-sm sm:text-base font-bold">✗ Missed</span>
           </label>
         </div>
 
