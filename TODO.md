@@ -26,6 +26,7 @@
 - ✅ (HIGH) fix blind bids showing -1 when transitioning to regular bidding phase
 - ✅ (MEDIUM) fix view-only page spacing/overflow with blind bid results
 - ✅ (MEDIUM) remove bullseye (🎯) first bidder indicator, keep only pointer and checkmark
+- ✅ (HIGH) add collaborative share link feature for one-time edit access
 
 ## Remaining
 
