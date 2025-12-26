@@ -372,9 +372,16 @@ The app provides a seamless flow with automatic progression between phases:
 ```
 src/
 ├── components/          # Reusable React components
+│   ├── bid/             # Bidding phase sub-components
+│   │   ├── BidTrackerCard.tsx       # Bid tracking display
+│   │   ├── BlindBidPlayerCard.tsx   # Blind bid player card
+│   │   ├── BlindBidSummary.tsx      # Blind bid summary (read-only)
+│   │   └── RegularBidPlayerRow.tsx  # Regular bidding player row
+│   ├── results/         # Results phase sub-components
+│   │   └── ResultPlayerCard.tsx     # Result entry player card
 │   ├── Header.tsx       # Navigation with auth controls
-│   ├── BidCollector.tsx # Blind & regular bidding phases
-│   ├── RoundEditor.tsx  # Results phase
+│   ├── BidCollector.tsx # Bidding phase orchestrator (52% smaller via composition)
+│   ├── RoundEditor.tsx  # Results phase orchestrator (66% smaller via composition)
 │   ├── Totals.tsx       # Running score breakdown
 │   └── PlayerAvatar.tsx # Colored avatar circles
 ├── pages/               # Route-level page components
@@ -394,6 +401,20 @@ src/
 ├── firebase.ts          # Firebase configuration
 └── App.tsx              # Main app with routing
 ```
+
+### Component Architecture
+
+The app follows a **composition-based architecture** to maintain low cyclomatic complexity:
+
+- **BidCollector.tsx** (206 lines, down from 424): Orchestrates bidding phases using sub-components
+  - Delegates bid tracking display to `BidTrackerCard`
+  - Delegates blind bid UI to `BlindBidPlayerCard` and `BlindBidSummary`
+  - Delegates regular bidding UI to `RegularBidPlayerRow`
+
+- **RoundEditor.tsx** (31 lines, down from 91): Orchestrates results phase using sub-components
+  - Delegates player result cards to `ResultPlayerCard`
+
+This architecture ensures each component has a **single responsibility**, making the codebase more maintainable, testable, and easier to understand.
 
 ## Game Rules
 

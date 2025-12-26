@@ -17,3 +17,4 @@
 
 - (MEDIUM) Show score breakdown at the top of the page when blind bid phase
 - (LOW) allow editing blind bid, bids and results
+- (HIGH) Make the number of decks input touch friendly

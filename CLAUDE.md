@@ -278,6 +278,9 @@ VITE_FIREBASE_MEASUREMENT_ID=
 ```
 src/
 ├── components/       # Reusable UI components
+│   ├── bid/          # Bidding phase sub-components (reduce complexity)
+│   ├── results/      # Results phase sub-components (reduce complexity)
+│   └── *.tsx         # Top-level components (orchestrators)
 ├── pages/           # Route-level page components
 ├── contexts/        # React Context providers
 ├── utils/           # Pure utility functions
@@ -294,7 +297,8 @@ src/
 - One component per file (exception: small helper components)
 - Pages import components, not vice versa
 - Utils must be pure functions (no side effects)
-- Create sub-components if the component or page is too long
+- **Reduce cyclomatic complexity**: Create sub-components in subdirectories if main component exceeds ~200 lines
+- **Composition over monoliths**: Break large components into focused sub-components with single responsibilities
 - Make sure each component is easily testable
 - create a hook in hook directory if there's some reuse. Do not create hook that are very complex in the component
 - ensure that eslint is cleared
@@ -412,6 +416,87 @@ export default function ComponentName({ prop1, prop2 }: Props) {
   return <div>{/* JSX */}</div>;
 }
 ```
+
+**Component Composition Pattern:**
+
+When a component exceeds ~200 lines or has high cyclomatic complexity, extract sub-components:
+
+```typescript
+// ❌ BAD: Monolithic component with inline rendering
+export default function BidCollector({ round, onUpdate }: Props) {
+  // 400+ lines of state, handlers, and complex conditional JSX
+  return (
+    <div>
+      {biddingPhase === "blind" ? (
+        <div className="...">
+          {/* 100+ lines of blind bid UI */}
+          {round.scores.map((ps, i) => (
+            <div key={i}>
+              {/* 50+ lines of player card UI */}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="...">
+          {/* 100+ lines of regular bid UI */}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ✅ GOOD: Orchestrator component using sub-components
+export default function BidCollector({ round, onUpdate }: Props) {
+  const [biddingPhase, setBiddingPhase] = useState("blind");
+
+  function handleBidChange(index: number, bid: number) {
+    onUpdate(index, bid, false);
+  }
+
+  if (biddingPhase === "blind") {
+    return (
+      <div>
+        <BidTrackerCard tricksAvailable={10} totalBids={8} variant="blind" />
+        {round.scores.map((ps, i) => (
+          <BlindBidPlayerCard
+            key={i}
+            player={ps}
+            index={i}
+            onBidChange={handleBidChange}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <BidTrackerCard tricksAvailable={10} totalBids={8} variant="regular" />
+      {round.scores.map((ps, i) => (
+        <RegularBidPlayerRow
+          key={i}
+          player={ps}
+          index={i}
+          onBidChange={handleBidChange}
+        />
+      ))}
+    </div>
+  );
+}
+```
+
+**Benefits of Composition:**
+- **Reduced Complexity**: Each component has single responsibility
+- **Easier Testing**: Test sub-components in isolation
+- **Better Maintainability**: Changes to player card UI only affect one file
+- **Reusability**: Sub-components can be used in multiple places
+- **Readability**: Parent component shows high-level flow, sub-components handle details
+
+**When to Create Sub-Components:**
+- Component exceeds ~200 lines
+- Multiple conditional rendering blocks (>3)
+- Repeated UI patterns (player cards, form fields)
+- Component does more than one thing (bidding + result entry)
 
 **Hooks Usage:**
 
@@ -639,5 +724,10 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ✅ Quick rematch with pre-filled setup page
 ✅ Edit game settings before any bids are entered
 ✅ Comprehensive test coverage for components and utilities
+✅ **Component refactoring for reduced cyclomatic complexity**:
+  - BidCollector.tsx reduced from 424 to 206 lines (52% reduction)
+  - RoundEditor.tsx reduced from 91 to 31 lines (66% reduction)
+  - Created 5 focused sub-components in `components/bid/` and `components/results/`
+  - Each sub-component has single responsibility (easier testing and maintenance)
 
 See `TODO.md` for future feature priorities.
