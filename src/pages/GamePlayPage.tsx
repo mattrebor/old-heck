@@ -370,23 +370,8 @@ export default function GamePlayPage({
         // Scroll to top to show game complete message
         window.scrollTo({ top: 0, behavior: 'smooth' });
         await markGameComplete(gameId);
-      } else if (newCompletedRounds.length === 1) {
-        // After round 1: Auto-start round 2 (skip score review)
-        const newRound = createNewRound(nextRoundNumber);
-        setCurrentRound(newRound);
-        setCurrentPhase("bidding");
-        setBiddingPhase("blind-declaration-and-entry");
-
-        // Scroll to top when auto-starting next round
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-
-        await updateGameRound(gameId, {
-          inProgressRound: newRound,
-          currentPhase: "bidding",
-          biddingPhase: "blind-declaration-and-entry",
-        });
       } else {
-        // After round 2+: Show score review phase
+        // After any round: Show score review phase
         setCurrentPhase("score-review");
 
         // Scroll to top when entering score review phase
@@ -749,9 +734,7 @@ export default function GamePlayPage({
       )}
       {currentRound && currentPhase === "results" && (
         <div className="mt-6 bg-gradient-to-r from-felt-100 to-felt-200 border-3 border-felt-400 rounded-xl p-5 text-base text-felt-600 font-semibold">
-          {completedRounds.length === 0
-            ? "ℹ️ Round 2 will start automatically after completing this round."
-            : "ℹ️ You'll review scores before starting the next round."}
+          ℹ️ You'll review scores before starting the next round.
         </div>
       )}
 
