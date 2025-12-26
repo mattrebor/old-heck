@@ -30,26 +30,30 @@ export default function ViewOnlyPlayerCard({
         waiting={player.bid < 0}
       />
 
-      {/* Show result if phase is results or completed */}
-      {currentPhase === "results" && player.tricks >= 0 && (
-        <div className="flex items-center gap-2">
-          <span
-            className={`font-medium ${
-              player.met ? "text-green-700" : "text-red-600"
-            }`}
-          >
-            {player.met ? "✓ Met" : "✗ Missed"}
-          </span>
-          <span
-            className={`font-mono font-bold ${
-              player.score < 0 ? "text-red-600" : "text-green-700"
-            }`}
-          >
-            {player.score > 0 ? "+" : ""}
-            {player.score}
-          </span>
-        </div>
-      )}
+      {/* Always reserve space for results to maintain consistent layout */}
+      <div className="flex items-center gap-2 min-w-[120px]">
+        {currentPhase === "results" && player.tricks >= 0 ? (
+          <>
+            <span
+              className={`font-medium ${
+                player.met ? "text-green-700" : "text-red-600"
+              }`}
+            >
+              {player.met ? "✓ Met" : "✗ Missed"}
+            </span>
+            <span
+              className={`font-mono font-bold ${
+                player.score < 0 ? "text-red-600" : "text-green-700"
+              }`}
+            >
+              {player.score > 0 ? "+" : ""}
+              {player.score}
+            </span>
+          </>
+        ) : (
+          <span className="opacity-0">placeholder</span>
+        )}
+      </div>
     </div>
   );
 }
