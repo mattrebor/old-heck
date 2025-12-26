@@ -38,7 +38,7 @@ export default function BidDisplay({
       {/* Blind badge - only shown when isBlind is true */}
       {isBlind && (
         <span
-          className={`${styles.badge} bg-purple-600 text-white rounded-lg font-bold inline-block`}
+          className={`${styles.badge} bg-purple-600 text-white rounded-lg font-bold inline-block whitespace-nowrap`}
         >
           ⚡ BLIND
         </span>
