@@ -15,13 +15,11 @@ export default function ViewOnlyPlayerCard({
 }: ViewOnlyPlayerCardProps) {
   return (
     <div
-      className={`flex items-start gap-3 text-sm bg-white p-4 rounded-lg border-2 border-blue-200 justify-between transition-all ${
+      className={`flex items-center gap-3 text-sm bg-white p-4 rounded-lg border-2 border-blue-200 justify-between transition-all ${
         hasChange ? "animate-pulse ring-4 ring-yellow-400 shadow-lg" : ""
       }`}
     >
-      <div className="flex items-center">
-        <PlayerAvatar name={player.name} size="md" showName={true} />
-      </div>
+      <PlayerAvatar name={player.name} size="md" showName={true} />
 
       <BidDisplay
         bid={player.bid}
