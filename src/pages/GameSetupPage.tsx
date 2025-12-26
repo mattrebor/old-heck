@@ -29,6 +29,34 @@ export default function GameSetupPage() {
     setPlayers(copy);
   }
 
+  function movePlayerUp(index: number) {
+    if (index === 0) return; // Already at the top
+    const copy = [...players];
+    [copy[index - 1], copy[index]] = [copy[index], copy[index - 1]];
+    setPlayers(copy);
+
+    // Adjust firstPlayerIndex if needed
+    if (firstPlayerIndex === index) {
+      setFirstPlayerIndex(index - 1);
+    } else if (firstPlayerIndex === index - 1) {
+      setFirstPlayerIndex(index);
+    }
+  }
+
+  function movePlayerDown(index: number) {
+    if (index === players.length - 1) return; // Already at the bottom
+    const copy = [...players];
+    [copy[index], copy[index + 1]] = [copy[index + 1], copy[index]];
+    setPlayers(copy);
+
+    // Adjust firstPlayerIndex if needed
+    if (firstPlayerIndex === index) {
+      setFirstPlayerIndex(index + 1);
+    } else if (firstPlayerIndex === index + 1) {
+      setFirstPlayerIndex(index);
+    }
+  }
+
   async function startGame() {
     // User is guaranteed to be authenticated at this point
     if (!user) return;
@@ -156,6 +184,24 @@ export default function GameSetupPage() {
                   } rounded-xl px-5 py-4 w-full text-lg font-semibold focus:outline-none focus:ring-4 transition-all bg-white`}
                   placeholder="Enter player name"
                 />
+                <div className="flex flex-col gap-1">
+                  <button
+                    onClick={() => movePlayerUp(i)}
+                    disabled={i === 0}
+                    className="text-felt-600 hover:text-felt-700 disabled:text-gray-300 disabled:cursor-not-allowed font-bold text-lg px-2 transition-colors"
+                    title="Move up"
+                  >
+                    ▲
+                  </button>
+                  <button
+                    onClick={() => movePlayerDown(i)}
+                    disabled={i === players.length - 1}
+                    className="text-felt-600 hover:text-felt-700 disabled:text-gray-300 disabled:cursor-not-allowed font-bold text-lg px-2 transition-colors"
+                    title="Move down"
+                  >
+                    ▼
+                  </button>
+                </div>
                 {players.length > 2 && (
                   <button
                     onClick={() => setPlayers(players.filter((_, idx) => idx !== i))}
