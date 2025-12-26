@@ -32,7 +32,7 @@ describe('BidCollector', () => {
     expect(screen.getByText('Charlie')).toBeInTheDocument();
   });
 
-  it('should show first bidder indicator in regular bidding phase', () => {
+  it('should show current bidder indicator in regular bidding phase', () => {
     const mockUpdate = vi.fn();
     const mockComplete = vi.fn();
 
@@ -46,9 +46,9 @@ describe('BidCollector', () => {
       />
     );
 
-    // Alice is at index 0 (first bidder), badge appears in regular bidding phase
-    const firstBidderBadges = screen.getAllByText('🎯');
-    expect(firstBidderBadges.length).toBeGreaterThan(0);
+    // Alice is at index 0 (first to bid), should show pointer indicator
+    const currentBidderIndicators = screen.getAllByText('👉');
+    expect(currentBidderIndicators.length).toBeGreaterThan(0);
   });
 
   it('should disable button when not all bids entered', () => {
@@ -70,6 +70,7 @@ describe('BidCollector', () => {
   });
 
   it('should call onUpdate when bid is changed', () => {
+    vi.useFakeTimers();
     const mockUpdate = vi.fn();
     const mockComplete = vi.fn();
 
@@ -91,7 +92,11 @@ describe('BidCollector', () => {
     const incrementButtons = screen.getAllByText('+');
     fireEvent.click(incrementButtons[0]); // Click first player's increment
 
+    // Advance timers to trigger the 2-second delay
+    vi.advanceTimersByTime(2000);
+
     expect(mockUpdate).toHaveBeenCalled();
+    vi.useRealTimers();
   });
 
   it('should show warning when total bids equal tricks', () => {
@@ -143,5 +148,51 @@ describe('BidCollector', () => {
 
     fireEvent.click(checkboxes[0]);
     // Checkbox state should change (implementation-dependent verification)
+  });
+
+  it('should display blind bids correctly when transitioning to regular bidding phase', () => {
+    const mockUpdate = vi.fn();
+    const mockComplete = vi.fn();
+
+    // Create a round where Alice has a blind bid
+    const roundWithBlindBid: Round = {
+      roundNumber: 3,
+      firstBidderIndex: 0,
+      scores: [
+        { name: 'Alice', bid: 2, met: null, score: 0, blindBid: true },
+        { name: 'Bob', bid: -1, met: null, score: 0, blindBid: false },
+        { name: 'Charlie', bid: -1, met: null, score: 0, blindBid: false },
+      ],
+    };
+
+    render(
+      <BidCollector
+        round={roundWithBlindBid}
+        tricksAvailable={3}
+        onUpdate={mockUpdate}
+        onComplete={mockComplete}
+      />
+    );
+
+    // Should be in blind bid phase initially
+    expect(screen.getByText(/Blind Bid Phase/i)).toBeInTheDocument();
+
+    // Click continue to go to regular bidding phase
+    const continueButton = screen.getByText('Continue to Regular Bidding →');
+    fireEvent.click(continueButton);
+
+    // Now in regular bidding phase
+    expect(screen.getByText(/Place Your Bids/i)).toBeInTheDocument();
+
+    // Should show blind bids summary section
+    expect(screen.getByText(/Blind Bids \(already submitted\):/i)).toBeInTheDocument();
+
+    // Alice's blind bid should be visible and show the correct value (2, not -1)
+    // The blind bid should be displayed in the summary section
+    const aliceElements = screen.getAllByText('Alice');
+    expect(aliceElements.length).toBeGreaterThan(0);
+
+    // Check that Alice's bid shows as "2" (the format is "Bid: 2")
+    expect(screen.getByText(/Bid: 2/i)).toBeInTheDocument();
   });
 });

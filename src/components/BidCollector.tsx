@@ -1,9 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import type { Round } from "../types";
-import BidTrackerCard from "./bid/BidTrackerCard";
-import BlindBidPlayerCard from "./bid/BlindBidPlayerCard";
-import BlindBidSummary from "./bid/BlindBidSummary";
-import RegularBidPlayerRow from "./bid/RegularBidPlayerRow";
+import BlindBiddingPhase from "./bid/BlindBiddingPhase";
+import RegularBiddingPhase from "./bid/RegularBiddingPhase";
+import {
+  getOrderedPlayerIndices,
+  getNextBidder,
+  calculateBiddingValidation,
+} from "../utils/bidding";
 
 const BID_ADVANCE_DELAY_MS = 2000; // 2 second delay before moving to next bidder
 
@@ -28,50 +31,39 @@ export default function BidCollector({
   const [blindBidDecisions, setBlindBidDecisions] = useState<boolean[]>(
     round.scores.map((ps) => ps.blindBid)
   );
-  const [activeBidderIndex, setActiveBidderIndex] = useState<number | null>(null);
-  const bidTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const hasBlindBidders = blindBidDecisions.some((b) => b);
-  const allBidsEntered = round.scores.every((ps) => ps.bid >= 0);
-  const totalBids = round.scores.reduce(
-    (sum, ps) => sum + (ps.bid >= 0 ? ps.bid : 0),
-    0
+  // Local bid state for regular bidding (not saved to Firebase until timer expires)
+  const [localBids, setLocalBids] = useState<number[]>(
+    round.scores.map(ps => ps.bid)
   );
-  const bidsEqualTricks = totalBids === tricksAvailable;
-  const canProceed = allBidsEntered && !bidsEqualTricks;
 
-  // Check if all blind bidders have entered their bids (needed for phase transition)
-  const allBlindBidsEntered = blindBidDecisions.every((isBlind, i) => {
-    if (!isBlind) return true; // Non-blind bidders don't need to bid yet
-    return round.scores[i].bid >= 0;
+  // Initialize active bidder immediately if starting in regular-bid-entry phase
+  const [activeBidderIndex, setActiveBidderIndex] = useState<number | null>(() => {
+    if (initialPhase === "regular-bid-entry") {
+      const orderedIndices = getOrderedPlayerIndices(
+        round.firstBidderIndex,
+        round.scores.length
+      );
+      return getNextBidder(orderedIndices, round.scores, round.scores.map(ps => ps.blindBid));
+    }
+    return null;
   });
 
-  // Check if all players bid blind
-  const allPlayersBlind = blindBidDecisions.every((b) => b);
+  const bidTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // If all players are blind, can only proceed if bids don't equal tricks
-  const canProceedFromBlindPhase = allBlindBidsEntered && (!allPlayersBlind || !bidsEqualTricks);
+  // Create scores with local bids for validation
+  const scoresWithLocalBids = round.scores.map((ps, i) => ({
+    ...ps,
+    bid: localBids[i],
+  }));
 
-  // Initialize active bidder when entering regular bidding phase
-  useEffect(() => {
-    if (biddingPhase === "regular-bid-entry" && activeBidderIndex === null) {
-      // Find first player who needs to bid (excluding blind bidders)
-      const playerIndices = Array.from({ length: round.scores.length }, (_, i) => i);
-      const orderedIndices = [
-        ...playerIndices.slice(round.firstBidderIndex),
-        ...playerIndices.slice(0, round.firstBidderIndex)
-      ];
-
-      const firstNonBlindBidder = orderedIndices.find(idx => {
-        if (blindBidDecisions[idx]) return false;
-        return round.scores[idx].bid === -1;
-      });
-
-      if (firstNonBlindBidder !== undefined) {
-        setActiveBidderIndex(firstNonBlindBidder);
-      }
-    }
-  }, [biddingPhase, activeBidderIndex, round.scores, round.firstBidderIndex, blindBidDecisions]);
+  // Calculate validation to check if all players bid blind
+  const validation = calculateBiddingValidation(
+    scoresWithLocalBids,
+    tricksAvailable,
+    blindBidDecisions
+  );
+  const { allPlayersBlind } = validation;
 
   // Cleanup timer on unmount
   useEffect(() => {
@@ -109,36 +101,63 @@ export default function BidCollector({
     if (allPlayersBlind) {
       onComplete();
     } else {
+      // Update localBids to include the blind bids from the round
+      setLocalBids(round.scores.map(ps => ps.bid));
+
+      // Set the first active bidder before changing phase
+      const orderedIndices = getOrderedPlayerIndices(
+        round.firstBidderIndex,
+        round.scores.length
+      );
+      const firstNonBlindBidder = getNextBidder(
+        orderedIndices,
+        round.scores,
+        blindBidDecisions
+      );
+      setActiveBidderIndex(firstNonBlindBidder);
+
       setBiddingPhase("regular-bid-entry");
       onPhaseChange?.("regular-bid-entry");
     }
   }
 
   function handleRegularBidChange(index: number, bid: number) {
-    onUpdate(index, bid, false);
-
-    // Clear existing timer
+    // Clear existing timer first
     if (bidTimerRef.current) {
       clearTimeout(bidTimerRef.current);
       bidTimerRef.current = null;
     }
 
-    // If this is the active bidder and they entered a valid bid, start delay timer
-    if (index === activeBidderIndex && bid >= 0) {
+    // Update local bid state (not saved to Firebase yet)
+    const updatedBids = [...localBids];
+    updatedBids[index] = bid;
+    setLocalBids(updatedBids);
+
+    // Always start timer when a valid bid is entered
+    // The timer allows 2 seconds for adjustments before saving and advancing
+    if (bid >= 0) {
       bidTimerRef.current = setTimeout(() => {
-        // Find next player who needs to bid
-        const playerIndices = Array.from({ length: round.scores.length }, (_, i) => i);
-        const orderedIndices = [
-          ...playerIndices.slice(round.firstBidderIndex),
-          ...playerIndices.slice(0, round.firstBidderIndex)
-        ];
+        // Save the bid to Firebase
+        onUpdate(index, bid, false);
 
-        const nextBidder = orderedIndices.find(idx => {
-          if (blindBidDecisions[idx]) return false;
-          return round.scores[idx].bid === -1;
-        });
+        // Find next player who needs to bid using updated bids
+        const updatedScores = round.scores.map((ps, i) => ({
+          ...ps,
+          bid: updatedBids[i],
+        }));
 
-        setActiveBidderIndex(nextBidder ?? null);
+        const orderedIndices = getOrderedPlayerIndices(
+          round.firstBidderIndex,
+          round.scores.length
+        );
+
+        const nextBidder = getNextBidder(
+          orderedIndices,
+          updatedScores,
+          blindBidDecisions
+        );
+
+        setActiveBidderIndex(nextBidder);
         bidTimerRef.current = null;
       }, BID_ADVANCE_DELAY_MS);
     }
@@ -146,153 +165,36 @@ export default function BidCollector({
 
   // PHASE 1: Blind Bid Declaration and Entry (Combined)
   if (biddingPhase === "blind-declaration-and-entry") {
-    // Create ordered list of player indices starting from firstBidderIndex
-    // This shows players in the order they will bid during regular bidding phase
-    const playerIndices = Array.from({ length: round.scores.length }, (_, i) => i);
-    const orderedIndices = [
-      ...playerIndices.slice(round.firstBidderIndex),
-      ...playerIndices.slice(0, round.firstBidderIndex)
-    ];
-
     return (
-      <div className="border-4 border-accent-500 rounded-2xl p-8 mb-8 bg-gradient-to-br from-purple-100 to-purple-200 shadow-card-hover">
-        <h3 className="font-bold text-xl sm:text-2xl md:text-3xl mb-4 md:mb-6 text-purple-700 flex items-center gap-2 md:gap-3">
-          <span className="text-2xl sm:text-3xl md:text-4xl">👁️</span>
-          Round {round.roundNumber} - Blind Bid Phase
-        </h3>
-        <p className="text-base text-purple-600 mb-6 font-semibold">
-          Will any players bid blind (without seeing their cards)? Check "Blind
-          Bid" and enter your bid now. Blind bids earn{" "}
-          <span className="text-purple-800 font-bold">DOUBLE</span> points!
-        </p>
-
-        <BidTrackerCard
-          tricksAvailable={tricksAvailable}
-          totalBids={totalBids}
-          variant="blind"
-        />
-
-        <div className="space-y-4 mb-6">
-          {orderedIndices.map((i) => {
-            const ps = round.scores[i];
-
-            return (
-              <BlindBidPlayerCard
-                key={i}
-                player={ps}
-                index={i}
-                tricksAvailable={tricksAvailable}
-                isBlindBidder={blindBidDecisions[i]}
-                onToggleBlind={toggleBlindBid}
-                onBidChange={handleBlindBidChange}
-              />
-            );
-          })}
-        </div>
-
-        {allPlayersBlind && allBlindBidsEntered && bidsEqualTricks && (
-          <div className="mb-5 p-5 bg-red-100 border-3 border-red-500 rounded-xl text-base text-red-800 font-semibold">
-            <strong>Rule violation:</strong> The total of all bids ({totalBids})
-            cannot equal the number of books available ({tricksAvailable}). At least
-            one player must adjust their bid to ensure someone will fail.
-          </div>
-        )}
-
-        <button
-          onClick={proceedToRegularBidding}
-          disabled={!canProceedFromBlindPhase}
-          className="w-full bg-gradient-to-r from-purple-600 to-purple-400 text-white px-6 py-4 rounded-xl text-lg font-bold shadow-card-hover hover:shadow-2xl hover:scale-105 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all"
-        >
-          {!allBlindBidsEntered
-            ? "Enter all blind bids to continue"
-            : allPlayersBlind && bidsEqualTricks
-            ? "Adjust bids - total cannot equal books available"
-            : allPlayersBlind
-            ? "Start Round →"
-            : "Continue to Regular Bidding →"}
-        </button>
-      </div>
+      <BlindBiddingPhase
+        round={round}
+        tricksAvailable={tricksAvailable}
+        blindBidDecisions={blindBidDecisions}
+        onToggleBlind={toggleBlindBid}
+        onBidChange={handleBlindBidChange}
+        onProceed={proceedToRegularBidding}
+      />
     );
   }
 
   // PHASE 2: Regular Bid Entry (non-blind bidders)
-  // Create ordered list of player indices starting from firstBidderIndex
-  const playerIndices = Array.from({ length: round.scores.length }, (_, i) => i);
-  const orderedIndices = [
-    ...playerIndices.slice(round.firstBidderIndex),
-    ...playerIndices.slice(0, round.firstBidderIndex)
-  ];
-
-  // Use activeBidderIndex to control who can bid (with delay)
-  // This stays on the current bidder even after they enter a bid, allowing them to adjust
-  const currentBidderIndex = activeBidderIndex;
+  // Create a modified round with local bids for display
+  const roundWithLocalBids = {
+    ...round,
+    scores: round.scores.map((ps, i) => ({
+      ...ps,
+      bid: localBids[i],
+    })),
+  };
 
   return (
-    <div className="border-4 border-bid-500 rounded-2xl p-8 mb-8 bg-gradient-to-br from-bid-100 to-bid-200 shadow-card-hover">
-      <h3 className="font-bold text-xl sm:text-2xl md:text-3xl mb-4 md:mb-6 text-bid-700 flex items-center gap-2 md:gap-3">
-        <span className="text-2xl sm:text-3xl md:text-4xl">🎴</span>
-        Round {round.roundNumber} - Place Your Bids
-      </h3>
-      <p className="text-base text-bid-600 mb-6 font-semibold">
-        {hasBlindBidders
-          ? "Remaining players, enter your bids in order:"
-          : "Enter your bids in order, starting with the first bidder:"}
-      </p>
-
-      <BidTrackerCard
-        tricksAvailable={tricksAvailable}
-        totalBids={totalBids}
-        variant="regular"
-      />
-
-      <BlindBidSummary
-        players={round.scores}
-        blindBidDecisions={blindBidDecisions}
-        tricksAvailable={tricksAvailable}
-      />
-
-      {/* Show regular bidders (in bidding order) */}
-      {orderedIndices.map((i) => {
-        if (blindBidDecisions[i]) return null; // Skip blind bidders
-
-        const ps = round.scores[i];
-        const isFirstBidder = i === round.firstBidderIndex;
-        const isCurrentBidder = i === currentBidderIndex;
-        const hasBid = ps.bid >= 0;
-
-        return (
-          <RegularBidPlayerRow
-            key={i}
-            player={ps}
-            index={i}
-            tricksAvailable={tricksAvailable}
-            isFirstBidder={isFirstBidder}
-            isCurrentBidder={isCurrentBidder}
-            hasBid={hasBid}
-            onBidChange={handleRegularBidChange}
-          />
-        );
-      })}
-
-      {bidsEqualTricks && allBidsEntered && (
-        <div className="mb-5 p-5 bg-red-100 border-3 border-red-500 rounded-xl text-base text-red-800 font-semibold">
-          <strong>Rule violation:</strong> The total of all bids ({totalBids})
-          cannot equal the number of books available ({tricksAvailable}). The
-          last player to bid must adjust their bid to ensure someone will fail.
-        </div>
-      )}
-
-      <button
-        onClick={onComplete}
-        disabled={!canProceed}
-        className="mt-6 bg-gradient-to-r from-bid-600 to-bid-400 text-white px-8 py-5 rounded-xl text-xl font-bold shadow-card-hover hover:shadow-2xl hover:scale-105 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all w-full"
-      >
-        {!allBidsEntered
-          ? "Enter all bids to continue"
-          : bidsEqualTricks
-          ? "Adjust bids - total cannot equal books available"
-          : "Start Round →"}
-      </button>
-    </div>
+    <RegularBiddingPhase
+      round={roundWithLocalBids}
+      tricksAvailable={tricksAvailable}
+      blindBidDecisions={blindBidDecisions}
+      currentBidderIndex={activeBidderIndex}
+      onBidChange={handleRegularBidChange}
+      onComplete={onComplete}
+    />
   );
 }

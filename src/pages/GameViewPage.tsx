@@ -9,6 +9,11 @@ import Header from "../components/Header";
 import Totals from "../components/Totals";
 import ViewOnlyPlayerCard from "../components/view/ViewOnlyPlayerCard";
 import BidTrackerCard from "../components/bid/BidTrackerCard";
+import {
+  getOrderedPlayerIndices,
+  getNextBidder,
+  filterNonBlindBidders,
+} from "../utils/bidding";
 
 export default function GameViewPage() {
   const { gameId } = useParams<{ gameId: string }>();
@@ -243,11 +248,10 @@ export default function GameViewPage() {
             {(() => {
               // Calculate ordered player indices during bidding phase (like BidCollector)
               if (currentPhase === "bidding" && biddingPhase === "regular-bid-entry") {
-                const playerIndices = Array.from({ length: currentRound.scores.length }, (_, i) => i);
-                const orderedIndices = [
-                  ...playerIndices.slice(currentRound.firstBidderIndex),
-                  ...playerIndices.slice(0, currentRound.firstBidderIndex)
-                ];
+                const orderedIndices = getOrderedPlayerIndices(
+                  currentRound.firstBidderIndex,
+                  currentRound.scores.length
+                );
 
                 // Calculate tricks available and total bids
                 const tricksAvailable = currentRound.roundNumber;
@@ -261,17 +265,18 @@ export default function GameViewPage() {
                   .map((ps, i) => ({ ps, i }))
                   .filter(({ ps }) => ps.blindBid);
 
-                const nonBlindOrderedIndices = orderedIndices.filter(
-                  idx => !currentRound.scores[idx].blindBid
+                const nonBlindOrderedIndices = filterNonBlindBidders(
+                  orderedIndices,
+                  currentRound.scores
                 );
 
                 // Find next player who needs to bid (excluding blind bidders)
-                const nextBidderIndex = nonBlindOrderedIndices.find(idx => {
-                  return currentRound.scores[idx].bid === -1; // Find first player without a bid
-                });
-
-                // First bidder is the first non-blind player in order
-                const firstNonBlindBidderIndex = nonBlindOrderedIndices[0];
+                const blindBidDecisions = currentRound.scores.map(ps => ps.blindBid);
+                const nextBidderIndex = getNextBidder(
+                  orderedIndices,
+                  currentRound.scores,
+                  blindBidDecisions
+                );
 
                 return (
                   <>
@@ -312,7 +317,6 @@ export default function GameViewPage() {
                       const hasBidChange = changedBids.has(i);
                       const hasResultChange = changedResults.has(i);
                       const hasAnyChange = hasBidChange || hasResultChange;
-                      const isFirstBidder = i === firstNonBlindBidderIndex;
                       const isCurrentBidder = i === nextBidderIndex;
                       const hasBid = ps.bid >= 0;
 
@@ -322,7 +326,6 @@ export default function GameViewPage() {
                           player={ps}
                           currentPhase={currentPhase}
                           hasChange={hasAnyChange}
-                          isFirstBidder={isFirstBidder}
                           isCurrentBidder={isCurrentBidder}
                           hasBid={hasBid}
                         />
@@ -341,6 +344,12 @@ export default function GameViewPage() {
                   0
                 );
 
+                // Get players in bidding order
+                const orderedIndices = getOrderedPlayerIndices(
+                  currentRound.firstBidderIndex,
+                  currentRound.scores.length
+                );
+
                 return (
                   <>
                     {/* Bid tracker card */}
@@ -349,7 +358,8 @@ export default function GameViewPage() {
                       totalBids={totalBids}
                       variant="blind"
                     />
-                    {currentRound.scores.map((ps, i) => {
+                    {orderedIndices.map((i) => {
+                      const ps = currentRound.scores[i];
                       const hasBidChange = changedBids.has(i);
                       const hasResultChange = changedResults.has(i);
                       const hasAnyChange = hasBidChange || hasResultChange;

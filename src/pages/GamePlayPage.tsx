@@ -163,9 +163,15 @@ export default function GamePlayPage() {
   function handleBiddingPhaseChange(phase: "blind-declaration-and-entry" | "regular-bid-entry") {
     setBiddingPhase(phase);
 
-    // Immediately save the phase change (not debounced)
+    // Cancel any pending debounced saves
+    debouncedSaveRef.current.cancel();
+
+    // Immediately save both the phase change and current round state (not debounced)
+    // This ensures blind bid flags are saved before viewers see the phase change
     if (gameId && currentRound) {
       updateGameRound(gameId, {
+        inProgressRound: currentRound,
+        currentPhase: "bidding",
         biddingPhase: phase,
       }).catch(err => console.error("Failed to save bidding phase:", err));
     }
