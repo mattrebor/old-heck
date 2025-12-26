@@ -13,8 +13,15 @@ export type PlayerScore = {
 
 // Helper function to check if a player's result has been recorded
 export function hasResultRecorded(player: PlayerScore): boolean {
-  // Check new way (met is not null) or old way (tricks >= 0) for backwards compatibility
-  return player.met !== null || (player.tricks !== undefined && player.tricks >= 0);
+  // Backwards compatibility: if tricks field exists, use it as the sentinel
+  // (old games used tricks >= 0 to indicate recorded, tricks < 0 for not recorded)
+  if (player.tricks !== undefined) {
+    return player.tricks >= 0;
+  }
+
+  // New way: met must be explicitly true or false (not null)
+  // null = not recorded, true/false = recorded
+  return player.met === true || player.met === false;
 }
 
 export type Round = {
