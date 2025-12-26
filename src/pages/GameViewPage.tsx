@@ -36,7 +36,6 @@ export default function GameViewPage() {
   const [changedBids, setChangedBids] = useState<Set<number>>(new Set());
   const [changedResults, setChangedResults] = useState<Set<number>>(new Set());
   const [phaseChanged, setPhaseChanged] = useState(false);
-  const [linkCopied, setLinkCopied] = useState(false);
 
   // Load game with real-time updates
   useEffect(() => {
@@ -128,12 +127,6 @@ export default function GameViewPage() {
 
     // Navigate to setup page with prefilled settings
     navigate("/", { state: { setup } });
-  }
-
-  function handleCopyLink() {
-    navigator.clipboard.writeText(window.location.href);
-    setLinkCopied(true);
-    setTimeout(() => setLinkCopied(false), 2000);
   }
 
   // Show loading state
@@ -430,20 +423,6 @@ export default function GameViewPage() {
             ⏳ Waiting for round {nextRoundNumber} to start...
           </div>
         )}
-
-      {/* Action Buttons - Only show for authenticated users */}
-      {user && (
-        <div className="mt-6">
-          <button
-            onClick={handleCopyLink}
-            className={`bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:shadow-card-hover hover:scale-105 transition-all w-full ${
-              linkCopied ? "animate-pulse ring-4 ring-green-400" : ""
-            }`}
-          >
-            {linkCopied ? "✓ Link Copied!" : "📋 Copy Link"}
-          </button>
-        </div>
-      )}
     </div>
   );
 }
