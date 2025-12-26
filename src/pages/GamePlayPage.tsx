@@ -21,6 +21,7 @@ import BidCollector from "../components/BidCollector";
 import RoundEditor from "../components/RoundEditor";
 import Totals from "../components/Totals";
 import ShareModal from "../components/ShareModal";
+import PlayerAvatar from "../components/PlayerAvatar";
 
 type RoundPhase = "bidding" | "results" | "score-review" | "completed";
 
@@ -506,6 +507,34 @@ export default function GamePlayPage({
     setEditPlayers(copy);
   }
 
+  function moveEditPlayerUp(index: number) {
+    if (index === 0) return; // Already at the top
+    const copy = [...editPlayers];
+    [copy[index - 1], copy[index]] = [copy[index], copy[index - 1]];
+    setEditPlayers(copy);
+
+    // Adjust editFirstPlayerIndex if needed
+    if (editFirstPlayerIndex === index) {
+      setEditFirstPlayerIndex(index - 1);
+    } else if (editFirstPlayerIndex === index - 1) {
+      setEditFirstPlayerIndex(index);
+    }
+  }
+
+  function moveEditPlayerDown(index: number) {
+    if (index === editPlayers.length - 1) return; // Already at the bottom
+    const copy = [...editPlayers];
+    [copy[index], copy[index + 1]] = [copy[index + 1], copy[index]];
+    setEditPlayers(copy);
+
+    // Adjust editFirstPlayerIndex if needed
+    if (editFirstPlayerIndex === index) {
+      setEditFirstPlayerIndex(index + 1);
+    } else if (editFirstPlayerIndex === index + 1) {
+      setEditFirstPlayerIndex(index);
+    }
+  }
+
   async function saveSetupChanges() {
     if (!gameId || !setup) return;
 
@@ -763,16 +792,6 @@ export default function GamePlayPage({
                   const isEmpty = p.trim() === "";
                   return (
                     <div key={i} className="flex items-center gap-3 mb-3">
-                      <input
-                        value={p}
-                        onChange={(e) => updateEditPlayer(i, e.target.value)}
-                        className={`border-3 ${
-                          isEmpty
-                            ? "border-red-400 focus:border-red-500 focus:ring-red-500/30"
-                            : "border-felt-400 focus:border-gold-500 focus:ring-gold-500/30"
-                        } rounded-xl px-4 py-3 w-full text-base font-semibold focus:outline-none focus:ring-4 transition-all bg-white`}
-                        placeholder="Enter player name"
-                      />
                       {editPlayers.length > 2 && (
                         <button
                           onClick={() =>
@@ -786,6 +805,35 @@ export default function GamePlayPage({
                           ×
                         </button>
                       )}
+                      <PlayerAvatar name={p || "?"} size="md" />
+                      <input
+                        value={p}
+                        onChange={(e) => updateEditPlayer(i, e.target.value)}
+                        className={`border-3 ${
+                          isEmpty
+                            ? "border-red-400 focus:border-red-500 focus:ring-red-500/30"
+                            : "border-felt-400 focus:border-gold-500 focus:ring-gold-500/30"
+                        } rounded-xl px-4 py-3 w-full text-base font-semibold focus:outline-none focus:ring-4 transition-all bg-white`}
+                        placeholder="Enter player name"
+                      />
+                      <div className="flex flex-col gap-1">
+                        <button
+                          onClick={() => moveEditPlayerUp(i)}
+                          disabled={i === 0}
+                          className="text-felt-600 hover:text-felt-700 disabled:text-gray-300 disabled:cursor-not-allowed font-bold text-base px-2 transition-colors"
+                          title="Move up"
+                        >
+                          ▲
+                        </button>
+                        <button
+                          onClick={() => moveEditPlayerDown(i)}
+                          disabled={i === editPlayers.length - 1}
+                          className="text-felt-600 hover:text-felt-700 disabled:text-gray-300 disabled:cursor-not-allowed font-bold text-base px-2 transition-colors"
+                          title="Move down"
+                        >
+                          ▼
+                        </button>
+                      </div>
                     </div>
                   );
                 })}
