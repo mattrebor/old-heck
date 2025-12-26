@@ -30,6 +30,13 @@ export type GameSetup = {
   firstPlayerIndex: number;
 };
 
+export type ShareToken = {
+  token: string; // 32-char cryptographically random string
+  createdAt: number; // Unix timestamp
+  usedAt: number | null; // null = unused, timestamp = used
+  usedBy: string | null; // session ID of user who claimed it
+};
+
 export type Game = {
   id?: string;
   createdAt: Timestamp;
@@ -45,4 +52,5 @@ export type Game = {
   inProgressRound?: Round;
   currentPhase?: "bidding" | "results" | "score-review" | "completed";
   biddingPhase?: "blind-declaration-and-entry" | "regular-bid-entry";
+  shareToken?: ShareToken;
 };
