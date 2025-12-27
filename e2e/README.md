@@ -60,36 +60,40 @@ e2e/
 
 ## Current Status
 
-### ✅ Working Tests
+### ✅ Passing Tests (13-16 passing)
 
-**smoke.spec.ts** - 3 passing tests:
+**smoke.spec.ts** - 3 passing:
 - ✓ should load the homepage
 - ✓ should have correct page title
 - ✓ should show sign-in prompt when not authenticated
 
-These tests verify the basic application loads and shows the correct UI.
+**game-setup.spec.ts** - 5-8 passing:
+- ✓ should display the setup form
+- ✓ should validate player names are required
+- ✓ should allow changing number of decks
+- ✓ should allow adding and removing players
+- ✓ should allow reordering players
+- ⚠️ should update first player selection when reordering (occasional auth flakiness)
+- ⚠️ should show validation errors for empty player names (occasional auth flakiness)
+- ⚠️ should allow setting up a game with custom configuration (occasional auth flakiness)
 
-### ⚠️  Tests Requiring Authentication
+**bidding-flow.spec.ts** - 5 passing:
+- ✓ should allow blind bidding
+- ✓ should prevent total bids from equaling tricks available
+- ✓ should enforce bidding order
+- ✓ should handle all players bidding blind
+- ✓ should preserve blind bid flags during bidding
 
-The following test suites are **written but disabled** (using `test.skip`) because they require authentication:
+### ⏭️  Skipped Tests (5 skipped)
 
-**game-setup.spec.ts** - Game creation and validation:
-- Form validation (player names, deck count)
-- Player reordering
-- First player selection
-- Creating games (requires auth)
+**bidding-flow.spec.ts**:
+- ⏭️ should show warning when bid exceeds cards in hand (requires Round 2 setup)
+- ⏭️ should calculate blind bid bonus correctly (needs bid validation investigation)
 
-**bidding-flow.spec.ts** - Bidding mechanics:
-- Blind bidding
-- Regular bidding order
-- Bid validation rules
-- Blind bid bonus calculation
-
-**complete-game.spec.ts** - Full game scenarios:
-- Complete 3-round game
-- Score calculation
-- Round progression
-- Ending game early
+**complete-game.spec.ts** - All skipped (helper method needs debugging):
+- ⏭️ should complete a full 2-player, 3-round game
+- ⏭️ should handle mid-game score review correctly
+- ⏭️ should allow ending game early
 
 ## Enabling Auth-Required Tests
 
