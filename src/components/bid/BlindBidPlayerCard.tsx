@@ -52,6 +52,7 @@ export default function BlindBidPlayerCard({
                 type="checkbox"
                 checked={isBlindBidder}
                 onChange={() => onToggleBlind(index)}
+                data-testid={`bidding-blind-checkbox-${index}`}
                 className="w-6 h-6 text-purple-600 rounded focus:ring-purple-500"
               />
             </label>
@@ -68,6 +69,7 @@ export default function BlindBidPlayerCard({
                 onClick={() =>
                   onBidChange(index, Math.max(0, (player.bid >= 0 ? player.bid : 0) - 1))
                 }
+                data-testid={`bidding-blind-decrease-${index}`}
                 className="bg-purple-500 hover:bg-purple-600 text-white font-bold text-lg w-9 h-9 rounded-lg transition-all"
               >
                 −
@@ -76,6 +78,7 @@ export default function BlindBidPlayerCard({
                 type="number"
                 min={0}
                 placeholder="Bid"
+                data-testid={`bidding-blind-input-${index}`}
                 className="border-3 border-purple-400 rounded-xl px-2 py-2 w-14 text-center text-lg font-bold focus:border-purple-600 focus:outline-none focus:ring-4 focus:ring-purple-600/30 bg-white transition-all"
                 value={player.bid >= 0 ? player.bid : ""}
                 onChange={(e) =>
@@ -86,6 +89,7 @@ export default function BlindBidPlayerCard({
                 onClick={() =>
                   onBidChange(index, (player.bid >= 0 ? player.bid : 0) + 1)
                 }
+                data-testid={`bidding-blind-increase-${index}`}
                 className="bg-purple-500 hover:bg-purple-600 text-white font-bold text-lg w-9 h-9 rounded-lg transition-all"
               >
                 +

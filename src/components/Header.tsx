@@ -35,6 +35,7 @@ export default function Header({ onShareClick }: HeaderProps = {}) {
               {onShareClick && (
                 <button
                   onClick={onShareClick}
+                  data-testid="header-share-button"
                   className="px-4 py-3 bg-gradient-to-r from-purple-500 to-purple-400 text-white rounded-xl hover:from-purple-600 hover:to-purple-500 transition-all font-bold shadow-card hover:shadow-card-hover hover:scale-105 text-base whitespace-nowrap"
                 >
                   🔗 Share
@@ -42,18 +43,21 @@ export default function Header({ onShareClick }: HeaderProps = {}) {
               )}
               <Link
                 to="/my-games"
+                data-testid="header-mygames-link"
                 className="px-4 py-3 bg-gradient-to-r from-felt-500 to-felt-400 text-white rounded-xl hover:from-felt-600 hover:to-felt-500 transition-all font-bold shadow-card hover:shadow-card-hover hover:scale-105 text-base whitespace-nowrap"
               >
                 📋 My Games
               </Link>
               <Link
                 to="/"
+                data-testid="header-newgame-link"
                 className="px-6 py-3 bg-gradient-to-r from-bid-600 to-bid-400 text-white rounded-xl hover:from-bid-700 hover:to-bid-500 transition-all font-bold shadow-card hover:shadow-card-hover hover:scale-105 text-lg whitespace-nowrap"
               >
                 🎮 New Game
               </Link>
               <button
                 onClick={handleSignOut}
+                data-testid="header-signout-button"
                 className="px-4 py-3 bg-gradient-to-r from-gray-500 to-gray-400 text-white rounded-xl hover:from-gray-600 hover:to-gray-500 transition-all font-bold shadow-card hover:shadow-card-hover hover:scale-105 text-base whitespace-nowrap"
               >
                 🚪 Sign Out
@@ -63,6 +67,7 @@ export default function Header({ onShareClick }: HeaderProps = {}) {
             {/* Hamburger menu button - visible on small screens */}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
+              data-testid="header-menu-toggle"
               className="sm:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
               aria-label="Menu"
             >
@@ -102,6 +107,7 @@ export default function Header({ onShareClick }: HeaderProps = {}) {
                 onShareClick();
                 setMenuOpen(false);
               }}
+              data-testid="header-share-button-mobile"
               className="px-4 py-3 bg-gradient-to-r from-purple-500 to-purple-400 text-white rounded-xl hover:from-purple-600 hover:to-purple-500 transition-all font-bold shadow-card text-center"
             >
               🔗 Share
@@ -110,6 +116,7 @@ export default function Header({ onShareClick }: HeaderProps = {}) {
           <Link
             to="/my-games"
             onClick={() => setMenuOpen(false)}
+            data-testid="header-mygames-link-mobile"
             className="px-4 py-3 bg-gradient-to-r from-felt-500 to-felt-400 text-white rounded-xl hover:from-felt-600 hover:to-felt-500 transition-all font-bold shadow-card text-center"
           >
             📋 My Games
@@ -117,12 +124,14 @@ export default function Header({ onShareClick }: HeaderProps = {}) {
           <Link
             to="/"
             onClick={() => setMenuOpen(false)}
+            data-testid="header-newgame-link-mobile"
             className="px-4 py-3 bg-gradient-to-r from-bid-600 to-bid-400 text-white rounded-xl hover:from-bid-700 hover:to-bid-500 transition-all font-bold shadow-card text-center"
           >
             🎮 New Game
           </Link>
           <button
             onClick={handleSignOut}
+            data-testid="header-signout-button-mobile"
             className="px-4 py-3 bg-gradient-to-r from-gray-500 to-gray-400 text-white rounded-xl hover:from-gray-600 hover:to-gray-500 transition-all font-bold shadow-card text-center"
           >
             🚪 Sign Out

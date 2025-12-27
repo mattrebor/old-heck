@@ -118,6 +118,7 @@ export default function GameSetupPage() {
             </div>
             <button
               onClick={signInWithGoogle}
+              data-testid="setup-signin-button"
               className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-5 rounded-xl text-xl font-bold shadow-card-hover hover:shadow-2xl hover:scale-105 transition-all"
             >
               Sign in with Google
@@ -145,6 +146,7 @@ export default function GameSetupPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setDecks(Math.max(1, (typeof decks === "number" ? decks : 1) - 1))}
+              data-testid="setup-decks-decrease-button"
               className="bg-felt-500 hover:bg-felt-600 text-white font-bold text-2xl w-14 h-14 rounded-xl transition-all shadow-card hover:shadow-card-hover"
             >
               −
@@ -156,10 +158,12 @@ export default function GameSetupPage() {
               onChange={(e) =>
                 setDecks(e.target.value === "" ? "" : Number(e.target.value))
               }
+              data-testid="setup-decks-input"
               className="border-3 border-felt-400 rounded-xl px-5 py-4 w-20 text-center text-xl font-bold focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-500/30 transition-all bg-white"
             />
             <button
               onClick={() => setDecks((typeof decks === "number" ? decks : 1) + 1)}
+              data-testid="setup-decks-increase-button"
               className="bg-felt-500 hover:bg-felt-600 text-white font-bold text-2xl w-14 h-14 rounded-xl transition-all shadow-card hover:shadow-card-hover"
             >
               +
@@ -176,6 +180,7 @@ export default function GameSetupPage() {
                 {players.length > 2 && (
                   <button
                     onClick={() => setPlayers(players.filter((_, idx) => idx !== i))}
+                    data-testid={`setup-players-remove-${i}`}
                     className="text-red-600 hover:text-red-700 font-bold text-xl px-2"
                     title="Remove player"
                   >
@@ -186,6 +191,7 @@ export default function GameSetupPage() {
                 <input
                   value={p}
                   onChange={(e) => updatePlayer(i, e.target.value)}
+                  data-testid={`setup-players-input-${i}`}
                   className={`border-3 ${
                     isEmpty
                       ? "border-red-400 focus:border-red-500 focus:ring-red-500/30"
@@ -197,6 +203,7 @@ export default function GameSetupPage() {
                   <button
                     onClick={() => movePlayerUp(i)}
                     disabled={i === 0}
+                    data-testid={`setup-players-moveup-${i}`}
                     className="text-felt-600 hover:text-felt-700 disabled:text-gray-300 disabled:cursor-not-allowed font-bold text-lg px-2 transition-colors"
                     title="Move up"
                   >
@@ -205,6 +212,7 @@ export default function GameSetupPage() {
                   <button
                     onClick={() => movePlayerDown(i)}
                     disabled={i === players.length - 1}
+                    data-testid={`setup-players-movedown-${i}`}
                     className="text-felt-600 hover:text-felt-700 disabled:text-gray-300 disabled:cursor-not-allowed font-bold text-lg px-2 transition-colors"
                     title="Move down"
                   >
@@ -218,6 +226,7 @@ export default function GameSetupPage() {
             onClick={() =>
               setPlayers([...players, `Player ${players.length + 1}`])
             }
+            data-testid="setup-players-add-button"
             className="text-bid-600 text-base font-bold hover:text-bid-700 mt-3 px-4 py-2 hover:bg-white/50 rounded-lg transition-all"
           >
             + Add player
@@ -232,6 +241,7 @@ export default function GameSetupPage() {
             <select
               value={firstPlayerIndex}
               onChange={(e) => setFirstPlayerIndex(Number(e.target.value))}
+              data-testid="setup-firstplayer-select"
               className="border-3 border-felt-400 rounded-xl px-5 py-4 w-full text-lg font-semibold focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-500/30 transition-all bg-white"
             >
               {players.map((player, index) => (
@@ -246,6 +256,7 @@ export default function GameSetupPage() {
         <button
           onClick={startGame}
           disabled={players.some(p => p.trim() === "") || typeof decks !== "number" || decks < 1}
+          data-testid="setup-start-button"
           className="bg-gradient-to-r from-felt-500 to-felt-400 text-white px-8 py-5 rounded-xl text-xl font-bold shadow-card-hover hover:shadow-2xl hover:scale-105 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all w-full"
         >
           🎮 Start Game

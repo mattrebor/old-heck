@@ -93,6 +93,7 @@ export default function RegularBiddingPhase({
       <button
         onClick={onComplete}
         disabled={!canProceed}
+        data-testid="bidding-regular-complete-button"
         className="mt-6 bg-gradient-to-r from-bid-600 to-bid-400 text-white px-8 py-5 rounded-xl text-xl font-bold shadow-card-hover hover:shadow-2xl hover:scale-105 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all w-full"
       >
         {!allBidsEntered

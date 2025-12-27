@@ -590,6 +590,7 @@ export default function GamePlayPage({
             {canEditSetup && (
               <button
                 onClick={openEditSetup}
+                data-testid="game-edit-setup-button"
                 className="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-colors"
               >
                 ✏️ Edit Setup
@@ -598,6 +599,7 @@ export default function GamePlayPage({
             {nextRoundNumber <= setup.maxRounds && (
               <button
                 onClick={() => setShowEndGameDialog(true)}
+                data-testid="game-end-early-button"
                 className="text-xs font-semibold text-red-600 hover:text-red-700 hover:underline transition-colors"
               >
                 ⏹ End Game Early
@@ -608,6 +610,7 @@ export default function GamePlayPage({
         <div className="border-t border-bid-300 pt-2">
           <button
             onClick={() => setPlayersExpanded(!playersExpanded)}
+            data-testid="game-players-toggle"
             className="flex items-center gap-2 text-sm font-semibold text-bid-700 hover:text-bid-800 transition-colors w-full"
           >
             <span className="text-xs">{playersExpanded ? "▼" : "▶"}</span>
@@ -645,6 +648,7 @@ export default function GamePlayPage({
           <button
             onClick={handleCompleteRound}
             disabled={!currentRound.scores.every(hasResultRecorded)}
+            data-testid="game-complete-round-button"
             className="mb-6 bg-gradient-to-r from-success-500 to-success-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:shadow-card-hover hover:scale-105 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all w-full"
           >
             Complete Round
@@ -679,6 +683,7 @@ export default function GamePlayPage({
           <button
             onClick={handleStartNextRound}
             disabled={isSaving}
+            data-testid="game-start-next-round-button"
             className="w-full bg-gradient-to-r from-bid-500 to-bid-600 text-white px-6 py-4 rounded-xl text-xl font-bold hover:shadow-card-hover hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed mb-6"
           >
             {isSaving ? "💾 Saving..." : `▶️ Start Round ${completedRounds.length + 1}`}
@@ -703,6 +708,7 @@ export default function GamePlayPage({
           </div>
           <button
             onClick={handleStartNewGameWithSameSettings}
+            data-testid="game-new-game-button"
             className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-4 rounded-xl text-xl font-bold hover:shadow-card-hover hover:scale-105 transition-all"
           >
             🎮 New Game with Same Settings
@@ -841,6 +847,7 @@ export default function GamePlayPage({
             <div className="flex gap-3">
               <button
                 onClick={() => setShowEditSetup(false)}
+                data-testid="edit-setup-cancel-button"
                 className="flex-1 px-6 py-3 bg-gray-200 text-gray-800 rounded-xl font-bold hover:bg-gray-300 transition-all"
               >
                 Cancel
@@ -853,6 +860,7 @@ export default function GamePlayPage({
                   typeof editDecks !== "number" ||
                   editDecks < 1
                 }
+                data-testid="edit-setup-save-button"
                 className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-bold hover:from-blue-600 hover:to-blue-700 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed transition-all"
               >
                 {isSaving ? "Saving..." : "Save Changes"}
@@ -877,6 +885,7 @@ export default function GamePlayPage({
             <div className="flex gap-3">
               <button
                 onClick={() => setShowEndGameDialog(false)}
+                data-testid="end-game-cancel-button"
                 className="flex-1 px-6 py-3 bg-gray-200 text-gray-800 rounded-xl font-bold hover:bg-gray-300 transition-all"
               >
                 Cancel
@@ -884,6 +893,7 @@ export default function GamePlayPage({
               <button
                 onClick={handleEndGameEarly}
                 disabled={isSaving}
+                data-testid="end-game-confirm-button"
                 className="flex-1 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-bold hover:from-red-600 hover:to-red-700 disabled:from-gray-400 disabled:to-gray-400 transition-all"
               >
                 {isSaving ? "Ending..." : "End Game"}

@@ -58,6 +58,7 @@ export default function RegularBidPlayerRow({
               onBidChange(index, Math.max(0, (player.bid >= 0 ? player.bid : 0) - 1))
             }
             disabled={!canBid}
+            data-testid={`bidding-regular-decrease-${index}`}
             className={`font-bold text-lg w-9 h-9 rounded-lg transition-all ${
               canBid
                 ? "bg-bid-500 hover:bg-bid-600 text-white"
@@ -71,6 +72,7 @@ export default function RegularBidPlayerRow({
             min={0}
             placeholder={canBid ? "Bid" : "Wait"}
             disabled={!canBid}
+            data-testid={`bidding-regular-input-${index}`}
             className={`border-3 rounded-xl px-2 py-2 w-14 text-center text-lg font-bold transition-all ${
               canBid
                 ? "border-bid-400 focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-500/30 bg-bid-50"
@@ -84,6 +86,7 @@ export default function RegularBidPlayerRow({
           <button
             onClick={() => onBidChange(index, (player.bid >= 0 ? player.bid : 0) + 1)}
             disabled={!canBid}
+            data-testid={`bidding-regular-increase-${index}`}
             className={`font-bold text-lg w-9 h-9 rounded-lg transition-all ${
               canBid
                 ? "bg-bid-500 hover:bg-bid-600 text-white"

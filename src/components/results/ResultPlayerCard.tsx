@@ -31,6 +31,7 @@ export default function ResultPlayerCard({
               name={`player-${index}`}
               checked={player.met === true}
               onChange={() => onUpdate(index, true)}
+              data-testid={`results-made-${index}`}
               className="sr-only"
             />
             <span className="text-sm sm:text-base font-bold">✓ Made</span>
@@ -41,6 +42,7 @@ export default function ResultPlayerCard({
               name={`player-${index}`}
               checked={player.met === false}
               onChange={() => onUpdate(index, false)}
+              data-testid={`results-missed-${index}`}
               className="sr-only"
             />
             <span className="text-sm sm:text-base font-bold">✗ Missed</span>

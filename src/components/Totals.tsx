@@ -150,6 +150,7 @@ export default function Totals({
             >
               <div
                 onClick={() => toggleRound(round.roundNumber)}
+                data-testid={`totals-round-toggle-${round.roundNumber}`}
                 className={`${
                   isLatestRound ? "bg-green-600" : "bg-felt-500"
                 } text-white font-bold flex items-center justify-between cursor-pointer ${
@@ -281,6 +282,7 @@ export default function Totals({
                 <React.Fragment key={round.roundNumber}>
                   <tr
                     onClick={() => toggleRound(round.roundNumber)}
+                    data-testid={`totals-round-toggle-${round.roundNumber}`}
                     className={`border-t border-gray-200 cursor-pointer transition-colors ${
                       isLatestRound
                         ? "bg-green-100 hover:bg-green-200"
