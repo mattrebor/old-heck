@@ -1,12 +1,11 @@
 import { test, expect } from '@playwright/test';
 import { GameSetupPage } from '../pages/GameSetupPage';
 import { GamePlayPage } from '../pages/GamePlayPage';
+import { signInWithTestUser } from '../fixtures/auth';
 
 test.describe('Complete Game Flow', () => {
-  // TODO: These tests require authentication
-  // Once we implement email/password auth for testing, these can be enabled
-
   test.skip('should complete a full 2-player, 3-round game', async ({ page }) => {
+    // TODO: Fix complete game test - helper method needs debugging
     // This test demonstrates the complete flow:
     // 1. Setup game
     // 2. Play 3 rounds
@@ -17,9 +16,7 @@ test.describe('Complete Game Flow', () => {
 
     // ==================== Setup ====================
     await setupPage.goto();
-
-    // Sign in (requires auth implementation)
-    // await signInWithTestUser(page);
+    await signInWithTestUser(page);
 
     // Create a game with 2 players
     await setupPage.setupGame({
@@ -104,11 +101,12 @@ test.describe('Complete Game Flow', () => {
   });
 
   test.skip('should handle mid-game score review correctly', async ({ page }) => {
+    // TODO: Fix complete game test - helper method needs debugging
     const setupPage = new GameSetupPage(page);
     const gamePage = new GamePlayPage(page);
 
     await setupPage.goto();
-    // await signInWithTestUser(page);
+    await signInWithTestUser(page);
 
     await setupPage.setupGame({
       players: ['Alice', 'Bob'],
@@ -149,11 +147,12 @@ test.describe('Complete Game Flow', () => {
   });
 
   test.skip('should allow ending game early', async ({ page }) => {
+    // TODO: Fix complete game test - helper method needs debugging
     const setupPage = new GameSetupPage(page);
     const gamePage = new GamePlayPage(page);
 
     await setupPage.goto();
-    // await signInWithTestUser(page);
+    await signInWithTestUser(page);
 
     await setupPage.setupGame({
       players: ['Alice', 'Bob'],

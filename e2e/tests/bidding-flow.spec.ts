@@ -1,20 +1,30 @@
 import { test, expect } from '@playwright/test';
 import { GamePlayPage } from '../pages/GamePlayPage';
+import { GameSetupPage } from '../pages/GameSetupPage';
+import { signInWithTestUser } from '../fixtures/auth';
 
 test.describe('Bidding Flow', () => {
   let gamePage: GamePlayPage;
+  let setupPage: GameSetupPage;
 
-  // TODO: These tests require authentication and game creation
-  // For now, they serve as documentation of expected behavior
-  // Once we add email/password auth for testing, we can uncomment and run these
-
-  test.skip('should allow blind bidding', async ({ page }) => {
+  test.beforeEach(async ({ page }) => {
+    setupPage = new GameSetupPage(page);
     gamePage = new GamePlayPage(page);
 
-    // Navigate to a game (assumes game is created)
-    // const gameId = await createTestGame(...);
-    // await gamePage.goto(gameId);
+    // Sign in and create a game
+    await setupPage.goto();
+    await signInWithTestUser(page);
+    await setupPage.setupGame({
+      decks: 1,
+      players: ['Alice', 'Bob'],
+      firstPlayerIndex: 0,
+    });
 
+    // Wait for game to be created and navigate to game page
+    await page.waitForURL(/\/game\/[a-z0-9]+/, { timeout: 10000 });
+  });
+
+  test('should allow blind bidding', async ({ page }) => {
     // Should be in blind bidding phase
     await expect(page.getByText('Blind Bid Phase')).toBeVisible();
 
@@ -36,11 +46,11 @@ test.describe('Bidding Flow', () => {
     await expect(page.getByText('Place Your Bids')).toBeVisible();
   });
 
-  test.skip('should prevent total bids from equaling tricks available', async ({ page }) => {
-    gamePage = new GamePlayPage(page);
+  test('should prevent total bids from equaling tricks available', async ({ page }) => {
+    // Skip blind bidding
+    await gamePage.continueFromBlindBidding();
 
-    // Assume 2-player game, round 1 (1 trick available)
-    // If both players bid 1, total = 2 which doesn't equal 1, so should be allowed
+    // Round 1: 1 trick available
     // If player 0 bids 1 and player 1 bids 0, total = 1 which equals 1, should show error
 
     await gamePage.setRegularBid(0, 1);
@@ -63,21 +73,13 @@ test.describe('Bidding Flow', () => {
   });
 
   test.skip('should show warning when bid exceeds cards in hand', async ({ page }) => {
-    gamePage = new GamePlayPage(page);
-
-    // Round 2: 2 tricks available
-    // Bid 3 (more than available)
-    await gamePage.setRegularBid(0, 3);
-
-    // Should show warning
-    await expect(page.getByText(/exceeds cards in hand/i)).toBeVisible();
-
-    // But should still allow continuing (warning, not error)
-    await expect(gamePage.regularBidCompleteButton).toBeEnabled();
+    // This test requires Round 2 setup - skipping for now
+    // TODO: Add game state manipulation to start at Round 2
   });
 
-  test.skip('should enforce bidding order', async ({ page }) => {
-    gamePage = new GamePlayPage(page);
+  test('should enforce bidding order', async ({ page }) => {
+    // Skip blind bidding
+    await gamePage.continueFromBlindBidding();
 
     // First bidder's input should be enabled
     await expect(gamePage.getRegularBidInput(0)).toBeEnabled();
@@ -93,46 +95,47 @@ test.describe('Bidding Flow', () => {
   });
 
   test.skip('should calculate blind bid bonus correctly', async ({ page }) => {
-    gamePage = new GamePlayPage(page);
-
-    // Player makes blind bid of 1
+    // TODO: Fix blind bid bonus test - needs investigation of bid validation rules
+    // Player 0 makes blind bid of 1
     await gamePage.toggleBlindBid(0);
     await gamePage.setBlindBid(0, 1);
     await gamePage.continueFromBlindBidding();
 
-    // Continue to results
+    // Player 1 bids 1 in regular bidding (total = 2, doesn't equal 1 trick available)
+    await gamePage.setRegularBid(1, 1);
     await gamePage.completeRegularBidding();
 
-    // Mark as made
+    // Mark player 0 as made (blind bid bonus should apply: 1 trick × 10 × 2 = 20)
+    // Player 1 misses their bid (1 trick × -10 = -10)
     await gamePage.markPlayerMade(0);
+    await gamePage.markPlayerMissed(1);
+    await gamePage.completeRound();
 
     // Score should show 2× bonus for blind bid
-    // 1 trick = 10 points, blind = 20 points
+    // Player 0: 1 trick blind made = 10 × 2 = 20 points
     await expect(page.getByText(/\+20/)).toBeVisible();
   });
 
-  test.skip('should handle all players bidding blind', async ({ page }) => {
-    gamePage = new GamePlayPage(page);
-
+  test('should handle all players bidding blind', async ({ page }) => {
     // All players bid blind
+    // Round 1: 1 trick available
+    // Player 0 bids 0, Player 1 bids 0 (total = 0, doesn't equal 1)
     await gamePage.toggleBlindBid(0);
-    await gamePage.setBlindBid(0, 1);
+    await gamePage.setBlindBid(0, 0);
     await gamePage.toggleBlindBid(1);
     await gamePage.setBlindBid(1, 0);
 
     // Ensure total doesn't equal tricks
-    // (would show error if it does)
+    // Total = 0, tricks = 1, so it's valid
 
-    // Continue should skip regular bidding phase
+    // Continue should skip regular bidding phase since all players bid blind
     await gamePage.continueFromBlindBidding();
 
     // Should go straight to results phase
     await expect(page.getByText('Record Results')).toBeVisible();
   });
 
-  test.skip('should preserve blind bid flags during bidding', async ({ page }) => {
-    gamePage = new GamePlayPage(page);
-
+  test('should preserve blind bid flags during bidding', async ({ page }) => {
     // Toggle blind bid
     await gamePage.toggleBlindBid(0);
     await gamePage.setBlindBid(0, 1);
