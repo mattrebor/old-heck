@@ -251,6 +251,24 @@ export default function BidCollector({
     }
   }
 
+  function handleComplete() {
+    // Flush any pending bid before completing
+    if (bidTimerRef.current) {
+      clearTimeout(bidTimerRef.current);
+      bidTimerRef.current = null;
+
+      // Save pending bid immediately
+      const pendingIndex = activeBidIndexRef.current;
+      if (pendingIndex !== null && localBids[pendingIndex] >= 0) {
+        onUpdate(pendingIndex, localBids[pendingIndex], false);
+      }
+      activeBidIndexRef.current = null;
+    }
+
+    // Then call onComplete
+    onComplete();
+  }
+
   // PHASE 1: Blind Bid Declaration and Entry (Combined)
   if (biddingPhase === "blind-declaration-and-entry") {
     return (
@@ -282,7 +300,7 @@ export default function BidCollector({
       blindBidDecisions={blindBidDecisions}
       currentBidderIndex={activeBidderIndex}
       onBidChange={handleRegularBidChange}
-      onComplete={onComplete}
+      onComplete={handleComplete}
     />
   );
 }

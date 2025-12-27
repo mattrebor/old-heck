@@ -182,7 +182,7 @@ export default function GamePlayPage({
         unsubscribe();
       }
     };
-  }, [gameId, token, user, isSharedAccess]);
+  }, [gameId, token, isSharedAccess]); // Removed 'user' to prevent re-verification on auth refresh
 
   // Show loading state
   if (loading) {
