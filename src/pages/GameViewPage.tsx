@@ -1,34 +1,36 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { doc, onSnapshot } from "firebase/firestore";
-import { db } from "../firebase";
 import { useAuth } from "../contexts/AuthContext";
-import type { Game, GameSetup, Round } from "../types";
+import type { Round } from "../types";
 import { hasResultRecorded } from "../types";
+import { useGameSubscription } from "../hooks/useGameSubscription";
+import { useBiddingViewModel } from "../hooks/useBiddingViewModel";
+import { navigateToNewGameWithSetup } from "../utils/navigation";
 import Header from "../components/Header";
+import GameLoadingState from "../components/GameLoadingState";
+import GameErrorState from "../components/GameErrorState";
+import GameInfoHeader from "../components/GameInfoHeader";
+import GameCompleteSection from "../components/GameCompleteSection";
 import Totals from "../components/Totals";
 import ViewOnlyPlayerCard from "../components/view/ViewOnlyPlayerCard";
 import BidTrackerCard from "../components/bid/BidTrackerCard";
-import {
-  getOrderedPlayerIndices,
-  getNextBidder,
-  filterNonBlindBidders,
-} from "../utils/bidding";
 
 export default function GameViewPage() {
   const { gameId } = useParams<{ gameId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [setup, setSetup] = useState<GameSetup | null>(null);
-  const [completedRounds, setCompletedRounds] = useState<Round[]>([]);
-  const [currentRound, setCurrentRound] = useState<Round | null>(null);
-  const [currentPhase, setCurrentPhase] = useState<string | null>(null);
-  const [biddingPhase, setBiddingPhase] = useState<"blind-declaration-and-entry" | "regular-bid-entry" | null>(null);
-  const [gameStatus, setGameStatus] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [playersExpanded, setPlayersExpanded] = useState(false);
+  // Use custom hook for game subscription
+  const {
+    setup,
+    completedRounds,
+    currentRound,
+    currentPhase,
+    biddingPhase,
+    gameStatus,
+    loading,
+    error,
+  } = useGameSubscription(gameId);
 
   // Track previous values to detect changes
   const prevRoundRef = useRef<Round | null>(null);
@@ -37,46 +39,6 @@ export default function GameViewPage() {
   const [changedResults, setChangedResults] = useState<Set<number>>(new Set());
   const [phaseChanged, setPhaseChanged] = useState(false);
 
-  // Load game with real-time updates
-  useEffect(() => {
-    if (!gameId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setError("No game ID provided");
-      setLoading(false);
-      return;
-    }
-
-    const gameRef = doc(db, "games", gameId);
-
-    const unsubscribe = onSnapshot(
-      gameRef,
-      (snapshot) => {
-        if (!snapshot.exists()) {
-          setError("Game not found");
-          setLoading(false);
-          return;
-        }
-
-        const game = { id: snapshot.id, ...snapshot.data() } as Game;
-
-        setSetup(game.setup);
-        setCompletedRounds(game.rounds || []);
-        setCurrentRound(game.inProgressRound || null);
-        setCurrentPhase(game.currentPhase || null);
-        setBiddingPhase(game.biddingPhase || null);
-        setGameStatus(game.status);
-        setLoading(false);
-      },
-      (err) => {
-        console.error("Error loading game:", err);
-        setError("Failed to load game");
-        setLoading(false);
-      }
-    );
-
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
-  }, [gameId]);
 
   // Detect changes and trigger animations
   useEffect(() => {
@@ -124,35 +86,17 @@ export default function GameViewPage() {
 
   function handleStartNewGameWithSameSettings() {
     if (!setup) return;
-
-    // Navigate to setup page with prefilled settings
-    navigate("/", { state: { setup } });
+    navigateToNewGameWithSetup(navigate, setup);
   }
 
   // Show loading state
   if (loading) {
-    return (
-      <div className="max-w-4xl mx-auto p-6">
-        <Header />
-        <div className="text-center py-12">
-          <div className="text-xl font-semibold">Loading game...</div>
-        </div>
-      </div>
-    );
+    return <GameLoadingState />;
   }
 
   // Show error state
   if (error || !setup) {
-    return (
-      <div className="max-w-4xl mx-auto p-6">
-        <Header />
-        <div className="text-center py-12">
-          <div className="text-xl font-semibold text-red-600 mb-4">
-            {error || "Game not found"}
-          </div>
-        </div>
-      </div>
-    );
+    return <GameErrorState error={error || "Game not found"} />;
   }
 
   const nextRoundNumber = completedRounds.length + 1;
@@ -162,44 +106,11 @@ export default function GameViewPage() {
       <Header />
 
       {/* Game Info - Compact */}
-      <div className="bg-gradient-to-r from-bid-100 to-accent-500/20 border-2 border-bid-400 rounded-lg p-3 mb-4 shadow-card">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm mb-2">
-          <div className="font-semibold">
-            <span className="text-blue-600">👁️</span>
-            <span
-              className={`ml-1 ${
-                gameStatus === "completed" ? "text-green-700" : "text-blue-700"
-              }`}
-            >
-              {gameStatus === "completed" ? "🎉 Complete" : "Live"}
-            </span>
-          </div>
-          <div>
-            <strong className="text-bid-700">Decks:</strong>{" "}
-            <span className="text-gray-800">{setup.decks}</span>
-          </div>
-          <div>
-            <strong className="text-bid-700">Rounds:</strong>{" "}
-            <span className="text-gray-800">
-              {completedRounds.length}/{setup.maxRounds}
-            </span>
-          </div>
-        </div>
-        <div className="border-t border-bid-300 pt-2">
-          <button
-            onClick={() => setPlayersExpanded(!playersExpanded)}
-            className="flex items-center gap-2 text-sm font-semibold text-bid-700 hover:text-bid-800 transition-colors w-full"
-          >
-            <span className="text-xs">{playersExpanded ? "▼" : "▶"}</span>
-            <span>Players ({setup.players.length})</span>
-          </button>
-          {playersExpanded && (
-            <div className="mt-2 text-sm text-gray-800 pl-5">
-              {setup.players.join(", ")}
-            </div>
-          )}
-        </div>
-      </div>
+      <GameInfoHeader
+        setup={setup}
+        completedRounds={completedRounds.length}
+        gameStatus={gameStatus}
+      />
 
       {/* Score Review Phase - View Only */}
       {currentPhase === "score-review" && !currentRound && (
@@ -239,37 +150,22 @@ export default function GameViewPage() {
 
           <div className="space-y-3">
             {(() => {
-              // Calculate ordered player indices during bidding phase (like BidCollector)
-              if (currentPhase === "bidding" && biddingPhase === "regular-bid-entry") {
-                const orderedIndices = getOrderedPlayerIndices(
-                  currentRound.firstBidderIndex,
-                  currentRound.scores.length
-                );
+              // Use bidding view model hook for consistent logic
+              const biddingViewModel = useBiddingViewModel(
+                currentRound,
+                currentPhase,
+                biddingPhase
+              );
 
-                // Calculate tricks available and total bids
-                const tricksAvailable = currentRound.roundNumber;
-                const totalBids = currentRound.scores.reduce(
-                  (sum, ps) => sum + (ps.bid >= 0 ? ps.bid : 0),
-                  0
-                );
-
-                // Separate blind bidders from regular bidders
-                const blindBidders = currentRound.scores
-                  .map((ps, i) => ({ ps, i }))
-                  .filter(({ ps }) => ps.blindBid);
-
-                const nonBlindOrderedIndices = filterNonBlindBidders(
-                  orderedIndices,
-                  currentRound.scores
-                );
-
-                // Find next player who needs to bid (excluding blind bidders)
-                const blindBidDecisions = currentRound.scores.map(ps => ps.blindBid);
-                const nextBidderIndex = getNextBidder(
-                  orderedIndices,
-                  currentRound.scores,
-                  blindBidDecisions
-                );
+              // Regular bidding phase
+              if (currentPhase === "bidding" && biddingPhase === "regular-bid-entry" && biddingViewModel) {
+                const {
+                  blindBidders,
+                  nonBlindOrderedIndices,
+                  nextBidderIndex,
+                  tricksAvailable,
+                  totalBids,
+                } = biddingViewModel;
 
                 return (
                   <>
@@ -329,19 +225,8 @@ export default function GameViewPage() {
               }
 
               // Blind bidding phase
-              if (currentPhase === "bidding" && biddingPhase === "blind-declaration-and-entry") {
-                // Calculate tricks available and total bids
-                const tricksAvailable = currentRound.roundNumber;
-                const totalBids = currentRound.scores.reduce(
-                  (sum, ps) => sum + (ps.bid >= 0 ? ps.bid : 0),
-                  0
-                );
-
-                // Get players in bidding order
-                const orderedIndices = getOrderedPlayerIndices(
-                  currentRound.firstBidderIndex,
-                  currentRound.scores.length
-                );
+              if (currentPhase === "bidding" && biddingPhase === "blind-declaration-and-entry" && biddingViewModel) {
+                const { orderedIndices, tricksAvailable, totalBids } = biddingViewModel;
 
                 return (
                   <>
@@ -400,19 +285,10 @@ export default function GameViewPage() {
 
       {/* Game Complete Message */}
       {gameStatus === "completed" && (
-        <div className="mt-6 space-y-4">
-          <div className="bg-gradient-to-r from-green-100 to-green-200 border-3 border-green-500 rounded-xl p-5 text-base text-green-900 font-semibold">
-            🎉 Game complete! All rounds finished.
-          </div>
-          {user && (
-            <button
-              onClick={handleStartNewGameWithSameSettings}
-              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-4 rounded-xl text-xl font-bold hover:shadow-card-hover hover:scale-105 transition-all"
-            >
-              🎮 New Game with Same Settings
-            </button>
-          )}
-        </div>
+        <GameCompleteSection
+          onStartNewGame={handleStartNewGameWithSameSettings}
+          showButton={!!user}
+        />
       )}
 
       {/* Waiting for next round */}

@@ -16,7 +16,9 @@ import { hasResultRecorded } from "../types";
 import { calculateOldHeckScore } from "../scoring";
 import { debounce } from "../utils/debounce";
 import { createRound } from "../utils/rounds";
+import { navigateToNewGameWithSetup } from "../utils/navigation";
 import Header from "../components/Header";
+import GameErrorState from "../components/GameErrorState";
 import BidCollector from "../components/BidCollector";
 import RoundEditor from "../components/RoundEditor";
 import Totals from "../components/Totals";
@@ -226,22 +228,7 @@ export default function GamePlayPage({
 
   // Show general error state
   if (error || !setup || !hasAccess) {
-    return (
-      <div className="max-w-4xl mx-auto p-6">
-        <Header />
-        <div className="text-center py-12">
-          <div className="text-xl font-semibold text-red-600 mb-4">
-            {error || "Game not found"}
-          </div>
-          <button
-            onClick={() => navigate("/")}
-            className="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:shadow-card-hover hover:scale-105 transition-all"
-          >
-            ← Back to Setup
-          </button>
-        </div>
-      </div>
-    );
+    return <GameErrorState error={error || "Game not found"} />;
   }
 
   function createNewRound(roundNumber: number): Round {
@@ -446,9 +433,7 @@ export default function GamePlayPage({
 
   function handleStartNewGameWithSameSettings() {
     if (!setup) return;
-
-    // Navigate to setup page with prefilled settings
-    navigate("/", { state: { setup } });
+    navigateToNewGameWithSetup(navigate, setup);
   }
 
   async function handleGenerateShareLink() {
