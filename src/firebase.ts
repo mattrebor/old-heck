@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import {
   getFirestore,
+  connectFirestoreEmulator,
   updateDoc,
   doc,
   getDoc,
@@ -11,6 +12,7 @@ import {
 } from "firebase/firestore";
 import {
   getAuth,
+  connectAuthEmulator,
   GoogleAuthProvider,
   signInWithPopup,
   signOut as firebaseSignOut,
@@ -35,6 +37,20 @@ export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 export const analytics = getAnalytics(app);
+
+// Connect to Firebase Emulator if enabled
+if (import.meta.env.VITE_USE_FIREBASE_EMULATOR === 'true') {
+  const authEmulatorUrl = import.meta.env.VITE_FIREBASE_AUTH_EMULATOR_URL || 'http://127.0.0.1:9099';
+  const firestoreHost = import.meta.env.VITE_FIRESTORE_EMULATOR_HOST || '127.0.0.1';
+  const firestorePort = parseInt(import.meta.env.VITE_FIRESTORE_EMULATOR_PORT || '8080', 10);
+
+  console.log('🔧 Using Firebase Emulator');
+  console.log(`   Auth: ${authEmulatorUrl}`);
+  console.log(`   Firestore: ${firestoreHost}:${firestorePort}`);
+
+  connectAuthEmulator(auth, authEmulatorUrl, { disableWarnings: true });
+  connectFirestoreEmulator(db, firestoreHost, firestorePort);
+}
 
 /**
  * Generate a short 8-character alphanumeric game ID

@@ -31,3 +31,17 @@ dist-ssr
 # Firebase
 .firebase/*
 .firebaserc
+
+# Firebase Emulator
+emulator-data/
+ui-debug.log
+firebase-debug.log
+
+# Playwright E2E Tests
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Test environment files
+.env.test.local
+.env.test.real
