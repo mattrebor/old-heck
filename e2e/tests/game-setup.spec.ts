@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { GameSetupPage } from '../pages/GameSetupPage';
+import { signInWithTestUser } from '../fixtures/auth';
 
 test.describe('Game Setup Flow', () => {
   let setupPage: GameSetupPage;
@@ -18,9 +19,8 @@ test.describe('Game Setup Flow', () => {
     await expect(setupPage.signInButton).toBeVisible();
   });
 
-  test.skip('should validate player names are required', async ({ page }) => {
-    // Requires authentication to access form
-    // TODO: Enable when auth is implemented
+  test('should validate player names are required', async ({ page }) => {
+    await signInWithTestUser(page);
 
     // Try to clear a player name
     await setupPage.getPlayerInput(0).fill('');
@@ -29,9 +29,9 @@ test.describe('Game Setup Flow', () => {
     await expect(setupPage.startButton).toBeDisabled();
   });
 
-  test.skip('should allow changing number of decks', async () => {
-    // Requires authentication to access form
-    // TODO: Enable when auth is implemented
+  test('should allow changing number of decks', async ({ page }) => {
+    await signInWithTestUser(page);
+
     // Increase decks
     await setupPage.decksIncreaseButton.click();
     await expect(setupPage.decksInput).toHaveValue('2');
@@ -45,9 +45,8 @@ test.describe('Game Setup Flow', () => {
     await expect(setupPage.decksInput).toHaveValue('1');
   });
 
-  test.skip('should allow adding and removing players', async () => {
-    // Requires authentication to access form
-    // TODO: Enable when auth is implemented
+  test('should allow adding and removing players', async ({ page }) => {
+    await signInWithTestUser(page);
 
     // Initially has 2 players
     await expect(setupPage.getPlayerInput(0)).toBeVisible();
@@ -67,9 +66,8 @@ test.describe('Game Setup Flow', () => {
     await expect(setupPage.getPlayerRemoveButton(1)).not.toBeVisible();
   });
 
-  test.skip('should allow reordering players', async () => {
-    // Requires authentication to access form
-    // TODO: Enable when auth is implemented
+  test('should allow reordering players', async ({ page }) => {
+    await signInWithTestUser(page);
 
     await setupPage.setPlayerName(0, 'Alice');
     await setupPage.setPlayerName(1, 'Bob');
@@ -81,17 +79,16 @@ test.describe('Game Setup Flow', () => {
     await expect(setupPage.getPlayerInput(0)).toHaveValue('Bob');
     await expect(setupPage.getPlayerInput(1)).toHaveValue('Alice');
 
-    // Move Alice down
-    await setupPage.getPlayerMoveDownButton(1).click();
+    // Move Bob down to restore original order
+    await setupPage.getPlayerMoveDownButton(0).click();
 
     // Should be back to original order
-    await expect(setupPage.getPlayerInput(0)).toHaveValue('Bob');
-    await expect(setupPage.getPlayerInput(1)).toHaveValue('Alice');
+    await expect(setupPage.getPlayerInput(0)).toHaveValue('Alice');
+    await expect(setupPage.getPlayerInput(1)).toHaveValue('Bob');
   });
 
-  test.skip('should update first player selection when reordering', async () => {
-    // Requires authentication to access form
-    // TODO: Enable when auth is implemented
+  test('should update first player selection when reordering', async ({ page }) => {
+    await signInWithTestUser(page);
 
     await setupPage.setPlayerName(0, 'Alice');
     await setupPage.setPlayerName(1, 'Bob');
@@ -107,9 +104,8 @@ test.describe('Game Setup Flow', () => {
     expect(selectedValue).toBe('0'); // Bob is now at index 0
   });
 
-  test.skip('should show validation errors for empty player names', async () => {
-    // Requires authentication to access form
-    // TODO: Enable when auth is implemented
+  test('should show validation errors for empty player names', async ({ page }) => {
+    await signInWithTestUser(page);
 
     await setupPage.setPlayerName(0, 'Alice');
     await setupPage.setPlayerName(1, ''); // Empty name
@@ -122,9 +118,8 @@ test.describe('Game Setup Flow', () => {
     await expect(input).toHaveClass(/border-red/);
   });
 
-  test.skip('should allow setting up a game with custom configuration', async () => {
-    // Requires authentication to access form
-    // TODO: Enable when auth is implemented
+  test('should allow setting up a game with custom configuration', async ({ page }) => {
+    await signInWithTestUser(page);
 
     // Set 2 decks
     await setupPage.setDecks(2);

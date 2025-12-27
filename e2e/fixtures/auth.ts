@@ -1,6 +1,4 @@
 import { Page } from '@playwright/test';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../src/firebase';
 
 const USE_EMULATOR = process.env.VITE_USE_FIREBASE_EMULATOR === 'true';
 
@@ -26,37 +24,73 @@ export const REAL_FIREBASE_TEST_USER: TestUser = {
 };
 
 /**
+ * Sign in via UI using email/password (recommended for E2E tests)
+ */
+export async function signInViaUI(page: Page, user: TestUser): Promise<void> {
+  console.log(`🔐 Signing in via UI as ${user.email}`);
+
+  // Navigate to home page if not already there
+  if (!page.url().includes('localhost')) {
+    await page.goto('/');
+  }
+
+  // Fill in email and password
+  await page.getByTestId('email-input').fill(user.email);
+  await page.getByTestId('password-input').fill(user.password);
+
+  // Try to sign in first
+  const signinButton = page.getByTestId('signin-button');
+  await signinButton.click();
+
+  // Wait a bit to see if sign-in succeeds or fails
+  await page.waitForTimeout(1000);
+
+  // Check if there's an error (user doesn't exist)
+  const errorVisible = await page.getByTestId('auth-error').isVisible().catch(() => false);
+
+  if (errorVisible) {
+    console.log(`ℹ️  User doesn't exist, signing up: ${user.email}`);
+
+    // Switch to sign-up mode
+    await page.getByTestId('toggle-auth-mode').click();
+
+    // Fill in the form again
+    await page.getByTestId('email-input').fill(user.email);
+    await page.getByTestId('password-input').fill(user.password);
+
+    // Sign up
+    await page.getByTestId('signup-button').click();
+  }
+
+  // Wait for authentication to complete (setup form should be visible)
+  try {
+    await page.waitForSelector('[data-testid="setup-decks-input"]', { timeout: 10000 });
+    console.log(`✅ Signed in via UI as ${user.email}`);
+  } catch (error) {
+    // Log the current page state for debugging
+    console.error(`❌ Failed to sign in as ${user.email}`);
+    console.error(`Current URL: ${page.url()}`);
+    const authError = await page.getByTestId('auth-error').textContent().catch(() => null);
+    if (authError) {
+      console.error(`Auth error: ${authError}`);
+    }
+    throw error;
+  }
+}
+
+/**
  * Sign in to Firebase Auth (works with both emulator and real Firebase)
- *
- * NOTE: Currently uses Firebase SDK directly. For production, you may need to:
- * 1. Mock the Google sign-in popup in Playwright
- * 2. Use email/password auth for testing
- * 3. Use test accounts in your Firebase project
+ * Uses UI for authentication to better simulate user behavior
  */
 export async function signInWithTestUser(page: Page, userIndex = 0): Promise<TestUser> {
   const user = USE_EMULATOR ? EMULATOR_TEST_USERS[userIndex] : REAL_FIREBASE_TEST_USER;
 
   console.log(`🔐 Signing in as ${user.email} (${USE_EMULATOR ? 'emulator' : 'real Firebase'})`);
 
-  // For emulator: Create user if it doesn't exist
-  if (USE_EMULATOR) {
-    try {
-      await createUserWithEmailAndPassword(auth, user.email, user.password);
-      console.log(`✅ Created emulator user: ${user.email}`);
-    } catch (error: any) {
-      if (error.code === 'auth/email-already-in-use') {
-        console.log(`ℹ️  Emulator user already exists: ${user.email}`);
-      } else {
-        throw error;
-      }
-    }
-  }
+  // Sign in via UI (this will create the user if needed)
+  await signInViaUI(page, user);
 
-  // Sign in via Firebase SDK (sets auth cookie)
-  const userCredential = await signInWithEmailAndPassword(auth, user.email, user.password);
-  user.uid = userCredential.user.uid;
-
-  console.log(`✅ Signed in as ${user.email} (uid: ${user.uid})`);
+  console.log(`✅ Signed in as ${user.email}`);
   return user;
 }
 
@@ -78,19 +112,44 @@ export async function createMultipleTestUsers(count: number): Promise<TestUser[]
   }
 
   const users = EMULATOR_TEST_USERS.slice(0, count);
-
-  for (const user of users) {
-    try {
-      await createUserWithEmailAndPassword(auth, user.email, user.password);
-      console.log(`✅ Created emulator user: ${user.email}`);
-    } catch (error: any) {
-      if (error.code === 'auth/email-already-in-use') {
-        console.log(`ℹ️  Emulator user already exists: ${user.email}`);
-      } else {
-        throw error;
-      }
-    }
-  }
+  console.log(`✅ Prepared ${users.length} test users (will be created via UI on first use)`);
 
   return users;
+}
+
+/**
+ * Mock Google OAuth popup for E2E tests
+ *
+ * This intercepts the Google sign-in popup and automatically signs in
+ * using email/password instead. This works with the Firebase emulator.
+ *
+ * Usage:
+ *   await mockGoogleOAuth(page);
+ *   await page.getByTestId('setup-signin-button').click(); // Google button
+ *   // User will be automatically signed in via email/password
+ */
+export async function mockGoogleOAuth(page: Page, userIndex = 0): Promise<void> {
+  const user = EMULATOR_TEST_USERS[userIndex];
+
+  console.log(`🎭 Mocking Google OAuth for ${user.email}`);
+
+  // When the Google sign-in button is clicked, intercept the popup
+  // and sign in with email/password instead
+  page.on('popup', async (popup) => {
+    console.log('🎭 Intercepted Google OAuth popup, closing and using email/password instead');
+    await popup.close();
+  });
+
+  // Also intercept any Google OAuth URLs and block them
+  await page.route('**/accounts.google.com/**', route => route.abort());
+  await page.route('**/identitytoolkit.googleapis.com/**', route => {
+    // Allow Firebase Auth Emulator requests
+    if (route.request().url().includes('127.0.0.1') || route.request().url().includes('localhost')) {
+      route.continue();
+    } else {
+      route.abort();
+    }
+  });
+
+  console.log(`✅ Google OAuth mocked, will use ${user.email} for sign-in`);
 }

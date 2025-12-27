@@ -2,12 +2,20 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import type { User } from "firebase/auth";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth, signInWithGoogle as firebaseSignInWithGoogle, signOut as firebaseSignOut } from "../firebase";
+import {
+  auth,
+  signInWithGoogle as firebaseSignInWithGoogle,
+  signOut as firebaseSignOut,
+  signUpWithEmailAndPassword as firebaseSignUpWithEmailAndPassword,
+  signInWithEmailPassword as firebaseSignInWithEmailPassword,
+} from "../firebase";
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   signInWithGoogle: () => Promise<User | undefined>;
+  signUpWithEmailAndPassword: (email: string, password: string) => Promise<User | undefined>;
+  signInWithEmailPassword: (email: string, password: string) => Promise<User | undefined>;
   signOut: () => Promise<void>;
 }
 
@@ -36,6 +44,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const signUpWithEmailAndPassword = async (email: string, password: string) => {
+    try {
+      const user = await firebaseSignUpWithEmailAndPassword(email, password);
+      return user;
+    } catch (error) {
+      console.error("Error signing up:", error);
+      throw error;
+    }
+  };
+
+  const signInWithEmailPassword = async (email: string, password: string) => {
+    try {
+      const user = await firebaseSignInWithEmailPassword(email, password);
+      return user;
+    } catch (error) {
+      console.error("Error signing in:", error);
+      throw error;
+    }
+  };
+
   const signOut = async () => {
     try {
       await firebaseSignOut();
@@ -49,6 +77,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     loading,
     signInWithGoogle,
+    signUpWithEmailAndPassword,
+    signInWithEmailPassword,
     signOut,
   };
 

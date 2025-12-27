@@ -16,6 +16,8 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   signOut as firebaseSignOut,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
 } from "firebase/auth";
 import type { Game, GameSetup, Round, ShareToken } from "./types";
 import { getAnalytics } from "firebase/analytics";
@@ -181,6 +183,32 @@ export async function signOut() {
     await firebaseSignOut(auth);
   } catch (error) {
     console.error("Error signing out:", error);
+    throw error;
+  }
+}
+
+/**
+ * Sign up with email and password
+ */
+export async function signUpWithEmailAndPassword(email: string, password: string) {
+  try {
+    const result = await createUserWithEmailAndPassword(auth, email, password);
+    return result.user;
+  } catch (error) {
+    console.error("Error signing up with email/password:", error);
+    throw error;
+  }
+}
+
+/**
+ * Sign in with email and password
+ */
+export async function signInWithEmailPassword(email: string, password: string) {
+  try {
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    return result.user;
+  } catch (error) {
+    console.error("Error signing in with email/password:", error);
     throw error;
   }
 }
