@@ -43,5 +43,5 @@ playwright-report/
 playwright/.cache/
 
 # Test environment files
-.env.test.local
-.env.test.real
+.env.local*
+.env.test*
