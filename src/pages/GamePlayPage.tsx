@@ -278,6 +278,14 @@ export default function GamePlayPage({
   async function handleBidsComplete() {
     if (!currentRound || !gameId) return;
 
+    // Safety check: Ensure all players have entered valid bids (>= 0)
+    // This prevents race conditions where bids are still pending when user clicks Complete
+    const allBidsValid = currentRound.scores.every((ps) => ps.bid >= 0);
+    if (!allBidsValid) {
+      console.warn("Cannot complete bidding: Some players have invalid bids (-1)");
+      return;
+    }
+
     // Cancel any pending debounced saves to prevent overwriting the phase
     debouncedSaveRef.current.cancel();
 

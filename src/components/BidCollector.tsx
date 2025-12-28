@@ -263,10 +263,16 @@ export default function BidCollector({
         onUpdate(pendingIndex, localBids[pendingIndex], false);
       }
       activeBidIndexRef.current = null;
-    }
 
-    // Then call onComplete
-    onComplete();
+      // Wait a brief moment for the state update to propagate
+      // This ensures the bid is saved before transitioning to results phase
+      setTimeout(() => {
+        onComplete();
+      }, 100);
+    } else {
+      // No pending bids, can complete immediately
+      onComplete();
+    }
   }
 
   // PHASE 1: Blind Bid Declaration and Entry (Combined)

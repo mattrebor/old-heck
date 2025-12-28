@@ -15,7 +15,10 @@ export default function ResultPlayerCard({
   onUpdate,
 }: ResultPlayerCardProps) {
   return (
-    <div className="mb-5 p-6 bg-white rounded-xl border-3 border-gray-300 hover:border-gold-500 transition-all shadow-card hover:shadow-card-hover">
+    <div
+      className="mb-5 p-6 bg-white rounded-xl border-3 border-gray-300 hover:border-gold-500 transition-all shadow-card hover:shadow-card-hover"
+      data-testid={`results-player-${index}`}
+    >
       <div className="flex flex-col gap-4">
         {/* Player info */}
         <div className="flex items-center gap-4">

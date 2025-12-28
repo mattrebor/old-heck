@@ -229,4 +229,28 @@ test.describe('Bidding Flow', () => {
     // Button should disappear since all results are now recorded
     await expect(setAllButton).not.toBeVisible();
   });
+
+  test('should handle rapid bid entry without invalid bids in results phase', async ({ page }) => {
+    // This test verifies that quickly entering bids and clicking Complete
+    // doesn't cause any player to have bid = -1 in the results phase
+
+    // Skip blind bidding
+    await gamePage.continueFromBlindBidding();
+
+    // Rapidly enter bids without waiting (simulates fast user)
+    // Round 1: 1 trick available, so total must NOT equal 1
+    await gamePage.setRegularBid(0, 0);
+    await gamePage.setRegularBid(1, 0);
+
+    // Immediately click complete (before auto-advance timer)
+    await gamePage.completeRegularBidding();
+
+    // Should transition to results phase
+    await expect(page.getByText('Record Results')).toBeVisible({ timeout: 5000 });
+
+    // Verify both players have their bids displayed (not -1)
+    // Both players should show bid of 0
+    await expect(page.locator('[data-testid="results-player-0"]').getByText('Bid: 0')).toBeVisible();
+    await expect(page.locator('[data-testid="results-player-1"]').getByText('Bid: 0')).toBeVisible();
+  });
 });
