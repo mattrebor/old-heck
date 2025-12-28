@@ -329,6 +329,10 @@ firebase use --add
 
 **Total:** ~45 minutes
 
+## Setup Completed! ✅
+
+If you're reading this, the setup has been completed and the CI/CD pipeline is ready to test!
+
 ## Need Help?
 
 Refer to:
