@@ -35,6 +35,12 @@ export default defineConfig({
 
     /* Screenshot on failure */
     screenshot: 'only-on-failure',
+
+    /* Video on failure - helps debug CI issues */
+    video: 'retain-on-failure',
+
+    /* Larger viewport to see more content (especially for totals table) */
+    viewport: { width: 1920, height: 1080 },
   },
 
   /* Configure projects for major browsers */

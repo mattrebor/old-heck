@@ -170,11 +170,11 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
-      - name: Upload test screenshots
+      - name: Upload test failures (screenshots and videos)
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-screenshots-staging
+          name: playwright-failures-staging
           path: test-results/
           retention-days: 30
 
