@@ -86,7 +86,9 @@ export class GamePlayPage {
    * Toggle blind bid for a player
    */
   async toggleBlindBid(playerIndex: number) {
-    await this.getBlindBidCheckbox(playerIndex).click();
+    await this.getBlindBidCheckbox(playerIndex).click({ force: true });
+    // Wait for the blind bid input to become visible/enabled
+    await this.page.waitForTimeout(300);
   }
 
   /**
@@ -100,9 +102,13 @@ export class GamePlayPage {
    * Continue from blind bidding phase
    */
   async continueFromBlindBidding() {
-    await this.blindBidContinueButton.click();
-    // Wait for regular bidding or results phase to load
-    await this.page.waitForTimeout(1000);
+    await this.blindBidContinueButton.click({ force: true });
+    // Wait for either regular bidding or results phase to appear
+    // If all players bid blind, goes to results, otherwise goes to regular bidding
+    await Promise.race([
+      this.page.waitForSelector('text=/Place Your Bids/i', { timeout: 10000 }),
+      this.page.waitForSelector('text=/Record Results/i', { timeout: 10000 })
+    ]);
   }
 
   // ==================== Regular Bidding Phase ====================
@@ -146,9 +152,9 @@ export class GamePlayPage {
    * Complete regular bidding phase
    */
   async completeRegularBidding() {
-    await this.regularBidCompleteButton.click();
-    // Wait for results phase to load
-    await this.page.waitForTimeout(1000);
+    await this.regularBidCompleteButton.click({ force: true });
+    // Wait for results phase to appear
+    await this.page.waitForSelector('text=/Record Results/i', { timeout: 10000 });
   }
 
   // ==================== Results Recording Phase ====================
@@ -179,6 +185,8 @@ export class GamePlayPage {
    */
   async markPlayerMade(playerIndex: number) {
     await this.getResultMadeButton(playerIndex).click({ force: true });
+    // Wait briefly for state update
+    await this.page.waitForTimeout(300);
   }
 
   /**
@@ -186,15 +194,17 @@ export class GamePlayPage {
    */
   async markPlayerMissed(playerIndex: number) {
     await this.getResultMissedButton(playerIndex).click({ force: true });
+    // Wait briefly for state update
+    await this.page.waitForTimeout(300);
   }
 
   /**
    * Complete the round (after recording results)
    */
   async completeRound() {
-    await this.completeRoundButton.click();
-    // Wait for score review phase to load
-    await this.page.waitForTimeout(1000);
+    await this.completeRoundButton.click({ force: true });
+    // Wait for score review phase to appear (text like "Round 1 Complete!")
+    await this.page.waitForSelector('text=/Round \\d+ Complete/i', { timeout: 10000 });
   }
 
   // ==================== Score Review Phase ====================
@@ -203,9 +213,10 @@ export class GamePlayPage {
    * Start the next round
    */
   async startNextRound() {
-    await this.startNextRoundButton.click();
-    // Wait for new round to load
-    await this.page.waitForTimeout(1000);
+    // Use force click to handle real-time updates causing re-renders
+    await this.startNextRoundButton.click({ force: true });
+    // Wait for blind bidding phase to appear
+    await this.page.waitForSelector('text=/Blind Bid Phase/i', { timeout: 10000 });
   }
 
   // ==================== Totals ====================
@@ -221,7 +232,7 @@ export class GamePlayPage {
    * Toggle (expand/collapse) a round in the totals table
    */
   async toggleRound(roundNumber: number) {
-    await this.getRoundToggle(roundNumber).click();
+    await this.getRoundToggle(roundNumber).first().click({ force: true });
   }
 
   // ==================== Helper Methods ====================

@@ -72,7 +72,7 @@ test.describe('Bidding Flow', () => {
     await expect(gamePage.regularBidCompleteButton).toBeEnabled();
   });
 
-  test.skip('should show warning when bid exceeds cards in hand', async ({ page }) => {
+  test('should show warning when bid exceeds cards in hand', async ({ page }) => {
     // Complete Round 1 to get to Round 2 (with 2 cards per player)
     // Round 1: 1 trick available, bid total must NOT equal 1
     await gamePage.continueFromBlindBidding();
@@ -85,10 +85,11 @@ test.describe('Bidding Flow', () => {
     await gamePage.startNextRound();
 
     // Round 2: Each player has 2 cards
+    // Player 1 (Bob) bids first in Round 2 due to rotation
     await gamePage.continueFromBlindBidding();
 
-    // Try to bid more than 2 (cards in hand)
-    await gamePage.setRegularBid(0, 3);
+    // Try to bid more than 2 (cards in hand) - Bob's turn
+    await gamePage.setRegularBid(1, 3);
 
     // Should show warning
     await expect(page.getByText(/exceeds cards in hand/i)).toBeVisible();
@@ -111,7 +112,7 @@ test.describe('Bidding Flow', () => {
     await expect(gamePage.getRegularBidInput(1)).toBeEnabled({ timeout: 2000 });
   });
 
-  test.skip('should calculate blind bid bonus correctly', async ({ page }) => {
+  test('should calculate blind bid bonus correctly', async ({ page }) => {
     // Player 0 makes blind bid of 1
     await gamePage.toggleBlindBid(0);
     await gamePage.setBlindBid(0, 1);
@@ -122,15 +123,15 @@ test.describe('Bidding Flow', () => {
     await gamePage.setRegularBid(1, 1);
     await gamePage.completeRegularBidding();
 
-    // Mark player 0 as made (blind bid bonus should apply: 1 trick × 10 × 2 = 20)
-    // Player 1 misses their bid (1 trick × -10 = -10)
+    // Mark player 0 as made (blind bid bonus should apply: ((1×1) + 10) × 2 = 22)
+    // Player 1 misses their bid: -((1×1) + 10) = -11
     await gamePage.markPlayerMade(0);
     await gamePage.markPlayerMissed(1);
     await gamePage.completeRound();
 
     // Score should show 2× bonus for blind bid
-    // Player 0: 1 trick blind made = 10 × 2 = 20 points
-    await expect(page.getByText(/\+20/)).toBeVisible();
+    // Player 0: 1 trick blind made = ((1×1) + 10) × 2 = 22 points
+    await expect(page.getByText(/\+22/).first()).toBeVisible();
   });
 
   test('should handle all players bidding blind', async ({ page }) => {
