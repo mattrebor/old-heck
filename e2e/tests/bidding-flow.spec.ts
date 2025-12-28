@@ -126,8 +126,8 @@ test.describe('Bidding Flow', () => {
     // Player 1 (Bob) should be enabled first since Player 0 is skipped
     await expect(gamePage.getRegularBidInput(1)).toBeEnabled({ timeout: 2000 });
 
-    // Player 1 enters their bid
-    await gamePage.setRegularBid(1, 0);
+    // Player 1 enters their bid (bid 1 so total = 2, doesn't equal 1 trick available)
+    await gamePage.setRegularBid(1, 1);
 
     // All bids complete - button should be enabled
     await expect(gamePage.regularBidCompleteButton).toBeEnabled({ timeout: 2000 });
