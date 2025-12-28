@@ -197,4 +197,36 @@ test.describe('Bidding Flow', () => {
     await expect(page.getByText(/blind bids/i)).toBeVisible();
     await expect(page.getByText('⚡ BLIND')).toBeVisible();
   });
+
+  test('should allow setting all players to made at once', async ({ page }) => {
+    // Skip blind bidding
+    await gamePage.continueFromBlindBidding();
+
+    // Enter regular bids (total must not equal 1)
+    await gamePage.setRegularBid(0, 0);
+    await gamePage.setRegularBid(1, 0);
+    await gamePage.completeRegularBidding();
+
+    // Should be on results phase
+    await expect(page.getByText('Record Results')).toBeVisible();
+
+    // "Set All to Made" button should be visible
+    const setAllButton = page.getByTestId('results-set-all-made');
+    await expect(setAllButton).toBeVisible();
+    await expect(setAllButton).toHaveText('✓ Set All to Made');
+
+    // Click the button
+    await setAllButton.click();
+
+    // Wait for all updates to complete (includes Firebase auto-save)
+    // Multiple updates (one per player) need time to process
+    await page.waitForTimeout(2000);
+
+    // Both players should be marked as Made
+    await expect(page.getByTestId('results-made-0')).toBeChecked();
+    await expect(page.getByTestId('results-made-1')).toBeChecked();
+
+    // Button should disappear since all results are now recorded
+    await expect(setAllButton).not.toBeVisible();
+  });
 });

@@ -328,6 +328,26 @@ export default function GamePlayPage({
     debouncedSaveRef.current(gameId, updatedRound, "results");
   }
 
+  function handleBatchUpdateResults(updates: Array<{ playerIndex: number; madeBid: boolean }>) {
+    if (!currentRound || !gameId || updates.length === 0) return;
+
+    // Update all players at once to avoid state race conditions
+    const updatedScores = currentRound.scores.map((ps, i) => {
+      const update = updates.find(u => u.playerIndex === i);
+      if (update) {
+        const score = calculateOldHeckScore(ps.bid, update.madeBid, ps.blindBid);
+        return { ...ps, met: update.madeBid, score };
+      }
+      return ps;
+    });
+
+    const updatedRound = { ...currentRound, scores: updatedScores };
+    setCurrentRound(updatedRound);
+
+    // Auto-save with debouncing
+    debouncedSaveRef.current(gameId, updatedRound, "results");
+  }
+
   async function handleCompleteRound() {
     if (!currentRound || !gameId || !setup) return;
 
@@ -640,7 +660,11 @@ export default function GamePlayPage({
       {/* Current Round - Results Phase */}
       {currentRound && currentPhase === "results" && (
         <div>
-          <RoundEditor round={currentRound} onUpdate={handleUpdateResult} />
+          <RoundEditor
+            round={currentRound}
+            onUpdate={handleUpdateResult}
+            onBatchUpdate={handleBatchUpdateResults}
+          />
           <div className="mb-6 p-5 bg-felt-100 border-2 border-felt-400 rounded-xl text-base text-gray-700 font-semibold">
             {currentRound.scores.every(hasResultRecorded)
               ? "✅ All players marked! Click 'Complete Round' to continue."
