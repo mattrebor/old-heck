@@ -25,7 +25,13 @@
     "emulator:start": "firebase emulators:start --only auth,firestore",
     "emulator:export": "firebase emulators:export ./emulator-data",
     "emulator:import": "firebase emulators:start --import ./emulator-data --only auth,firestore",
-    "emulator:check": "node scripts/check-emulator.cjs"
+    "emulator:check": "node scripts/check-emulator.cjs",
+    "deploy:staging": "firebase deploy --only hosting,firestore:rules,firestore:indexes --project staging",
+    "deploy:prod": "firebase deploy --only hosting,firestore:rules,firestore:indexes --project prod",
+    "deploy:hosting:staging": "firebase deploy --only hosting --project staging",
+    "deploy:hosting:prod": "firebase deploy --only hosting --project prod",
+    "deploy:rules:staging": "firebase deploy --only firestore:rules --project staging",
+    "deploy:rules:prod": "firebase deploy --only firestore:rules --project prod"
   },
   "dependencies": {
     "firebase": "^12.7.0",
