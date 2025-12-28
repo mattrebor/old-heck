@@ -11,6 +11,7 @@ interface RegularBiddingPhaseProps {
   currentBidderIndex: number | null;
   onBidChange: (index: number, bid: number) => void;
   onComplete: () => void;
+  isCompleting?: boolean;
 }
 
 export default function RegularBiddingPhase({
@@ -20,6 +21,7 @@ export default function RegularBiddingPhase({
   currentBidderIndex,
   onBidChange,
   onComplete,
+  isCompleting = false,
 }: RegularBiddingPhaseProps) {
   const hasBlindBidders = blindBidDecisions.some((b) => b);
 
@@ -92,11 +94,13 @@ export default function RegularBiddingPhase({
 
       <button
         onClick={onComplete}
-        disabled={!canProceed}
+        disabled={!canProceed || isCompleting}
         data-testid="bidding-regular-complete-button"
         className="mt-6 bg-gradient-to-r from-bid-600 to-bid-400 text-white px-8 py-5 rounded-xl text-xl font-bold shadow-card-hover hover:shadow-2xl hover:scale-105 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all w-full"
       >
-        {!allBidsEntered
+        {isCompleting
+          ? "Completing..."
+          : !allBidsEntered
           ? "Enter all bids to continue"
           : bidsEqualTricks
           ? "Adjust bids - total cannot equal books available"

@@ -37,6 +37,9 @@ export default function BidCollector({
     round.scores.map(ps => ps.bid)
   );
 
+  // Track when completion is in progress (to keep button disabled during delay)
+  const [isCompleting, setIsCompleting] = useState(false);
+
   // Initialize active bidder immediately if starting in regular-bid-entry phase
   const [activeBidderIndex, setActiveBidderIndex] = useState<number | null>(() => {
     if (initialPhase === "regular-bid-entry") {
@@ -252,6 +255,11 @@ export default function BidCollector({
   }
 
   function handleComplete() {
+    // Prevent multiple clicks while completing
+    if (isCompleting) return;
+
+    setIsCompleting(true);
+
     // Flush any pending bid before completing
     if (bidTimerRef.current) {
       clearTimeout(bidTimerRef.current);
@@ -307,6 +315,7 @@ export default function BidCollector({
       currentBidderIndex={activeBidderIndex}
       onBidChange={handleRegularBidChange}
       onComplete={handleComplete}
+      isCompleting={isCompleting}
     />
   );
 }
