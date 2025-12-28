@@ -152,8 +152,8 @@ test.describe('Bidding Flow', () => {
 
     // Score should show 2× bonus for blind bid
     // Player 0: 1 trick blind made = ((1×1) + 10) × 2 = 22 points
-    // Check the round 1 delta for player 0 (Alice) - desktop view
-    await expect(page.getByTestId('desktop-round-1-delta-player0')).toBeVisible({ timeout: 10000 });
+    // Check the round 1 delta for player 0 (Alice) - mobile view
+    await expect(page.getByTestId('mobile-round-1-delta-player0')).toBeVisible({ timeout: 10000 });
   });
 
   test('should handle all players bidding blind', async ({ page }) => {
