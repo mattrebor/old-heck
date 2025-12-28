@@ -1,8 +1,25 @@
-import { doc, setDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '../../src/firebase';
+import { doc, setDoc, deleteDoc, getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
 import type { GameSetup } from '../../src/types';
 
 const USE_EMULATOR = process.env.VITE_USE_FIREBASE_EMULATOR === 'true';
+
+// Initialize Firebase for E2E tests
+const testApp = initializeApp({
+  apiKey: process.env.VITE_FIREBASE_API_KEY || 'demo-api-key',
+  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN || 'demo-auth-domain',
+  projectId: process.env.VITE_FIREBASE_PROJECT_ID || 'demo-project',
+  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET || 'demo-bucket',
+});
+
+const db = getFirestore(testApp);
+
+// Connect to emulator if enabled
+if (USE_EMULATOR) {
+  const firestoreHost = process.env.VITE_FIRESTORE_EMULATOR_HOST || '127.0.0.1';
+  const firestorePort = parseInt(process.env.VITE_FIRESTORE_EMULATOR_PORT || '8080', 10);
+  connectFirestoreEmulator(db, firestoreHost, firestorePort);
+}
 
 /**
  * Create a test game in Firestore (emulator or real)
@@ -35,6 +52,8 @@ export async function createTestGame(setup: GameSetup, userId: string): Promise<
 
 /**
  * Delete a test game (cleanup)
+ * Note: This may fail due to Firestore security rules requiring ownership.
+ * Failures are logged but don't throw to avoid breaking tests.
  */
 export async function deleteTestGame(gameId: string) {
   // Only allow deletion in emulator mode
@@ -43,10 +62,19 @@ export async function deleteTestGame(gameId: string) {
     return;
   }
 
-  const gameRef = doc(db, 'games', gameId);
-  await deleteDoc(gameRef);
-  console.log(`🗑️  Deleted test game: ${gameId}`);
+  try {
+    const gameRef = doc(db, 'games', gameId);
+    await deleteDoc(gameRef);
+    console.log(`🗑️  Deleted test game: ${gameId}`);
+  } catch {
+    // Deletion may fail due to security rules - games created by different users
+    // This is expected behavior, games will be cleaned up when emulator restarts
+    console.log(`ℹ️  Could not delete game ${gameId} (will be cleaned up with emulator)`);
+  }
 }
+
+// Alias for convenience
+export { deleteTestGame as deleteGame };
 
 /**
  * Clear all test data (emulator only)

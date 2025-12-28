@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { GameSetupPage } from '../pages/GameSetupPage';
 import { GamePlayPage } from '../pages/GamePlayPage';
 import { signInWithTestUser } from '../fixtures/auth';
+import { deleteGame } from '../fixtures/firebase';
 
 test.describe('Complete Game Flow', () => {
   test('should complete a full 2-player, 3-round game', async ({ page }) => {
@@ -25,6 +26,7 @@ test.describe('Complete Game Flow', () => {
     });
 
     await setupPage.waitForGamePage();
+    const gameId = await setupPage.getGameId();
 
     // ==================== Round 1 ====================
     // Each player gets 1 card
@@ -94,6 +96,9 @@ test.describe('Complete Game Flow', () => {
 
     // Verify scores are visible (don't check exact winner since game continues)
     await expect(page.getByText(/Round 3 Complete/i)).toBeVisible();
+
+    // Clean up: Delete the game
+    await deleteGame(gameId);
   });
 
   test('should handle mid-game score review correctly', async ({ page }) => {
@@ -108,6 +113,7 @@ test.describe('Complete Game Flow', () => {
     });
 
     await setupPage.waitForGamePage();
+    const gameId = await setupPage.getGameId();
 
     // Complete round 1 - Round 1: 1 trick available, total must NOT equal 1
     await gamePage.completeFullRound({
@@ -133,6 +139,9 @@ test.describe('Complete Game Flow', () => {
     // Totals should show round 1 scores with deltas
     // Check the round 1 delta for player 0 (Alice) - mobile view
     await expect(page.getByTestId('mobile-round-1-delta-player0')).toBeVisible({ timeout: 10000 }); // Both players made their 0 bids: (0×10)+10 = +10 each
+
+    // Clean up: Delete the game
+    await deleteGame(gameId);
   });
 
   test('should allow ending game early', async ({ page }) => {
@@ -147,6 +156,7 @@ test.describe('Complete Game Flow', () => {
     });
 
     await setupPage.waitForGamePage();
+    const gameId = await setupPage.getGameId();
 
     // Complete one round - Round 1: 1 trick available, total must NOT equal 1
     await gamePage.completeFullRound({
@@ -173,5 +183,8 @@ test.describe('Complete Game Flow', () => {
     // Should navigate to view page and show game complete message
     await page.waitForURL(/\/game\/[a-z0-9]+\/view/, { timeout: 10000 });
     await expect(page.getByText(/Game complete/i)).toBeVisible();
+
+    // Clean up: Delete the game
+    await deleteGame(gameId);
   });
 });

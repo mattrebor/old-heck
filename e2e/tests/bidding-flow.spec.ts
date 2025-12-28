@@ -2,10 +2,12 @@ import { test, expect } from '@playwright/test';
 import { GamePlayPage } from '../pages/GamePlayPage';
 import { GameSetupPage } from '../pages/GameSetupPage';
 import { signInWithTestUser } from '../fixtures/auth';
+import { deleteGame } from '../fixtures/firebase';
 
 test.describe('Bidding Flow', () => {
   let gamePage: GamePlayPage;
   let setupPage: GameSetupPage;
+  let gameId: string;
 
   test.beforeEach(async ({ page }) => {
     setupPage = new GameSetupPage(page);
@@ -22,6 +24,14 @@ test.describe('Bidding Flow', () => {
 
     // Wait for game to be created and navigate to game page
     await page.waitForURL(/\/game\/[a-z0-9]+/, { timeout: 10000 });
+    gameId = await setupPage.getGameId();
+  });
+
+  test.afterEach(async () => {
+    // Clean up: Delete the game
+    if (gameId) {
+      await deleteGame(gameId);
+    }
   });
 
   test('should allow blind bidding', async ({ page }) => {
