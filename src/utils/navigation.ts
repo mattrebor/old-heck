@@ -1,7 +1,7 @@
 import type { GameSetup } from "../types";
 
 export function navigateToNewGameWithSetup(
-  navigate: (path: string, options?: { state?: any }) => void,
+  navigate: (path: string, options?: { state?: unknown }) => void,
   setup: GameSetup
 ) {
   navigate("/", { state: { setup } });

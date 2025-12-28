@@ -6,6 +6,7 @@
  * @param delay The number of milliseconds to delay
  * @returns A debounced version of the function with a cancel method
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
   delay: number

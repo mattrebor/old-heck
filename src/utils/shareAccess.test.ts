@@ -146,6 +146,7 @@ describe("shareAccess utilities", () => {
       usedBy: string | null;
     }): Game => ({
       id: "game123",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       createdAt: {} as any,
       status: "in_progress",
       setup: {
@@ -248,6 +249,7 @@ describe("shareAccess utilities", () => {
       // Step 3: Check access with matching game
       const game: Game = {
         id: gameId,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         createdAt: {} as any,
         status: "in_progress",
         setup: {
@@ -281,6 +283,7 @@ describe("shareAccess utilities", () => {
       // Try to check access
       const game: Game = {
         id: gameId,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         createdAt: {} as any,
         status: "in_progress",
         setup: {

@@ -25,10 +25,10 @@ export default function EmailPasswordSignIn({ onSuccess }: EmailPasswordSignInPr
         await signInWithEmailPassword(email, password);
       }
       onSuccess?.();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Auth error:", err);
-      const errorMessage = err?.code
-        ? err.code.replace("auth/", "").replace(/-/g, " ")
+      const errorMessage = (err as { code?: string })?.code
+        ? (err as { code: string }).code.replace("auth/", "").replace(/-/g, " ")
         : "Authentication failed";
       setError(errorMessage);
     } finally {
