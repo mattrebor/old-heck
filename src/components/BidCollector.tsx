@@ -54,6 +54,17 @@ export default function BidCollector({
 
   const bidTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const activeBidIndexRef = useRef<number | null>(null); // Track which index has an active timer
+  const completingSafetyRef = useRef<ReturnType<typeof setTimeout> | null>(null); // Safety timeout for completing state
+
+  // Reset completing state when phase changes (e.g., if validation failed and we stay in same phase)
+  useEffect(() => {
+    setIsCompleting(false);
+    // Clear safety timeout if phase changes
+    if (completingSafetyRef.current) {
+      clearTimeout(completingSafetyRef.current);
+      completingSafetyRef.current = null;
+    }
+  }, [biddingPhase]);
 
   // Create scores with local bids for validation
   const scoresWithLocalBids = round.scores.map((ps, i) => ({
@@ -260,6 +271,13 @@ export default function BidCollector({
 
     setIsCompleting(true);
 
+    // Safety timeout: Reset isCompleting after 2 seconds if phase hasn't changed
+    // This handles cases where validation fails in parent's onComplete
+    completingSafetyRef.current = setTimeout(() => {
+      setIsCompleting(false);
+      completingSafetyRef.current = null;
+    }, 2000);
+
     // Flush any pending bid before completing
     if (bidTimerRef.current) {
       clearTimeout(bidTimerRef.current);
@@ -276,10 +294,12 @@ export default function BidCollector({
       // This ensures the bid is saved before transitioning to results phase
       setTimeout(() => {
         onComplete();
+        // If completion succeeds, component will unmount and timeout will be cleared
       }, 100);
     } else {
       // No pending bids, can complete immediately
       onComplete();
+      // If completion succeeds, component will unmount and timeout will be cleared
     }
   }
 
