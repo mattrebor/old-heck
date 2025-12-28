@@ -47,7 +47,10 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        // Use Chromium browser with custom mobile viewport from global config
+        // Don't spread devices['Desktop Chrome'] as it overrides viewport
+      },
     },
 
     // {

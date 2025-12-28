@@ -105,69 +105,66 @@ e2e/
 
 ## Current Status
 
-### ✅ Passing Tests (13-16 passing)
+### ✅ All Tests Passing
+
+**Test Suite Status: 100% Passing** ✅
+
+All E2E tests are now fully functional and passing in both local and CI environments.
 
 **smoke.spec.ts** - 3 passing:
 - ✓ should load the homepage
 - ✓ should have correct page title
 - ✓ should show sign-in prompt when not authenticated
 
-**game-setup.spec.ts** - 5-8 passing:
+**game-setup.spec.ts** - 8 passing:
 - ✓ should display the setup form
 - ✓ should validate player names are required
 - ✓ should allow changing number of decks
 - ✓ should allow adding and removing players
 - ✓ should allow reordering players
-- ⚠️ should update first player selection when reordering (occasional auth flakiness)
-- ⚠️ should show validation errors for empty player names (occasional auth flakiness)
-- ⚠️ should allow setting up a game with custom configuration (occasional auth flakiness)
+- ✓ should update first player selection when reordering
+- ✓ should show validation errors for empty player names
+- ✓ should allow setting up a game with custom configuration
 
-**bidding-flow.spec.ts** - 5 passing:
+**bidding-flow.spec.ts** - 8 passing:
 - ✓ should allow blind bidding
 - ✓ should prevent total bids from equaling tricks available
+- ✓ should show warning when bid exceeds cards in hand
 - ✓ should enforce bidding order
+- ✓ should skip blind bidder in regular bidding phase
+- ✓ should calculate blind bid bonus correctly
 - ✓ should handle all players bidding blind
 - ✓ should preserve blind bid flags during bidding
 
-### ⏭️  Skipped Tests (5 skipped)
+**complete-game.spec.ts** - 3 passing:
+- ✓ should complete a full 2-player, 3-round game
+- ✓ should handle mid-game score review correctly
+- ✓ should allow ending game early
 
-**bidding-flow.spec.ts**:
-- ⏭️ should show warning when bid exceeds cards in hand (requires Round 2 setup)
-- ⏭️ should calculate blind bid bonus correctly (needs bid validation investigation)
+**Total: 22 E2E tests passing** 🎉
 
-**complete-game.spec.ts** - All skipped (helper method needs debugging):
-- ⏭️ should complete a full 2-player, 3-round game
-- ⏭️ should handle mid-game score review correctly
-- ⏭️ should allow ending game early
+### Test Infrastructure
 
-## Enabling Auth-Required Tests
+**Mobile-First Approach:**
+- Default viewport: iPhone 12 (390x844)
+- Tests reflect real-world mobile usage
+- Desktop-specific tests only where UI differs significantly
 
-To enable the currently disabled tests, we need to implement one of these approaches:
+**Authentication:**
+- Email/password authentication enabled
+- Test user credentials stored in GitHub secrets
+- Works with both Firebase Emulator and real Firebase
 
-### Option 1: Email/Password Auth (Recommended)
+**Timeout Optimization:**
+- Reduced state update waits: 1000ms → 100ms (9x faster)
+- Smart waits using Promise.race for auth flows
+- Element-based waits instead of fixed delays where possible
+- Firebase auto-save waits documented with TODOs for future improvement
 
-Add email/password authentication to the app specifically for testing:
-
-1. Enable Email/Password provider in Firebase Console
-2. Create test users in Firebase Auth
-3. Update `e2e/fixtures/auth.ts` to use email/password sign-in
-4. Remove `test.skip` from disabled tests
-
-### Option 2: Mock Google Auth
-
-Mock the Google sign-in popup in Playwright:
-
-1. Intercept Google OAuth requests
-2. Mock the auth response
-3. Set Firebase auth token in browser storage
-
-### Option 3: Use Firebase Admin SDK
-
-Create authenticated sessions programmatically:
-
-1. Use Firebase Admin SDK to create custom tokens
-2. Sign in with custom token in tests
-3. Bypass Google OAuth entirely
+**Selectors:**
+- All tests use `data-testid` attributes for reliability
+- Mobile/desktop-specific selectors differentiated
+- Player index-based selectors instead of names (security)
 
 ## Page Object Models
 
@@ -271,31 +268,91 @@ Opens the HTML report showing test results, screenshots, and traces.
 
 ## CI/CD Integration
 
+E2E tests run automatically in the CI/CD pipeline after staging deployment.
+
+### Pipeline Flow
+
+```
+PR Created → Lint + Unit Tests → Deploy Preview
+     ↓
+Merged to main → Lint + Unit Tests → Deploy Staging → E2E Tests → Deploy Production (approval required)
+```
+
+### Test Configuration
+
 Tests are configured to run in CI with:
 - 2 retries on failure
 - Screenshot on failure
+- Video recording on failure
 - Trace on first retry
 - JUnit XML output for CI systems
+- Mobile viewport (iPhone 12: 390x844)
 
-Example GitHub Actions workflow:
+### GitHub Actions Workflow
+
+The full workflow (`.github/workflows/cicd.yml`) includes:
 
 ```yaml
-- name: Install dependencies
-  run: npm ci
+e2e-staging:
+  name: E2E Tests on Staging
+  needs: deploy-staging
+  runs-on: ubuntu-latest
+  environment:
+    name: staging
 
-- name: Install Playwright browsers
-  run: npx playwright install --with-deps chromium
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-- name: Run E2E tests
-  run: npm run test:e2e
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.12'
+        cache: 'npm'
 
-- name: Upload test results
-  if: always()
-  uses: actions/upload-artifact@v3
-  with:
-    name: playwright-report
-    path: playwright-report/
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps chromium
+
+    - name: Run E2E tests against staging
+      run: npm run test:e2e:real
+      env:
+        VITE_USE_FIREBASE_EMULATOR: false
+        VITE_FIREBASE_API_KEY: ${{ vars.VITE_FIREBASE_API_KEY }}
+        VITE_FIREBASE_AUTH_DOMAIN: ${{ vars.VITE_FIREBASE_AUTH_DOMAIN }}
+        VITE_FIREBASE_PROJECT_ID: ${{ vars.VITE_FIREBASE_PROJECT_ID }}
+        BASE_URL: https://${{ vars.VITE_FIREBASE_PROJECT_ID }}.web.app
+        TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+        TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-report-staging
+        path: playwright-report/
+        retention-days: 30
+
+    - name: Upload test failures (screenshots and videos)
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-failures-staging
+        path: test-results/
+        retention-days: 30
 ```
+
+### Test Artifacts
+
+On test failure, the following artifacts are uploaded:
+- **Playwright Report**: Full HTML report with test results
+- **Screenshots**: PNG images of failed test states
+- **Videos**: MP4 recordings of failed test runs
+- **Traces**: Detailed execution traces for debugging
+
+Access artifacts in GitHub Actions → Workflow run → Artifacts section.
 
 ## Firebase Emulator
 
@@ -333,25 +390,26 @@ cp .env.test.real.example .env.test.real
 
 **IMPORTANT**: `.env.test.local` uses demo Firebase credentials. The emulator doesn't validate these credentials, so they can be fake values. This ensures you never accidentally connect to real Firebase during testing.
 
-## Test Coverage Goals
+## Test Coverage
 
-- ✅ **Smoke Tests**: Basic app loading (3/3 passing)
-- ⏳ **Setup Flow**: Game creation and validation (auth required)
-- ⏳ **Bidding Flow**: All bidding scenarios (auth required)
-- ⏳ **Results Flow**: Score recording (auth required)
-- ⏳ **Multi-Round**: Complete games (auth required)
-- ⏳ **Real-Time**: Updates across sessions (auth required)
-- ⏳ **Share Links**: Collaborative editing (auth required)
+- ✅ **Smoke Tests**: Basic app loading (3 tests)
+- ✅ **Setup Flow**: Game creation and validation (8 tests)
+- ✅ **Bidding Flow**: All bidding scenarios (8 tests)
+- ✅ **Results Flow**: Score recording (included in complete game tests)
+- ✅ **Multi-Round**: Complete games (3 tests)
+- ✅ **CI/CD Integration**: Full pipeline with staging and production
+- 🔄 **Real-Time Updates**: Cross-session scenarios (future enhancement)
+- 🔄 **Share Links**: Collaborative editing (future enhancement)
 
-Target: 15-20 E2E tests covering critical user journeys.
+**Current: 22 E2E tests covering all critical user journeys** 🎉
 
-## Next Steps
+## Future Enhancements
 
-1. **Implement Email/Password Auth** for testing
-2. **Enable disabled tests** by removing `test.skip`
-3. **Add real-time update tests** (multi-session scenarios)
-4. **Add share link tests** (collaborative editing)
-5. **Integrate with CI/CD** pipeline
+1. **Real-time update tests** - Multi-session scenarios with different users
+2. **Share link tests** - Collaborative editing and one-time token validation
+3. **Performance testing** - Load time and interaction metrics
+4. **Visual regression testing** - Screenshot comparisons for UI changes
+5. **Accessibility testing** - ARIA labels and keyboard navigation
 
 ## Resources
 

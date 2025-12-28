@@ -120,8 +120,8 @@ test.describe('Bidding Flow', () => {
     // Continue to regular bidding phase
     await gamePage.continueFromBlindBidding();
 
-    // Player 0 (blind bidder) should be disabled/skipped
-    await expect(gamePage.getRegularBidInput(0)).toBeDisabled();
+    // Player 0 (blind bidder) should not appear in regular bidding (skipped entirely)
+    await expect(gamePage.getRegularBidInput(0)).not.toBeAttached();
 
     // Player 1 (Bob) should be enabled first since Player 0 is skipped
     await expect(gamePage.getRegularBidInput(1)).toBeEnabled({ timeout: 2000 });
