@@ -105,13 +105,13 @@ export class GamePlayPage {
    */
   async continueFromBlindBidding() {
     // Wait for button to be enabled (all blind bids entered if any)
-    await expect(this.blindBidContinueButton).toBeEnabled({ timeout: 30000 });
+    await expect(this.blindBidContinueButton).toBeEnabled({ timeout: 10000 });
     await this.blindBidContinueButton.click({ force: true });
     // Wait for either regular bidding or results phase to appear
     // If all players bid blind, goes to results, otherwise goes to regular bidding
     await Promise.race([
-      this.page.waitForSelector('text=/Place Your Bids/i', { timeout: 30000 }),
-      this.page.waitForSelector('text=/Record Results/i', { timeout: 30000 })
+      this.page.waitForSelector('text=/Place Your Bids/i', { timeout: 15000 }),
+      this.page.waitForSelector('text=/Record Results/i', { timeout: 15000 })
     ]);
   }
 
@@ -159,10 +159,10 @@ export class GamePlayPage {
    */
   async completeRegularBidding() {
     // Wait for button to be enabled (all bids entered)
-    await expect(this.regularBidCompleteButton).toBeEnabled({ timeout: 30000 });
+    await expect(this.regularBidCompleteButton).toBeEnabled({ timeout: 10000 });
     await this.regularBidCompleteButton.click({ force: true });
     // Wait for results phase to appear
-    await this.page.waitForSelector('text=/Record Results/i', { timeout: 30000 });
+    await this.page.waitForSelector('text=/Record Results/i', { timeout: 15000 });
   }
 
   // ==================== Results Recording Phase ====================
@@ -211,11 +211,11 @@ export class GamePlayPage {
    */
   async completeRound() {
     // Wait for button to be enabled (all results recorded)
-    await this.completeRoundButton.waitFor({ state: 'attached', timeout: 30000 });
-    await expect(this.completeRoundButton).toBeEnabled({ timeout: 30000 });
+    await this.completeRoundButton.waitFor({ state: 'attached', timeout: 10000 });
+    await expect(this.completeRoundButton).toBeEnabled({ timeout: 10000 });
     await this.completeRoundButton.click({ force: true });
     // Wait for score review phase to appear (text like "Round 1 Complete!")
-    await this.page.waitForSelector('text=/Round \\d+ Complete/i', { timeout: 30000 });
+    await this.page.waitForSelector('text=/Round \\d+ Complete/i', { timeout: 15000 });
   }
 
   // ==================== Score Review Phase ====================
@@ -225,11 +225,11 @@ export class GamePlayPage {
    */
   async startNextRound() {
     // Wait for button to be enabled (score review complete)
-    await expect(this.startNextRoundButton).toBeEnabled({ timeout: 30000 });
+    await expect(this.startNextRoundButton).toBeEnabled({ timeout: 10000 });
     // Use force click to handle real-time updates causing re-renders
     await this.startNextRoundButton.click({ force: true });
-    // Wait for blind bidding phase to appear (longer timeout for real Firebase with network latency)
-    await this.page.waitForSelector('text=/Blind Bid Phase/i', { timeout: 30000 });
+    // Wait for blind bidding phase to appear
+    await this.page.waitForSelector('text=/Blind Bid Phase/i', { timeout: 15000 });
   }
 
   // ==================== Totals ====================
@@ -298,6 +298,6 @@ export class GamePlayPage {
       completed: 'Game complete',
     };
 
-    await this.page.waitForSelector(`text=${phaseTexts[phase]}`, { timeout: 30000 });
+    await this.page.waitForSelector(`text=${phaseTexts[phase]}`, { timeout: 15000 });
   }
 }
