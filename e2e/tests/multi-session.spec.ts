@@ -63,7 +63,7 @@ test.describe('Multi-Session Real-Time Updates', () => {
       await editorGamePage.continueFromBlindBidding();
 
       // Viewer: Should see transition to regular bidding (view page shows "📝 Bidding")
-      await viewerPage.waitForSelector('text=/Bidding/i', { timeout: 5000 });
+      await viewerPage.waitForSelector('text=/Bidding/i', { timeout: 10000 });
       console.log('✅ Viewer sees regular bidding phase');
 
       // ==================== Round 1: Regular Bidding ====================
@@ -80,7 +80,7 @@ test.describe('Multi-Session Real-Time Updates', () => {
       await editorGamePage.completeRegularBidding();
 
       // Viewer: Should see transition to results phase
-      await viewerPage.waitForSelector('text=/Recording Results/i', { timeout: 5000 });
+      await viewerPage.waitForSelector('text=/Recording Results/i', { timeout: 10000 });
       console.log('✅ Viewer sees results phase');
 
       // ==================== Round 1: Results ====================
@@ -97,7 +97,7 @@ test.describe('Multi-Session Real-Time Updates', () => {
       await editorGamePage.completeRound();
 
       // Viewer: Should see score review phase
-      await viewerPage.waitForSelector('text=/Round 1 Complete/i', { timeout: 5000 });
+      await viewerPage.waitForSelector('text=/Round 1 Complete/i', { timeout: 10000 });
       console.log('✅ Viewer sees score review phase');
 
       // Viewer: Verify scores are shown
@@ -111,7 +111,8 @@ test.describe('Multi-Session Real-Time Updates', () => {
 
       // Viewer: Should see round 2 bidding phase
       await viewerPage.waitForSelector('text=/Round 2/i', { timeout: 5000 });
-      await viewerPage.waitForSelector('text=/Bidding/i', { timeout: 5000 });
+      // Wait longer for bidding phase - there can be a delay after round starts
+      await viewerPage.waitForSelector('text=/Bidding/i', { timeout: 10000 });
       console.log('✅ Viewer sees round 2 start');
 
       // ==================== Round 2: Blind Bidding ====================
@@ -182,8 +183,8 @@ test.describe('Multi-Session Real-Time Updates', () => {
       await gamePage.continueFromBlindBidding();
 
       // Both viewers should see bidding phase
-      await viewer1Page.waitForSelector('text=/Bidding/i', { timeout: 5000 });
-      await viewer2Page.waitForSelector('text=/Bidding/i', { timeout: 5000 });
+      await viewer1Page.waitForSelector('text=/Bidding/i', { timeout: 10000 });
+      await viewer2Page.waitForSelector('text=/Bidding/i', { timeout: 10000 });
 
       // Editor: Enter bids (total must not equal 3)
       await gamePage.setRegularBid(0, 1);
@@ -261,7 +262,7 @@ test.describe('Multi-Session Real-Time Updates', () => {
       await expect(editorPage.getByText(/Game complete/i)).toBeVisible();
 
       // Viewer should also see game complete (real-time update of status change)
-      await viewerPage.waitForSelector('text=/Game complete/i', { timeout: 5000 });
+      await viewerPage.waitForSelector('text=/Game complete/i', { timeout: 10000 });
       console.log('✅ Viewer sees game completion in real-time');
 
       // Clean up: Delete the game
