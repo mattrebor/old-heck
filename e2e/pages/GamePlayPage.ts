@@ -106,8 +106,8 @@ export class GamePlayPage {
     // Wait for either regular bidding or results phase to appear
     // If all players bid blind, goes to results, otherwise goes to regular bidding
     await Promise.race([
-      this.page.waitForSelector('text=/Place Your Bids/i', { timeout: 10000 }),
-      this.page.waitForSelector('text=/Record Results/i', { timeout: 10000 })
+      this.page.waitForSelector('text=/Place Your Bids/i', { timeout: 30000 }),
+      this.page.waitForSelector('text=/Record Results/i', { timeout: 30000 })
     ]);
   }
 
@@ -154,7 +154,7 @@ export class GamePlayPage {
   async completeRegularBidding() {
     await this.regularBidCompleteButton.click({ force: true });
     // Wait for results phase to appear
-    await this.page.waitForSelector('text=/Record Results/i', { timeout: 10000 });
+    await this.page.waitForSelector('text=/Record Results/i', { timeout: 30000 });
   }
 
   // ==================== Results Recording Phase ====================
@@ -204,7 +204,7 @@ export class GamePlayPage {
   async completeRound() {
     await this.completeRoundButton.click({ force: true });
     // Wait for score review phase to appear (text like "Round 1 Complete!")
-    await this.page.waitForSelector('text=/Round \\d+ Complete/i', { timeout: 10000 });
+    await this.page.waitForSelector('text=/Round \\d+ Complete/i', { timeout: 30000 });
   }
 
   // ==================== Score Review Phase ====================
@@ -215,8 +215,8 @@ export class GamePlayPage {
   async startNextRound() {
     // Use force click to handle real-time updates causing re-renders
     await this.startNextRoundButton.click({ force: true });
-    // Wait for blind bidding phase to appear
-    await this.page.waitForSelector('text=/Blind Bid Phase/i', { timeout: 10000 });
+    // Wait for blind bidding phase to appear (longer timeout for real Firebase with network latency)
+    await this.page.waitForSelector('text=/Blind Bid Phase/i', { timeout: 30000 });
   }
 
   // ==================== Totals ====================
@@ -285,6 +285,6 @@ export class GamePlayPage {
       completed: 'Game complete',
     };
 
-    await this.page.waitForSelector(`text=${phaseTexts[phase]}`, { timeout: 10000 });
+    await this.page.waitForSelector(`text=${phaseTexts[phase]}`, { timeout: 30000 });
   }
 }
