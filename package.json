@@ -31,7 +31,8 @@
     "deploy:hosting:staging": "firebase deploy --only hosting --project staging",
     "deploy:hosting:prod": "firebase deploy --only hosting --project prod",
     "deploy:rules:staging": "firebase deploy --only firestore:rules --project staging",
-    "deploy:rules:prod": "firebase deploy --only firestore:rules --project prod"
+    "deploy:rules:prod": "firebase deploy --only firestore:rules --project prod",
+    "prepare": "husky"
   },
   "dependencies": {
     "firebase": "^12.7.0",
@@ -58,6 +59,7 @@
     "firebase-tools": "^15.1.0",
     "globals": "^16.5.0",
     "happy-dom": "^20.0.11",
+    "husky": "^9.1.7",
     "jsdom": "^27.0.1",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.19",
