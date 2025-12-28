@@ -73,8 +73,25 @@ test.describe('Bidding Flow', () => {
   });
 
   test.skip('should show warning when bid exceeds cards in hand', async ({ page }) => {
-    // This test requires Round 2 setup - skipping for now
-    // TODO: Add game state manipulation to start at Round 2
+    // Complete Round 1 to get to Round 2 (with 2 cards per player)
+    // Round 1: 1 trick available, bid total must NOT equal 1
+    await gamePage.continueFromBlindBidding();
+    await gamePage.setRegularBid(0, 0);  // Changed from 1 to 0
+    await gamePage.setRegularBid(1, 0);  // Total = 0, doesn't equal 1
+    await gamePage.completeRegularBidding();
+    await gamePage.markPlayerMade(0);
+    await gamePage.markPlayerMade(1);
+    await gamePage.completeRound();
+    await gamePage.startNextRound();
+
+    // Round 2: Each player has 2 cards
+    await gamePage.continueFromBlindBidding();
+
+    // Try to bid more than 2 (cards in hand)
+    await gamePage.setRegularBid(0, 3);
+
+    // Should show warning
+    await expect(page.getByText(/exceeds cards in hand/i)).toBeVisible();
   });
 
   test('should enforce bidding order', async ({ page }) => {
@@ -95,13 +112,13 @@ test.describe('Bidding Flow', () => {
   });
 
   test.skip('should calculate blind bid bonus correctly', async ({ page }) => {
-    // TODO: Fix blind bid bonus test - needs investigation of bid validation rules
     // Player 0 makes blind bid of 1
     await gamePage.toggleBlindBid(0);
     await gamePage.setBlindBid(0, 1);
     await gamePage.continueFromBlindBidding();
 
-    // Player 1 bids 1 in regular bidding (total = 2, doesn't equal 1 trick available)
+    // Player 1 bids 0 in regular bidding (total = 1, equals 1 trick - need to bid differently)
+    // Total must NOT equal tricks available (1), so bid 1 for total of 2
     await gamePage.setRegularBid(1, 1);
     await gamePage.completeRegularBidding();
 

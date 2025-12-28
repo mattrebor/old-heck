@@ -16,14 +16,16 @@
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:report": "playwright show-report",
-    "test:e2e:emulator": "cross-env VITE_USE_FIREBASE_EMULATOR=true playwright test",
-    "test:e2e:emulator:ui": "cross-env VITE_USE_FIREBASE_EMULATOR=true playwright test --ui",
-    "test:e2e:emulator:headed": "cross-env VITE_USE_FIREBASE_EMULATOR=true playwright test --headed",
+    "test:e2e:emulator": "node scripts/check-emulator.cjs && cross-env VITE_USE_FIREBASE_EMULATOR=true playwright test",
+    "test:e2e:emulator:ui": "node scripts/check-emulator.cjs && cross-env VITE_USE_FIREBASE_EMULATOR=true playwright test --ui",
+    "test:e2e:emulator:headed": "node scripts/check-emulator.cjs && cross-env VITE_USE_FIREBASE_EMULATOR=true playwright test --headed",
+    "test:e2e:emulator:nocheck": "cross-env VITE_USE_FIREBASE_EMULATOR=true playwright test",
     "test:e2e:real": "cross-env VITE_USE_FIREBASE_EMULATOR=false playwright test",
     "test:e2e:real:ui": "cross-env VITE_USE_FIREBASE_EMULATOR=false playwright test --ui",
     "emulator:start": "firebase emulators:start --only auth,firestore",
     "emulator:export": "firebase emulators:export ./emulator-data",
-    "emulator:import": "firebase emulators:start --import ./emulator-data --only auth,firestore"
+    "emulator:import": "firebase emulators:start --import ./emulator-data --only auth,firestore",
+    "emulator:check": "node scripts/check-emulator.cjs"
   },
   "dependencies": {
     "firebase": "^12.7.0",

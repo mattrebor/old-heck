@@ -5,7 +5,6 @@ import { signInWithTestUser } from '../fixtures/auth';
 
 test.describe('Complete Game Flow', () => {
   test.skip('should complete a full 2-player, 3-round game', async ({ page }) => {
-    // TODO: Fix complete game test - helper method needs debugging
     // This test demonstrates the complete flow:
     // 1. Setup game
     // 2. Play 3 rounds
@@ -33,13 +32,13 @@ test.describe('Complete Game Flow', () => {
     // Blind bidding: no one bids blind
     await gamePage.continueFromBlindBidding();
 
-    // Regular bidding
-    await gamePage.setRegularBid(0, 1); // Alice bids 1
-    await gamePage.setRegularBid(1, 0); // Bob bids 0 (can't total 1)
+    // Regular bidding - Round 1: 1 trick available, total must NOT equal 1
+    await gamePage.setRegularBid(0, 0); // Alice bids 0
+    await gamePage.setRegularBid(1, 0); // Bob bids 0 (total = 0, doesn't equal 1)
     await gamePage.completeRegularBidding();
 
     // Results
-    await gamePage.markPlayerMade(0); // Alice makes her bid: +10
+    await gamePage.markPlayerMade(0); // Alice makes her bid: +5
     await gamePage.markPlayerMade(1); // Bob makes his bid: +5
     await gamePage.completeRound();
 
@@ -56,8 +55,8 @@ test.describe('Complete Game Flow', () => {
     await gamePage.setBlindBid(0, 1);
     await gamePage.continueFromBlindBidding();
 
-    // Regular bidding (Bob only)
-    await gamePage.setRegularBid(1, 0); // Bob bids 0
+    // Regular bidding (Bob only) - Round 2: 2 tricks, Alice bid 1, Bob must not make total = 2
+    await gamePage.setRegularBid(1, 0); // Bob bids 0 (total = 1, doesn't equal 2)
     await gamePage.completeRegularBidding();
 
     // Results
@@ -75,7 +74,7 @@ test.describe('Complete Game Flow', () => {
     // Blind bidding: no one bids blind
     await gamePage.continueFromBlindBidding();
 
-    // Regular bidding
+    // Regular bidding - Round 3: 3 tricks available, total must NOT equal 3
     await gamePage.setRegularBid(0, 2); // Alice bids 2
     await gamePage.setRegularBid(1, 2); // Bob bids 2 (total = 4, doesn't equal 3)
     await gamePage.completeRegularBidding();
@@ -90,7 +89,7 @@ test.describe('Complete Game Flow', () => {
     await expect(page.getByText(/Game complete/i)).toBeVisible();
 
     // Verify final scores in totals table
-    // Alice: +10 (R1) +20 (R2) -20 (R3) = +10
+    // Alice: +5 (R1) +20 (R2) -20 (R3) = +5
     // Bob: +5 (R1) +5 (R2) +20 (R3) = +30
 
     // Bob should be the winner (👑)
@@ -101,7 +100,6 @@ test.describe('Complete Game Flow', () => {
   });
 
   test.skip('should handle mid-game score review correctly', async ({ page }) => {
-    // TODO: Fix complete game test - helper method needs debugging
     const setupPage = new GameSetupPage(page);
     const gamePage = new GamePlayPage(page);
 
@@ -114,11 +112,11 @@ test.describe('Complete Game Flow', () => {
 
     await setupPage.waitForGamePage();
 
-    // Complete round 1
+    // Complete round 1 - Round 1: 1 trick available, total must NOT equal 1
     await gamePage.completeFullRound({
       regularBids: [
-        { playerIndex: 0, bid: 1 },
-        { playerIndex: 1, bid: 0 },
+        { playerIndex: 0, bid: 0 },  // Changed from 1 to 0
+        { playerIndex: 1, bid: 0 },  // Total = 0, doesn't equal 1
       ],
       results: [
         { playerIndex: 0, made: true },
@@ -136,8 +134,7 @@ test.describe('Complete Game Flow', () => {
     await expect(page.getByText(/will start the bidding/i)).toBeVisible();
 
     // Totals should show round 1 scores with deltas
-    await expect(page.getByText(/\+10/i)).toBeVisible(); // Alice's score
-    await expect(page.getByText(/\+5/i)).toBeVisible(); // Bob's score
+    await expect(page.getByText(/\+5/i)).toBeVisible(); // Both players made their 0 bids: +5 each
 
     // Can expand round details
     await gamePage.toggleRound(1);
@@ -147,7 +144,6 @@ test.describe('Complete Game Flow', () => {
   });
 
   test.skip('should allow ending game early', async ({ page }) => {
-    // TODO: Fix complete game test - helper method needs debugging
     const setupPage = new GameSetupPage(page);
     const gamePage = new GamePlayPage(page);
 
@@ -160,11 +156,11 @@ test.describe('Complete Game Flow', () => {
 
     await setupPage.waitForGamePage();
 
-    // Complete one round
+    // Complete one round - Round 1: 1 trick available, total must NOT equal 1
     await gamePage.completeFullRound({
       regularBids: [
-        { playerIndex: 0, bid: 1 },
-        { playerIndex: 1, bid: 0 },
+        { playerIndex: 0, bid: 0 },  // Changed from 1 to 0
+        { playerIndex: 1, bid: 0 },  // Total = 0, doesn't equal 1
       ],
       results: [
         { playerIndex: 0, made: true },

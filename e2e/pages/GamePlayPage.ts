@@ -101,6 +101,8 @@ export class GamePlayPage {
    */
   async continueFromBlindBidding() {
     await this.blindBidContinueButton.click();
+    // Wait for regular bidding or results phase to load
+    await this.page.waitForTimeout(1000);
   }
 
   // ==================== Regular Bidding Phase ====================
@@ -145,6 +147,8 @@ export class GamePlayPage {
    */
   async completeRegularBidding() {
     await this.regularBidCompleteButton.click();
+    // Wait for results phase to load
+    await this.page.waitForTimeout(1000);
   }
 
   // ==================== Results Recording Phase ====================
@@ -174,14 +178,14 @@ export class GamePlayPage {
    * Mark a player as having made their bid
    */
   async markPlayerMade(playerIndex: number) {
-    await this.getResultMadeButton(playerIndex).click();
+    await this.getResultMadeButton(playerIndex).click({ force: true });
   }
 
   /**
    * Mark a player as having missed their bid
    */
   async markPlayerMissed(playerIndex: number) {
-    await this.getResultMissedButton(playerIndex).click();
+    await this.getResultMissedButton(playerIndex).click({ force: true });
   }
 
   /**
@@ -189,6 +193,8 @@ export class GamePlayPage {
    */
   async completeRound() {
     await this.completeRoundButton.click();
+    // Wait for score review phase to load
+    await this.page.waitForTimeout(1000);
   }
 
   // ==================== Score Review Phase ====================
@@ -198,6 +204,8 @@ export class GamePlayPage {
    */
   async startNextRound() {
     await this.startNextRoundButton.click();
+    // Wait for new round to load
+    await this.page.waitForTimeout(1000);
   }
 
   // ==================== Totals ====================

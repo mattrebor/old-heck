@@ -10,34 +10,79 @@ All dependencies are already installed. Playwright and Firebase Emulator are con
 
 ### Quick Start
 
-```bash
-# Run all tests (currently only smoke tests are enabled)
-npm run test:e2e
-
-# Run tests in interactive UI mode (recommended for development)
-npm run test:e2e:ui
-
-# Run tests in headed mode (see the browser)
-npm run test:e2e:headed
-
-# Run tests with emulator (default for local development)
-npm run test:e2e:emulator
-
-# Run specific test file
-npx playwright test e2e/tests/smoke.spec.ts
-```
-
-### With Firebase Emulator
+**IMPORTANT**: The emulator must be running before you run E2E tests!
 
 ```bash
-# Start emulator in one terminal
+# Terminal 1: Start the Firebase Emulator (leave this running)
 npm run emulator:start
 
-# Run tests in another terminal
-npm run test:e2e:emulator:ui
+# Terminal 2: Run the tests
+npm run test:e2e:emulator -- --workers=1
+
+# Check if emulator is running
+npm run emulator:check
 ```
 
-The emulator UI will be available at http://localhost:4000
+### Test Commands
+
+```bash
+# With Firebase Emulator (recommended for local development)
+npm run test:e2e:emulator              # Auto-checks if emulator is running
+npm run test:e2e:emulator:ui           # Interactive UI mode
+npm run test:e2e:emulator:headed       # See the browser
+npm run test:e2e:emulator:nocheck      # Skip emulator check (not recommended)
+
+# With Real Firebase (for integration testing)
+npm run test:e2e:real
+npm run test:e2e:real:ui
+
+# Run specific test file
+npm run test:e2e:emulator -- smoke.spec.ts --workers=1
+
+# Check emulator status
+npm run emulator:check
+```
+
+### Firebase Emulator Setup
+
+**Step 1: Start the emulator (in a separate terminal)**
+```bash
+npm run emulator:start
+```
+
+The emulator will start:
+- Auth Emulator: http://127.0.0.1:9099
+- Firestore Emulator: http://127.0.0.1:8080
+- Emulator UI: http://localhost:4000
+
+**Step 2: Verify it's running**
+```bash
+npm run emulator:check
+```
+
+You should see:
+```
+✅ Auth Emulator (port 9099): Running
+✅ Firestore Emulator (port 8080): Running
+✅ UI Emulator (port 4000): Running
+```
+
+**Step 3: Run tests**
+```bash
+npm run test:e2e:emulator -- --workers=1
+```
+
+### Common Issues
+
+**"Firebase Emulator is not fully running!"**
+- Make sure you started the emulator: `npm run emulator:start`
+- Check if ports 9099, 8080, 4000 are available
+- Try stopping and restarting the emulator
+
+**"network request failed" during auth**
+- The emulator is not running
+- Run `npm run emulator:check` to verify
+- Start the emulator in a separate terminal
 
 ## Test Structure
 
