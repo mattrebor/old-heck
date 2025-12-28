@@ -38,7 +38,7 @@ export default function GamePlayPage({
 }) {
   const { gameId, token } = useParams<{ gameId: string; token?: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
   // Access control state
   const [hasAccess, setHasAccess] = useState(false);
@@ -90,6 +90,12 @@ export default function GamePlayPage({
         setTokenError("No game ID provided");
         setLoading(false);
         return;
+      }
+
+      // Wait for auth to finish loading before checking access
+      // This prevents "Access Denied" errors on page refresh
+      if (authLoading) {
+        return; // Auth still loading, will re-run when authLoading changes
       }
 
       try {
@@ -185,7 +191,7 @@ export default function GamePlayPage({
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameId, token, isSharedAccess]); // Intentionally excludes 'user' and 'loading' - user checked once on mount to avoid re-verification on auth refresh
+  }, [gameId, token, isSharedAccess, authLoading]); // authLoading ensures we wait for auth to be ready before verifying access
 
   // Show loading state
   if (loading) {
