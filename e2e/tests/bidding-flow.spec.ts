@@ -95,7 +95,7 @@ test.describe('Bidding Flow', () => {
     await expect(page.getByText(/exceeds cards in hand/i)).toBeVisible();
   });
 
-  test('should enforce bidding order', async ({ page }) => {
+  test('should enforce bidding order', async () => {
     // Skip blind bidding
     await gamePage.continueFromBlindBidding();
 

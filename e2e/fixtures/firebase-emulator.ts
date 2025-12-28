@@ -1,10 +1,10 @@
-import { exec } from 'child_process';
+import { exec, type ChildProcess } from 'child_process';
 import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 
 export class FirebaseEmulator {
-  private process: any;
+  private process: ChildProcess | null = null;
 
   async start() {
     console.log('🚀 Starting Firebase Emulator...');

@@ -1,0 +1,15 @@
+STAGING FIREBASE CONFIG VALUES
+================================
+Copy these values to GitHub staging environment
+
+VITE_FIREBASE_API_KEY=AIzaSyCRtN1KUxtTKfmCwVdxLTXkMEMkMPnYAY0
+VITE_FIREBASE_AUTH_DOMAIN=old-heck-staging.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=old-heck-staging
+VITE_FIREBASE_STORAGE_BUCKET=old-heck-staging.firebasestorage.app
+VITE_FIREBASE_MESSAGING_SENDER_ID=953646262162
+VITE_FIREBASE_APP_ID=1:953646262162:web:29db3c64e0dde60a94c34b
+VITE_FIREBASE_MEASUREMENT_ID=
+
+Note: measurementId is optional (Google Analytics). Leave blank if not using.
+
+DO NOT COMMIT THIS FILE - IT'S IN .gitignore
