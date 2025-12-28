@@ -190,7 +190,10 @@ export async function signOut() {
 /**
  * Sign up with email and password
  */
-export async function signUpWithEmailAndPassword(email: string, password: string) {
+export async function signUpWithEmailAndPassword(
+  email: string,
+  password: string
+) {
   try {
     const result = await createUserWithEmailAndPassword(auth, email, password);
     return result.user;
@@ -269,10 +272,7 @@ export async function claimShareToken(
 
   // Check if this browser already claimed the token
   const existingSession = getShareSession(gameId);
-  if (
-    existingSession &&
-    existingSession.sessionId === game.shareToken.usedBy
-  ) {
+  if (existingSession && existingSession.sessionId === game.shareToken.usedBy) {
     // This browser already claimed it - allow access
     return { success: true };
   }

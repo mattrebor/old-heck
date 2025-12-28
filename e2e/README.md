@@ -279,12 +279,14 @@ npm run test:e2e:real
 
 Set up environment files:
 ```bash
-# Copy and configure for emulator
+# Copy for emulator (uses demo credentials - safe to commit to git)
 cp .env.test.local.example .env.test.local
 
-# Copy and configure for real Firebase
+# Copy and configure for real Firebase (uses real credentials - DO NOT commit)
 cp .env.test.real.example .env.test.real
 ```
+
+**IMPORTANT**: `.env.test.local` uses demo Firebase credentials. The emulator doesn't validate these credentials, so they can be fake values. This ensures you never accidentally connect to real Firebase during testing.
 
 ## Test Coverage Goals
 
