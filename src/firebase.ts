@@ -40,8 +40,8 @@ export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 
 // Only initialize Analytics in browser environment (not during tests)
-// Check for test environment using NODE_ENV or VITEST mode
-const isTestEnv = process.env.NODE_ENV === 'test' || import.meta.env.MODE === 'test';
+// Check for test environment using Vite's MODE
+const isTestEnv = import.meta.env.MODE === 'test' || import.meta.env.VITEST;
 export const analytics = typeof window !== 'undefined' && !isTestEnv
   ? getAnalytics(app)
   : null;
