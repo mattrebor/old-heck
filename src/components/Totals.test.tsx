@@ -70,12 +70,17 @@ describe('Totals', () => {
   it('should display point deltas when showDeltas is true', () => {
     render(<Totals rounds={mockRounds} showDeltas={true} />);
 
-    // Latest round (round 2) deltas: Alice +14, Bob -1
-    const deltaTexts = screen.getAllByText((content, element) => {
-      return !!(element?.className?.includes('font-bold') &&
-             (content === '+14' || content === '-1'));
-    });
-    expect(deltaTexts.length).toBeGreaterThan(0);
+    // Latest round (round 2) deltas should be visible using data-testids
+    // Deltas appear in both mobile and desktop views
+    const aliceDelta = screen.getAllByTestId('mobile-round-2-delta-player0');
+    const bobDelta = screen.getAllByTestId('mobile-round-2-delta-player1');
+
+    expect(aliceDelta.length).toBeGreaterThan(0);
+    expect(bobDelta.length).toBeGreaterThan(0);
+
+    // Check content: Alice +14, Bob -1
+    expect(aliceDelta[0]).toHaveTextContent('(+14)');
+    expect(bobDelta[0]).toHaveTextContent('(-1)');
   });
 
   it('should not display point deltas when showDeltas is false', () => {

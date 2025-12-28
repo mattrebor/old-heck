@@ -33,11 +33,7 @@ export default function GameViewPage() {
   } = useGameSubscription(gameId);
 
   // Use bidding view model hook for consistent logic
-  const biddingViewModel = useBiddingViewModel(
-    currentRound,
-    currentPhase,
-    biddingPhase
-  );
+  const biddingViewModel = useBiddingViewModel(currentRound);
 
   // Track previous values to detect changes
   const prevRoundRef = useRef<Round | null>(null);

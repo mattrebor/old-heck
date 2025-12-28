@@ -27,11 +27,11 @@ jobs:
       - name: Run linter
         run: npm run lint
 
-      # TODO: Fix unit tests - currently failing due to Firebase initialization in test environment
-      # - name: Run unit tests
-      #   run: npm test -- --run
-      #   env:
-      #     CI: true
+      - name: Run unit tests
+        run: npm test -- --run
+        env:
+          CI: true
+          NODE_ENV: test
 
   # ==================== PR: Preview Deploy ====================
   preview:

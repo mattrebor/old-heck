@@ -16,9 +16,7 @@ export interface BiddingViewModel {
 }
 
 export function useBiddingViewModel(
-  currentRound: Round | null,
-  currentPhase: string | null,
-  biddingPhase: "blind-declaration-and-entry" | "regular-bid-entry" | null
+  currentRound: Round | null
 ): BiddingViewModel | null {
   return useMemo(() => {
     if (!currentRound) return null;

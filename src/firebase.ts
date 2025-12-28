@@ -38,7 +38,13 @@ export const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
-export const analytics = getAnalytics(app);
+
+// Only initialize Analytics in browser environment (not during tests)
+// Check for test environment using NODE_ENV or VITEST mode
+const isTestEnv = process.env.NODE_ENV === 'test' || import.meta.env.MODE === 'test';
+export const analytics = typeof window !== 'undefined' && !isTestEnv
+  ? getAnalytics(app)
+  : null;
 
 // Connect to Firebase Emulator if enabled
 if (import.meta.env.VITE_USE_FIREBASE_EMULATOR === 'true') {

@@ -75,11 +75,10 @@ export class GamePlayPage {
   }
 
   /**
-   * Get blind bidding continue button
-   * Note: Uses .first() because there are mobile and desktop versions
+   * Get blind bidding continue button (top button)
    */
   get blindBidContinueButton(): Locator {
-    return this.page.getByTestId('bidding-blind-continue-button').first();
+    return this.page.getByTestId('bidding-blind-continue-button-top');
   }
 
   /**

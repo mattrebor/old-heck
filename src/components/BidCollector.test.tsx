@@ -80,15 +80,11 @@ describe('BidCollector', () => {
         tricksAvailable={1}
         onUpdate={mockUpdate}
         onComplete={mockComplete}
+        initialPhase="regular-bid-entry"
       />
     );
 
     // Find increment button for Alice (first player in regular bidding phase)
-    // Note: In blind-declaration phase, need to continue first
-    const continueButton = screen.getByText('Continue to Regular Bidding →');
-    fireEvent.click(continueButton);
-
-    // Now we're in regular bidding phase
     const incrementButtons = screen.getAllByText('+');
     fireEvent.click(incrementButtons[0]); // Click first player's increment
 
@@ -150,7 +146,7 @@ describe('BidCollector', () => {
     // Checkbox state should change (implementation-dependent verification)
   });
 
-  it('should display blind bids correctly when transitioning to regular bidding phase', () => {
+  it('should display blind bids correctly when in regular bidding phase', () => {
     const mockUpdate = vi.fn();
     const mockComplete = vi.fn();
 
@@ -171,17 +167,11 @@ describe('BidCollector', () => {
         tricksAvailable={3}
         onUpdate={mockUpdate}
         onComplete={mockComplete}
+        initialPhase="regular-bid-entry"
       />
     );
 
-    // Should be in blind bid phase initially
-    expect(screen.getByText(/Blind Bid Phase/i)).toBeInTheDocument();
-
-    // Click continue to go to regular bidding phase
-    const continueButton = screen.getByText('Continue to Regular Bidding →');
-    fireEvent.click(continueButton);
-
-    // Now in regular bidding phase
+    // Should be in regular bidding phase
     expect(screen.getByText(/Place Your Bids/i)).toBeInTheDocument();
 
     // Should show blind bids summary section
