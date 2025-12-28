@@ -114,7 +114,7 @@ jobs:
 
       - name: Deploy to Firebase Staging (All Resources)
         run: |
-          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > service-account.json
+          printf '%s\n' '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > service-account.json
           export GOOGLE_APPLICATION_CREDENTIALS=service-account.json
           npx firebase-tools deploy \
             --only hosting,firestore:rules,firestore:indexes \
@@ -211,7 +211,7 @@ jobs:
 
       - name: Deploy to Firebase Production (All Resources)
         run: |
-          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > service-account.json
+          printf '%s\n' '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > service-account.json
           export GOOGLE_APPLICATION_CREDENTIALS=service-account.json
           npx firebase-tools deploy \
             --only hosting,firestore:rules,firestore:indexes \
