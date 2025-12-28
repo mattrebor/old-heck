@@ -104,6 +104,8 @@ export class GamePlayPage {
    * Continue from blind bidding phase
    */
   async continueFromBlindBidding() {
+    // Wait for button to be enabled (all blind bids entered if any)
+    await expect(this.blindBidContinueButton).toBeEnabled({ timeout: 30000 });
     await this.blindBidContinueButton.click({ force: true });
     // Wait for either regular bidding or results phase to appear
     // If all players bid blind, goes to results, otherwise goes to regular bidding
@@ -156,6 +158,8 @@ export class GamePlayPage {
    * Complete regular bidding phase
    */
   async completeRegularBidding() {
+    // Wait for button to be enabled (all bids entered)
+    await expect(this.regularBidCompleteButton).toBeEnabled({ timeout: 30000 });
     await this.regularBidCompleteButton.click({ force: true });
     // Wait for results phase to appear
     await this.page.waitForSelector('text=/Record Results/i', { timeout: 30000 });
@@ -220,6 +224,8 @@ export class GamePlayPage {
    * Start the next round
    */
   async startNextRound() {
+    // Wait for button to be enabled (score review complete)
+    await expect(this.startNextRoundButton).toBeEnabled({ timeout: 30000 });
     // Use force click to handle real-time updates causing re-renders
     await this.startNextRoundButton.click({ force: true });
     // Wait for blind bidding phase to appear (longer timeout for real Firebase with network latency)
