@@ -129,12 +129,9 @@ test.describe('Bidding Flow', () => {
     await gamePage.markPlayerMissed(1);
     await gamePage.completeRound();
 
-    // Wait for totals to render and expand the latest round
-    await page.waitForTimeout(1000);
-
     // Score should show 2× bonus for blind bid
     // Player 0: 1 trick blind made = ((1×1) + 10) × 2 = 22 points
-    await expect(page.getByText(/\+22/).first()).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/\+22/).first()).toBeVisible();
   });
 
   test('should handle all players bidding blind', async ({ page }) => {

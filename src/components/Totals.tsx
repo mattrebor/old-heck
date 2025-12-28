@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { Round } from "../types";
 import PlayerAvatar from "./PlayerAvatar";
 import BidDisplay from "./BidDisplay";
@@ -15,6 +15,13 @@ export default function Totals({
   const [expandedRounds, setExpandedRounds] = useState<Set<number>>(
     showDeltas && latestRoundNumber > 0 ? new Set([latestRoundNumber]) : new Set()
   );
+
+  // Update expanded rounds when showDeltas or latestRoundNumber changes
+  useEffect(() => {
+    if (showDeltas && latestRoundNumber > 0) {
+      setExpandedRounds(new Set([latestRoundNumber]));
+    }
+  }, [showDeltas, latestRoundNumber]);
 
   if (rounds.length === 0) return null;
 
