@@ -20,6 +20,9 @@ import { deleteGame } from '../fixtures/firebase';
  */
 
 test.describe('Multi-Session Real-Time Updates', () => {
+  // Multi-session tests take longer due to multiple browser contexts
+  test.setTimeout(60000); // 60 seconds instead of default 30 seconds
+
   test('should show real-time updates when one user edits and another watches', async ({ browser }) => {
     // Create two separate browser contexts to simulate two different users
     const editorContext = await browser.newContext();
