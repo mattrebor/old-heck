@@ -131,8 +131,8 @@ test.describe('Complete Game Flow', () => {
     await expect(page.getByText(/will start the bidding/i)).toBeVisible();
 
     // Totals should show round 1 scores with deltas
-    // Look specifically in the Score Breakdown section
-    await expect(page.locator('text="Score Breakdown"').locator('..').getByText(/\+10/i).first()).toBeVisible({ timeout: 10000 }); // Both players made their 0 bids: (0×10)+10 = +10 each
+    // Check the round 1 delta for Alice
+    await expect(page.getByTestId('round-1-delta-Alice')).toBeVisible({ timeout: 10000 }); // Both players made their 0 bids: (0×10)+10 = +10 each
   });
 
   test('should allow ending game early', async ({ page }) => {

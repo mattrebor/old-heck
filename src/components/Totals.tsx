@@ -95,7 +95,7 @@ export default function Totals({
       {/* Mobile vertical layout */}
       <div className="md:hidden space-y-4">
         {/* Totals first on mobile - sorted by score */}
-        <div className="bg-gradient-to-r from-felt-400 to-felt-300 rounded-xl p-4 shadow-card">
+        <div className="bg-gradient-to-r from-felt-400 to-felt-300 rounded-xl p-4 shadow-card" data-testid="totals-summary-mobile">
           <h4 className="font-bold text-white text-lg mb-3">TOTAL SCORES</h4>
           <div className="space-y-2">
             {sortedPlayers.map((name) => {
@@ -213,6 +213,7 @@ export default function Totals({
                                   ? "text-danger-500"
                                   : "text-success-500"
                               }`}
+                              data-testid={`round-${round.roundNumber}-delta-${name}`}
                             >
                               ({playerScore.score > 0 ? "+" : ""}
                               {playerScore.score})
@@ -348,6 +349,7 @@ export default function Totals({
                                   ? "text-danger-500"
                                   : "text-success-500"
                               }`}
+                              data-testid={`round-${round.roundNumber}-delta-${name}`}
                             >
                               ({playerScore.score > 0 ? "+" : ""}
                               {playerScore.score})
@@ -417,7 +419,7 @@ export default function Totals({
                 </React.Fragment>
               );
             })}
-            <tr className="bg-gradient-to-r from-felt-400 to-felt-300">
+            <tr className="bg-gradient-to-r from-felt-400 to-felt-300" data-testid="totals-summary-desktop">
               <td className="p-5 font-bold text-white text-lg">
                 TOTAL
               </td>
