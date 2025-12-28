@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 
 /**
  * Page Object Model for the Game Play Page
@@ -185,8 +185,8 @@ export class GamePlayPage {
    */
   async markPlayerMade(playerIndex: number) {
     await this.getResultMadeButton(playerIndex).click({ force: true });
-    // Wait briefly for state update
-    await this.page.waitForTimeout(300);
+    // Wait briefly for state update (longer for real Firebase)
+    await this.page.waitForTimeout(1000);
   }
 
   /**
@@ -194,14 +194,17 @@ export class GamePlayPage {
    */
   async markPlayerMissed(playerIndex: number) {
     await this.getResultMissedButton(playerIndex).click({ force: true });
-    // Wait briefly for state update
-    await this.page.waitForTimeout(300);
+    // Wait briefly for state update (longer for real Firebase)
+    await this.page.waitForTimeout(1000);
   }
 
   /**
    * Complete the round (after recording results)
    */
   async completeRound() {
+    // Wait for button to be enabled (all results recorded)
+    await this.completeRoundButton.waitFor({ state: 'attached', timeout: 30000 });
+    await expect(this.completeRoundButton).toBeEnabled({ timeout: 30000 });
     await this.completeRoundButton.click({ force: true });
     // Wait for score review phase to appear (text like "Round 1 Complete!")
     await this.page.waitForSelector('text=/Round \\d+ Complete/i', { timeout: 30000 });
