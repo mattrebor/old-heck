@@ -131,7 +131,7 @@ test.describe('Complete Game Flow', () => {
     await expect(page.getByText(/will start the bidding/i)).toBeVisible();
 
     // Totals should show round 1 scores with deltas
-    await expect(page.getByText(/\+11/i).first()).toBeVisible(); // Both players made their 0 bids: (0×0)+10 = +11 each
+    await expect(page.getByText(/\+10/i).first()).toBeVisible(); // Both players made their 0 bids: (0×10)+10 = +10 each
   });
 
   test('should allow ending game early', async ({ page }) => {
