@@ -112,6 +112,27 @@ test.describe('Bidding Flow', () => {
     await expect(gamePage.getRegularBidInput(1)).toBeEnabled({ timeout: 2000 });
   });
 
+  test('should skip blind bidder in regular bidding phase', async () => {
+    // Player 0 (Alice) does a blind bid
+    await gamePage.toggleBlindBid(0);
+    await gamePage.setBlindBid(0, 1);
+
+    // Continue to regular bidding phase
+    await gamePage.continueFromBlindBidding();
+
+    // Player 0 (blind bidder) should be disabled/skipped
+    await expect(gamePage.getRegularBidInput(0)).toBeDisabled();
+
+    // Player 1 (Bob) should be enabled first since Player 0 is skipped
+    await expect(gamePage.getRegularBidInput(1)).toBeEnabled({ timeout: 2000 });
+
+    // Player 1 enters their bid
+    await gamePage.setRegularBid(1, 0);
+
+    // All bids complete - button should be enabled
+    await expect(gamePage.regularBidCompleteButton).toBeEnabled({ timeout: 2000 });
+  });
+
   test('should calculate blind bid bonus correctly', async ({ page }) => {
     // Player 0 makes blind bid of 1
     await gamePage.toggleBlindBid(0);
