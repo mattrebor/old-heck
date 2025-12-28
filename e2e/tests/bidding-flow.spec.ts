@@ -131,7 +131,8 @@ test.describe('Bidding Flow', () => {
 
     // Score should show 2× bonus for blind bid
     // Player 0: 1 trick blind made = ((1×1) + 10) × 2 = 22 points
-    await expect(page.getByText(/\+22/).first()).toBeVisible();
+    // Don't use .first() - let Playwright find the visible instance
+    await expect(page.getByText(/\(?\+22\)?/)).toBeVisible();
   });
 
   test('should handle all players bidding blind', async ({ page }) => {
