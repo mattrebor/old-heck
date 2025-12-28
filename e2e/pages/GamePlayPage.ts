@@ -87,8 +87,8 @@ export class GamePlayPage {
    */
   async toggleBlindBid(playerIndex: number) {
     await this.getBlindBidCheckbox(playerIndex).click({ force: true });
-    // Wait for the blind bid input to become visible/enabled
-    await this.page.waitForTimeout(300);
+    // Wait for state to update in Firebase and subscription to propagate
+    await this.page.waitForTimeout(1000);
   }
 
   /**
@@ -96,6 +96,8 @@ export class GamePlayPage {
    */
   async setBlindBid(playerIndex: number, bid: number) {
     await this.getBlindBidInput(playerIndex).fill(bid.toString());
+    // Wait for bid to auto-save to Firebase
+    await this.page.waitForTimeout(2000);
   }
 
   /**
@@ -146,6 +148,8 @@ export class GamePlayPage {
    */
   async setRegularBid(playerIndex: number, bid: number) {
     await this.getRegularBidInput(playerIndex).fill(bid.toString());
+    // Wait for bid to auto-save to Firebase (1.5s delay + network latency)
+    await this.page.waitForTimeout(2000);
   }
 
   /**
