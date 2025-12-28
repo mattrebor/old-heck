@@ -58,5 +58,5 @@ export function useBiddingViewModel(
       tricksAvailable,
       totalBids,
     };
-  }, [currentRound, currentPhase, biddingPhase]);
+  }, [currentRound]);
 }

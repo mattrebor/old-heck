@@ -32,13 +32,19 @@ export default function GameViewPage() {
     error,
   } = useGameSubscription(gameId);
 
+  // Use bidding view model hook for consistent logic
+  const biddingViewModel = useBiddingViewModel(
+    currentRound,
+    currentPhase,
+    biddingPhase
+  );
+
   // Track previous values to detect changes
   const prevRoundRef = useRef<Round | null>(null);
   const prevPhaseRef = useRef<string | null>(null);
   const [changedBids, setChangedBids] = useState<Set<number>>(new Set());
   const [changedResults, setChangedResults] = useState<Set<number>>(new Set());
   const [phaseChanged, setPhaseChanged] = useState(false);
-
 
   // Detect changes and trigger animations
   useEffect(() => {
@@ -150,13 +156,6 @@ export default function GameViewPage() {
 
           <div className="space-y-3">
             {(() => {
-              // Use bidding view model hook for consistent logic
-              const biddingViewModel = useBiddingViewModel(
-                currentRound,
-                currentPhase,
-                biddingPhase
-              );
-
               // Regular bidding phase
               if (currentPhase === "bidding" && biddingPhase === "regular-bid-entry" && biddingViewModel) {
                 const {

@@ -184,7 +184,8 @@ export default function GamePlayPage({
         unsubscribe();
       }
     };
-  }, [gameId, token, isSharedAccess]); // Removed 'user' to prevent re-verification on auth refresh
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameId, token, isSharedAccess]); // Intentionally excludes 'user' and 'loading' - user checked once on mount to avoid re-verification on auth refresh
 
   // Show loading state
   if (loading) {
