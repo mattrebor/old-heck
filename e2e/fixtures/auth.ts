@@ -42,8 +42,11 @@ export async function signInViaUI(page: Page, user: TestUser): Promise<void> {
   const signinButton = page.getByTestId('signin-button');
   await signinButton.click();
 
-  // Wait a bit to see if sign-in succeeds or fails
-  await page.waitForTimeout(1000);
+  // Wait for either error or success (navigation to setup page)
+  await Promise.race([
+    page.getByTestId('auth-error').waitFor({ state: 'visible', timeout: 2000 }).catch(() => {}),
+    page.waitForSelector('[data-testid="setup-decks-input"]', { timeout: 2000 }).catch(() => {}),
+  ]);
 
   // Check if there's an error (user doesn't exist)
   const errorVisible = await page.getByTestId('auth-error').isVisible().catch(() => false);
@@ -99,7 +102,8 @@ export async function signInWithTestUser(page: Page, userIndex = 0): Promise<Tes
  */
 export async function signOut(page: Page) {
   await page.getByTestId('header-signout-button').click();
-  await page.waitForTimeout(1000);
+  // Wait for sign-in button to appear (indicates signed out)
+  await page.waitForSelector('[data-testid="signin-button"]', { timeout: 2000 });
 }
 
 /**

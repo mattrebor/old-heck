@@ -86,8 +86,9 @@ export class GamePlayPage {
    */
   async toggleBlindBid(playerIndex: number) {
     await this.getBlindBidCheckbox(playerIndex).click({ force: true });
-    // Wait for state to update in Firebase and subscription to propagate
-    await this.page.waitForTimeout(1000);
+    // Wait for React state to update (checkbox state change is instant)
+    // No Firebase save needed - blind bid decision is only saved when bid is entered
+    await this.page.waitForTimeout(100);
   }
 
   /**
@@ -95,7 +96,8 @@ export class GamePlayPage {
    */
   async setBlindBid(playerIndex: number, bid: number) {
     await this.getBlindBidInput(playerIndex).fill(bid.toString());
-    // Wait for bid to auto-save to Firebase
+    // Wait for bid to auto-save to Firebase (1.5s debounce + network latency)
+    // TODO: Replace with waiting for a loading indicator or checking button state
     await this.page.waitForTimeout(2000);
   }
 
@@ -149,7 +151,8 @@ export class GamePlayPage {
    */
   async setRegularBid(playerIndex: number, bid: number) {
     await this.getRegularBidInput(playerIndex).fill(bid.toString());
-    // Wait for bid to auto-save to Firebase (1.5s delay + network latency)
+    // Wait for bid to auto-save to Firebase (1.5s debounce + network latency)
+    // TODO: Replace with waiting for a loading indicator or checking button state
     await this.page.waitForTimeout(2000);
   }
 
@@ -192,8 +195,8 @@ export class GamePlayPage {
    */
   async markPlayerMade(playerIndex: number) {
     await this.getResultMadeButton(playerIndex).click({ force: true });
-    // Wait briefly for state update (longer for real Firebase)
-    await this.page.waitForTimeout(1000);
+    // Wait for React state to update (result selection is instant)
+    await this.page.waitForTimeout(100);
   }
 
   /**
@@ -201,8 +204,8 @@ export class GamePlayPage {
    */
   async markPlayerMissed(playerIndex: number) {
     await this.getResultMissedButton(playerIndex).click({ force: true });
-    // Wait briefly for state update (longer for real Firebase)
-    await this.page.waitForTimeout(1000);
+    // Wait for React state to update (result selection is instant)
+    await this.page.waitForTimeout(100);
   }
 
   /**
