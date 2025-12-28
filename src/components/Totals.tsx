@@ -213,7 +213,7 @@ export default function Totals({
                                   ? "text-danger-500"
                                   : "text-success-500"
                               }`}
-                              data-testid={`round-${round.roundNumber}-delta-player${playerIndex}`}
+                              data-testid={`mobile-round-${round.roundNumber}-delta-player${playerIndex}`}
                             >
                               ({playerScore.score > 0 ? "+" : ""}
                               {playerScore.score})
@@ -349,7 +349,7 @@ export default function Totals({
                                   ? "text-danger-500"
                                   : "text-success-500"
                               }`}
-                              data-testid={`round-${round.roundNumber}-delta-player${playerIndex}`}
+                              data-testid={`desktop-round-${round.roundNumber}-delta-player${playerIndex}`}
                             >
                               ({playerScore.score > 0 ? "+" : ""}
                               {playerScore.score})
