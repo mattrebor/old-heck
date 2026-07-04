@@ -226,8 +226,12 @@ export class GamePlayPage {
    * Start the next round
    */
   async startNextRound() {
-    // Wait for button to be enabled (score review complete)
-    await expect(this.startNextRoundButton).toBeEnabled({ timeout: 10000 });
+    // Wait for the button to render before asserting it is enabled. On slower
+    // staging runs the score-review phase (and its button) can take a moment to
+    // appear, so wait for it to attach first, then be enabled, with generous
+    // timeouts to avoid flaky failures at the round transition.
+    await this.startNextRoundButton.waitFor({ state: 'attached', timeout: 15000 });
+    await expect(this.startNextRoundButton).toBeEnabled({ timeout: 15000 });
     // Use force click to handle real-time updates causing re-renders
     await this.startNextRoundButton.click({ force: true });
     // Wait for blind bidding phase to appear
