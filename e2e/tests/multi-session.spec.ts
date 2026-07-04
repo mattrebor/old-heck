@@ -26,11 +26,14 @@ test.describe('Multi-Session Real-Time Updates', () => {
   // whole-test cap while individual steps are still (bounded) waiting.
   test.setTimeout(120000); // 120 seconds instead of default 30 seconds
 
-  // Temporarily re-enabled to capture a fast, pinpointed failure on staging.
-  // With the global actionTimeout now set, the round-2 blind-bid step that used
-  // to hang until the whole-test timeout should instead fail in ~15s with a
-  // clear "waiting for locator" error identifying the exact element. Re-skip or
-  // fix once the offending element is identified.
+  // Cross-client assertions below wait on the *viewer* receiving a Firestore
+  // onSnapshot update after the editor acts. That propagation latency is real
+  // and variable on staging, so those waits use a generous VIEWER_SYNC_TIMEOUT.
+  // Editor-side actions are made deterministic in GamePlayPage (waiting on the
+  // actual enabled/rendered element instead of fixed sleeps), and the global
+  // actionTimeout still fast-fails any genuine hang.
+  const VIEWER_SYNC_TIMEOUT = 20000;
+
   test('should show real-time updates when one user edits and another watches', async ({ browser }) => {
     // Create two separate browser contexts to simulate two different users
     const editorContext = await browser.newContext();
@@ -67,14 +70,14 @@ test.describe('Multi-Session Real-Time Updates', () => {
       console.log(`👁️  Viewer watching game: ${gameId}`);
 
       // Wait for game to load for viewer
-      await viewerPage.waitForSelector('text=/Round 1/i', { timeout: 10000 });
+      await viewerPage.waitForSelector('text=/Round 1/i', { timeout: VIEWER_SYNC_TIMEOUT });
 
       // ==================== Round 1: Blind Bidding ====================
       // Editor: No one bids blind
       await editorGamePage.continueFromBlindBidding();
 
       // Viewer: Should see transition to regular bidding (view page shows "📝 Bidding")
-      await viewerPage.waitForSelector('text=/Bidding/i', { timeout: 10000 });
+      await viewerPage.waitForSelector('text=/Bidding/i', { timeout: VIEWER_SYNC_TIMEOUT });
       console.log('✅ Viewer sees regular bidding phase');
 
       // ==================== Round 1: Regular Bidding ====================
@@ -91,7 +94,7 @@ test.describe('Multi-Session Real-Time Updates', () => {
       await editorGamePage.completeRegularBidding();
 
       // Viewer: Should see transition to results phase
-      await viewerPage.waitForSelector('text=/Recording Results/i', { timeout: 10000 });
+      await viewerPage.waitForSelector('text=/Recording Results/i', { timeout: VIEWER_SYNC_TIMEOUT });
       console.log('✅ Viewer sees results phase');
 
       // ==================== Round 1: Results ====================
@@ -108,7 +111,7 @@ test.describe('Multi-Session Real-Time Updates', () => {
       await editorGamePage.completeRound();
 
       // Viewer: Should see score review phase
-      await viewerPage.waitForSelector('text=/Round 1 Complete/i', { timeout: 10000 });
+      await viewerPage.waitForSelector('text=/Round 1 Complete/i', { timeout: VIEWER_SYNC_TIMEOUT });
       console.log('✅ Viewer sees score review phase');
 
       // Viewer: Verify scores are shown
@@ -128,8 +131,8 @@ test.describe('Multi-Session Real-Time Updates', () => {
       // can be visible while the phase indicator hasn't settled yet. Waiting on
       // the specific bidding indicator (with a generous timeout for slow staging
       // real-time sync) avoids that race.
-      await viewerPage.getByText('Round 2 - In Progress').waitFor({ timeout: 15000 });
-      await viewerPage.getByText('📝 Bidding').waitFor({ timeout: 15000 });
+      await viewerPage.getByText('Round 2 - In Progress').waitFor({ timeout: VIEWER_SYNC_TIMEOUT });
+      await viewerPage.getByText('📝 Bidding').waitFor({ timeout: VIEWER_SYNC_TIMEOUT });
       console.log('✅ Viewer sees round 2 start');
 
       // ==================== Round 2: Blind Bidding ====================
