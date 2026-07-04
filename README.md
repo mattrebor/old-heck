@@ -1,7 +1,7 @@
 # Old Heck - Card Game Scoring App
 
-[![PR Checks](https://github.com/mattrebor/old-heck/actions/workflows/cicd.yml/badge.svg?event=pull_request)](https://github.com/mattrebor/old-heck/actions/workflows/cicd.yml?query=event%3Apull_request)
-[![Deploy](https://github.com/mattrebor/old-heck/actions/workflows/cicd.yml/badge.svg?branch=main)](https://github.com/mattrebor/old-heck/actions/workflows/cicd.yml?query=branch%3Amain)
+[![PR Checks](https://img.shields.io/github/actions/workflow/status/mattrebor/old-heck/cicd.yml?event=pull_request&label=PR%20Checks)](https://github.com/mattrebor/old-heck/actions/workflows/cicd.yml?query=event%3Apull_request)
+[![Deploy](https://img.shields.io/github/actions/workflow/status/mattrebor/old-heck/cicd.yml?branch=main&label=Deploy)](https://github.com/mattrebor/old-heck/actions/workflows/cicd.yml?query=branch%3Amain)
 
 > **PR Checks** = lint + unit tests + emulator E2E on every pull request. **Deploy** = the `main` pipeline (staging deploy → staging E2E → production deploy). Both reflect the single `CI/CD Pipeline` workflow, scoped by event/branch.
 
