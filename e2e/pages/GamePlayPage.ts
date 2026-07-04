@@ -85,7 +85,7 @@ export class GamePlayPage {
    * Toggle blind bid for a player
    */
   async toggleBlindBid(playerIndex: number) {
-    await this.getBlindBidCheckbox(playerIndex).click({ force: true });
+    await this.getBlindBidCheckbox(playerIndex).click({ force: true, timeout: 15000 });
     // Toggling blind on reveals the bid input. Wait for it to render (bounded)
     // so a subsequent setBlindBid doesn't block on a not-yet-actionable input
     // until the whole-test timeout. Fails fast with a clear error if the toggle

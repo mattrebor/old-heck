@@ -30,6 +30,12 @@ export default defineConfig({
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: 'http://localhost:5173',
 
+    /* Bound every action (click/fill/etc.) so a missing/non-actionable element
+     * fails fast with a clear "waiting for locator" error instead of inheriting
+     * the whole-test timeout and hanging. Without this, Playwright's default of
+     * 0 (no limit) lets an un-timed action consume the entire test budget. */
+    actionTimeout: 15000,
+
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
 
