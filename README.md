@@ -382,7 +382,7 @@ How it works:
 - The app connects to the local emulators when `VITE_USE_FIREBASE_EMULATOR=true`.
 - The committed `.env.emulator` file supplies a **demo** Firebase config (not secrets — a `demo-` project id runs the emulators fully offline). Vite loads it via `--mode emulator`.
 - The suite runs serially (`workers: 1`) in emulator mode because the tests share a small set of emulator users (`alice/bob/charlie@test.com`).
-- Requires a JDK on your PATH (the Firestore emulator runs on the JVM).
+- Requires JDK 21+ on your PATH (the Firestore emulator runs on the JVM; firebase-tools requires Java 21 or newer).
 
 This same command runs on every pull request via the **E2E Tests (Emulator)** CI job, so regressions are caught before merge. A separate post-merge job also runs the suite against staging (`npm run test:e2e:real`, which needs real credentials).
 
