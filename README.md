@@ -366,6 +366,25 @@ The app provides a seamless flow with automatic progression between phases:
 - `npm test` - Run tests with Vitest
 - `npm run test:ui` - Run tests with Vitest UI
 - `npm run test:coverage` - Generate test coverage report
+- `npm run test:e2e:local` - Run the full Playwright E2E suite against the local Firebase emulator (see below)
+
+## End-to-End Tests
+
+E2E tests run with [Playwright](https://playwright.dev). The recommended way to run them — locally and in CI — is against the **Firebase emulator**, so they are isolated, need no credentials, and never touch real Firebase data.
+
+```bash
+# One command: boots the auth + firestore emulators, runs the suite, tears down.
+npm run test:e2e:local
+```
+
+How it works:
+
+- The app connects to the local emulators when `VITE_USE_FIREBASE_EMULATOR=true`.
+- The committed `.env.emulator` file supplies a **demo** Firebase config (not secrets — a `demo-` project id runs the emulators fully offline). Vite loads it via `--mode emulator`.
+- The suite runs serially (`workers: 1`) in emulator mode because the tests share a small set of emulator users (`alice/bob/charlie@test.com`).
+- Requires JDK 21+ on your PATH (the Firestore emulator runs on the JVM; firebase-tools requires Java 21 or newer).
+
+This same command runs on every pull request via the **E2E Tests (Emulator)** CI job, so regressions are caught before merge. A separate post-merge job also runs the suite against staging (`npm run test:e2e:real`, which needs real credentials).
 
 ## Project Structure
 
