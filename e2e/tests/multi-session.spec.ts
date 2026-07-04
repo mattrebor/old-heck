@@ -24,7 +24,7 @@ test.describe('Multi-Session Real-Time Updates', () => {
   // cross-client real-time (onSnapshot) propagation over two rounds, which can
   // be slow on staging. Give generous headroom so the suite doesn't hit the
   // whole-test cap while individual steps are still (bounded) waiting.
-  test.setTimeout(120000); // 120 seconds instead of default 30 seconds
+  test.setTimeout(60000); // 60 seconds instead of default 30 seconds
 
   // Runs against the Firebase emulator (isolated, no WAN latency), where the
   // cross-client onSnapshot propagation this test asserts is deterministic.
