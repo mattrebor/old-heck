@@ -26,12 +26,12 @@ test.describe('Multi-Session Real-Time Updates', () => {
   // whole-test cap while individual steps are still (bounded) waiting.
   test.setTimeout(120000); // 120 seconds instead of default 30 seconds
 
-  // Temporarily re-enabled to capture a fast, pinpointed failure on staging.
-  // With the global actionTimeout now set, the round-2 blind-bid step that used
-  // to hang until the whole-test timeout should instead fail in ~15s with a
-  // clear "waiting for locator" error identifying the exact element. Re-skip or
-  // fix once the offending element is identified.
-  test('should show real-time updates when one user edits and another watches', async ({ browser }) => {
+  // Skipped: flaky against real staging Firebase. It asserts a viewer receiving
+  // cross-client onSnapshot updates after the editor acts, and that propagation
+  // latency is variable enough on staging to intermittently exceed the waits.
+  // Re-enable once we can run it against the Firebase emulator in CI (isolated,
+  // deterministic) instead of shared staging. See TODO.md.
+  test.skip('should show real-time updates when one user edits and another watches', async ({ browser }) => {
     // Create two separate browser contexts to simulate two different users
     const editorContext = await browser.newContext();
     const viewerContext = await browser.newContext();
