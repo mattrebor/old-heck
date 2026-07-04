@@ -472,8 +472,8 @@ Bid of 0 tricks (regular):
 - Miss it: `-(0 × 0) = 0` points ✗
 
 ### Game Length
-- Maximum rounds: `(52 × number of decks) ÷ number of players`
-- Example: 1 deck, 4 players = 13 rounds max
+- Maximum rounds: `((52 × number of decks) − 1) ÷ number of players` (one card is reserved to flip for the trump suit each round)
+- Example: 1 deck, 4 players = 12 rounds max
 - Example: 2 decks, 6 players = 17 rounds max
 
 ## Security

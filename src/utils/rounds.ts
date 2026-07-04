@@ -3,23 +3,25 @@ import type { GameSetup, Round } from "../types";
 /**
  * Calculate the maximum number of rounds based on decks and players
  *
- * Uses standard card game calculation: (52 cards × decks) ÷ players
- * Result is floored to ensure whole rounds only
+ * Uses standard card game calculation: (52 cards × decks) ÷ players.
+ * One card is reserved to flip for the trump suit each round, so the
+ * available pool is (52 × decks − 1). Result is floored to ensure whole
+ * rounds only.
  *
  * @param decks - Number of card decks in play
  * @param players - Number of players in the game
  * @returns Maximum number of rounds that can be played
  *
  * @example
- * // 1 deck, 4 players
- * calculateMaxRounds(1, 4) // returns 13
+ * // 1 deck, 4 players — 51 cards ÷ 4 (one card reserved for trump)
+ * calculateMaxRounds(1, 4) // returns 12
  *
  * @example
  * // 2 decks, 6 players
  * calculateMaxRounds(2, 6) // returns 17
  */
 export function calculateMaxRounds(decks: number, players: number): number {
-  return Math.floor((52 * decks) / players);
+  return Math.floor((52 * decks - 1) / players);
 }
 
 /**
@@ -35,7 +37,7 @@ export function calculateMaxRounds(decks: number, players: number): number {
  *
  * @example
  * // Create round 3 for a 4-player game
- * const setup = { players: ['Alice', 'Bob', 'Charlie', 'Dave'], firstPlayerIndex: 0, decks: 1, maxRounds: 13 };
+ * const setup = { players: ['Alice', 'Bob', 'Charlie', 'Dave'], firstPlayerIndex: 0, decks: 1, maxRounds: 12 };
  * const round = createRound(setup, 3);
  * // round.firstBidderIndex will be 2 (Charlie)
  */
