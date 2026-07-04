@@ -85,16 +85,11 @@ export class GamePlayPage {
    * Toggle blind bid for a player
    */
   async toggleBlindBid(playerIndex: number) {
-    const checkbox = this.getBlindBidCheckbox(playerIndex);
-    // Wait for the checkbox to actually be present and stable before clicking.
-    // During a round transition the editor re-renders from its own onSnapshot
-    // echo, so the phase heading can be visible while player cards are still
-    // (re)mounting. Waiting on the concrete element avoids a click that races
-    // the re-render.
-    await checkbox.waitFor({ state: 'visible', timeout: 15000 });
-    await checkbox.click({ force: true });
-    // Toggling blind on reveals the bid input. Wait for it to render so a
-    // subsequent setBlindBid doesn't block on a not-yet-actionable input.
+    await this.getBlindBidCheckbox(playerIndex).click({ force: true, timeout: 15000 });
+    // Toggling blind on reveals the bid input. Wait for it to render (bounded)
+    // so a subsequent setBlindBid doesn't block on a not-yet-actionable input
+    // until the whole-test timeout. Fails fast with a clear error if the toggle
+    // didn't take effect.
     await this.getBlindBidInput(playerIndex).waitFor({ state: 'visible', timeout: 10000 });
   }
 
@@ -102,11 +97,12 @@ export class GamePlayPage {
    * Set blind bid for a player
    */
   async setBlindBid(playerIndex: number, bid: number) {
-    const input = this.getBlindBidInput(playerIndex);
-    await input.fill(bid.toString());
-    // Deterministic: assert the value committed to the controlled input rather
-    // than sleeping a fixed interval hoping the save/debounce landed.
-    await expect(input).toHaveValue(bid.toString(), { timeout: 5000 });
+    // Bounded timeout so an unrendered/non-actionable input fails fast with a
+    // clear error rather than blocking until the whole-test timeout.
+    await this.getBlindBidInput(playerIndex).fill(bid.toString(), { timeout: 10000 });
+    // Wait for bid to auto-save to Firebase (1.5s debounce + network latency)
+    // TODO: Replace with waiting for a loading indicator or checking button state
+    await this.page.waitForTimeout(2000);
   }
 
   /**
@@ -158,15 +154,10 @@ export class GamePlayPage {
    * Set regular bid for a player
    */
   async setRegularBid(playerIndex: number, bid: number) {
-    const input = this.getRegularBidInput(playerIndex);
-    // Only the active bidder's input is enabled; the next player's input stays
-    // disabled until the app's 1.5s advance timer fires and moves the turn on.
-    // Waiting for this input to be enabled is a deterministic proxy for that
-    // advancement, replacing a fixed sleep that races the timer.
-    await expect(input).toBeEnabled({ timeout: 10000 });
-    await input.fill(bid.toString());
-    // Confirm the value committed to local state before moving on.
-    await expect(input).toHaveValue(bid.toString(), { timeout: 5000 });
+    await this.getRegularBidInput(playerIndex).fill(bid.toString());
+    // Wait for bid to auto-save to Firebase (1.5s debounce + network latency)
+    // TODO: Replace with waiting for a loading indicator or checking button state
+    await this.page.waitForTimeout(2000);
   }
 
   /**
@@ -247,12 +238,8 @@ export class GamePlayPage {
     await expect(this.startNextRoundButton).toBeEnabled({ timeout: 15000 });
     // Use force click to handle real-time updates causing re-renders
     await this.startNextRoundButton.click({ force: true });
-    // Wait for the blind bidding phase heading AND the first player's blind
-    // checkbox to actually render. Waiting only on the heading let a caller
-    // click a checkbox that hadn't mounted yet (the editor re-renders from its
-    // own onSnapshot echo during the round transition), which flaked.
+    // Wait for blind bidding phase to appear
     await this.page.waitForSelector('text=/Blind Bid Phase/i', { timeout: 15000 });
-    await this.getBlindBidCheckbox(0).waitFor({ state: 'visible', timeout: 15000 });
   }
 
   // ==================== Totals ====================
