@@ -72,7 +72,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-report-emulator
           path: playwright-report/
@@ -80,7 +80,7 @@ jobs:
 
       - name: Upload test failures (screenshots and videos)
         if: failure()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-failures-emulator
           path: test-results/
@@ -217,7 +217,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-report-staging
           path: playwright-report/
@@ -225,7 +225,7 @@ jobs:
 
       - name: Upload test failures (screenshots and videos)
         if: failure()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-failures-staging
           path: test-results/
