@@ -371,6 +371,11 @@ export default function GamePlayPage({
       return; // Silently ignore if called when not ready
     }
 
+    // Cancel any pending debounced results save. Otherwise a stale "results"
+    // write can commit out of order (after these transition writes) and revert
+    // the game back to the results phase — visible to all clients via onSnapshot.
+    debouncedSaveRef.current.cancel();
+
     const newCompletedRounds = [...completedRounds, currentRound];
     setCompletedRounds(newCompletedRounds);
     setCurrentRound(null);
@@ -412,6 +417,10 @@ export default function GamePlayPage({
 
   async function handleStartNextRound() {
     if (!gameId || !setup) return;
+
+    // Defensive: cancel any pending debounced save so a late results/bidding
+    // write can't clobber this round-transition write out of order.
+    debouncedSaveRef.current.cancel();
 
     const nextRoundNumber = completedRounds.length + 1;
     const newRound = createNewRound(nextRoundNumber);
