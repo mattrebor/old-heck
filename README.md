@@ -1,5 +1,10 @@
 # Old Heck - Card Game Scoring App
 
+[![PR Checks](https://github.com/mattrebor/old-heck/actions/workflows/cicd.yml/badge.svg?event=pull_request)](https://github.com/mattrebor/old-heck/actions/workflows/cicd.yml?query=event%3Apull_request)
+[![Deploy](https://github.com/mattrebor/old-heck/actions/workflows/cicd.yml/badge.svg?branch=main)](https://github.com/mattrebor/old-heck/actions/workflows/cicd.yml?query=branch%3Amain)
+
+> **PR Checks** = lint + unit tests + emulator E2E on every pull request. **Deploy** = the `main` pipeline (staging deploy → staging E2E → production deploy). Both reflect the single `CI/CD Pipeline` workflow, scoped by event/branch.
+
 A modern, mobile-responsive scoring application for the card game "Old Heck" (also known as "Oh Hell" or "Oh Heck"). Track scores across multiple rounds with automatic calculation, real-time updates, and shareable view-only links.
 
 ## Features
