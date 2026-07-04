@@ -198,18 +198,26 @@ export class GamePlayPage {
    * Mark a player as having made their bid
    */
   async markPlayerMade(playerIndex: number) {
-    await this.getResultMadeButton(playerIndex).click({ force: true });
-    // Wait for React state to update (result selection is instant)
-    await this.page.waitForTimeout(100);
+    const madeButton = this.getResultMadeButton(playerIndex);
+    // force: true because the radio is visually hidden (sr-only). Then wait for
+    // the controlled input's checked state to flip rather than a blind timeout:
+    // the results phase renders right after the bidding->results transition, so
+    // a force-click can land mid-re-render and be swallowed. toBeChecked() only
+    // passes once onChange fired and React state propagated, turning that race
+    // into a deterministic wait.
+    await madeButton.click({ force: true });
+    await expect(madeButton).toBeChecked();
   }
 
   /**
    * Mark a player as having missed their bid
    */
   async markPlayerMissed(playerIndex: number) {
-    await this.getResultMissedButton(playerIndex).click({ force: true });
-    // Wait for React state to update (result selection is instant)
-    await this.page.waitForTimeout(100);
+    const missedButton = this.getResultMissedButton(playerIndex);
+    // See markPlayerMade: force-click the sr-only radio, then wait on the
+    // controlled checked state to confirm the selection actually registered.
+    await missedButton.click({ force: true });
+    await expect(missedButton).toBeChecked();
   }
 
   /**
