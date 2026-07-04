@@ -112,10 +112,16 @@ test.describe('Multi-Session Real-Time Updates', () => {
       // Editor: Start round 2
       await editorGamePage.startNextRound();
 
-      // Viewer: Should see round 2 bidding phase
-      await viewerPage.waitForSelector('text=/Round 2/i', { timeout: 5000 });
-      // Wait longer for bidding phase - there can be a delay after round starts
-      await viewerPage.waitForSelector('text=/Bidding/i', { timeout: 10000 });
+      // Viewer: Should see round 2 bidding phase.
+      // Wait for the round 2 card to appear, then wait on the definitive
+      // "📝 Bidding" phase indicator rather than a loose /Bidding/i regex.
+      // Starting the next round can briefly flash a "✅ Completing Round" phase
+      // before "bidding" propagates via Firestore onSnapshot, so the round header
+      // can be visible while the phase indicator hasn't settled yet. Waiting on
+      // the specific bidding indicator (with a generous timeout for slow staging
+      // real-time sync) avoids that race.
+      await viewerPage.getByText('Round 2 - In Progress').waitFor({ timeout: 15000 });
+      await viewerPage.getByText('📝 Bidding').waitFor({ timeout: 15000 });
       console.log('✅ Viewer sees round 2 start');
 
       // ==================== Round 2: Blind Bidding ====================
