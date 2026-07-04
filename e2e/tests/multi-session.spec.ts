@@ -26,12 +26,10 @@ test.describe('Multi-Session Real-Time Updates', () => {
   // whole-test cap while individual steps are still (bounded) waiting.
   test.setTimeout(120000); // 120 seconds instead of default 30 seconds
 
-  // Skipped: flaky against real staging Firebase. It asserts a viewer receiving
-  // cross-client onSnapshot updates after the editor acts, and that propagation
-  // latency is variable enough on staging to intermittently exceed the waits.
-  // Re-enable once we can run it against the Firebase emulator in CI (isolated,
-  // deterministic) instead of shared staging. See TODO.md.
-  test.skip('should show real-time updates when one user edits and another watches', async ({ browser }) => {
+  // Runs against the Firebase emulator (isolated, no WAN latency), where the
+  // cross-client onSnapshot propagation this test asserts is deterministic.
+  // Was previously skipped as flaky against shared staging Firebase.
+  test('should show real-time updates when one user edits and another watches', async ({ browser }) => {
     // Create two separate browser contexts to simulate two different users
     const editorContext = await browser.newContext();
     const viewerContext = await browser.newContext();
