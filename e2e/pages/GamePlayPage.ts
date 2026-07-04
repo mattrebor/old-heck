@@ -86,16 +86,20 @@ export class GamePlayPage {
    */
   async toggleBlindBid(playerIndex: number) {
     await this.getBlindBidCheckbox(playerIndex).click({ force: true });
-    // Wait for React state to update (checkbox state change is instant)
-    // No Firebase save needed - blind bid decision is only saved when bid is entered
-    await this.page.waitForTimeout(100);
+    // Toggling blind on reveals the bid input. Wait for it to render (bounded)
+    // so a subsequent setBlindBid doesn't block on a not-yet-actionable input
+    // until the whole-test timeout. Fails fast with a clear error if the toggle
+    // didn't take effect.
+    await this.getBlindBidInput(playerIndex).waitFor({ state: 'visible', timeout: 10000 });
   }
 
   /**
    * Set blind bid for a player
    */
   async setBlindBid(playerIndex: number, bid: number) {
-    await this.getBlindBidInput(playerIndex).fill(bid.toString());
+    // Bounded timeout so an unrendered/non-actionable input fails fast with a
+    // clear error rather than blocking until the whole-test timeout.
+    await this.getBlindBidInput(playerIndex).fill(bid.toString(), { timeout: 10000 });
     // Wait for bid to auto-save to Firebase (1.5s debounce + network latency)
     // TODO: Replace with waiting for a loading indicator or checking button state
     await this.page.waitForTimeout(2000);
