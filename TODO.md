@@ -44,3 +44,4 @@
 - (MEDIUM) Show score breakdown at the top of the page when blind bid phase
 - (LOW) allow editing blind bid, bids and results
 - (MEDIUM) do not allow blind bids of 0. It needs to be greater than 0
+- (MEDIUM) re-enable skipped E2E test `multi-session.spec.ts` › "should show real-time updates when one user edits and another watches". Temporarily `test.skip`'d: it stalls at round-2 blind bidding on staging due to slow/unreliable cross-client onSnapshot propagation. Make the round-2 blind-bid flow deterministic (wait on explicit save/loading indicators instead of fixed `waitForTimeout` sleeps) before re-enabling.
