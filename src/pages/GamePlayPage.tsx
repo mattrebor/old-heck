@@ -16,6 +16,7 @@ import { hasResultRecorded } from "../types";
 import { calculateOldHeckScore } from "../scoring";
 import { debounce } from "../utils/debounce";
 import { createRound } from "../utils/rounds";
+import { commitPhaseTransition } from "../utils/gameTransitions";
 import { navigateToNewGameWithSetup } from "../utils/navigation";
 import Header from "../components/Header";
 import GameErrorState from "../components/GameErrorState";
@@ -371,11 +372,6 @@ export default function GamePlayPage({
       return; // Silently ignore if called when not ready
     }
 
-    // Cancel any pending debounced results save. Otherwise a stale "results"
-    // write can commit out of order (after these transition writes) and revert
-    // the game back to the results phase — visible to all clients via onSnapshot.
-    debouncedSaveRef.current.cancel();
-
     const newCompletedRounds = [...completedRounds, currentRound];
     setCompletedRounds(newCompletedRounds);
     setCurrentRound(null);
@@ -386,28 +382,35 @@ export default function GamePlayPage({
 
     try {
       setIsSaving(true);
-      await updateGameRound(gameId, {
-        rounds: newCompletedRounds,
-        inProgressRound: undefined,
-        currentPhase: "completed",
-      });
+      // commitPhaseTransition cancels the pending debounced results save first,
+      // so a stale "results" write can't revert this transition out of order.
+      await commitPhaseTransition(
+        () => debouncedSaveRef.current.cancel(),
+        async () => {
+          await updateGameRound(gameId, {
+            rounds: newCompletedRounds,
+            inProgressRound: undefined,
+            currentPhase: "completed",
+          });
 
-      // Check if game is complete
-      if (nextRoundNumber > setup.maxRounds) {
-        // Scroll to top to show game complete message
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        await markGameComplete(gameId);
-      } else {
-        // After any round: Show score review phase
-        setCurrentPhase("score-review");
+          // Check if game is complete
+          if (nextRoundNumber > setup.maxRounds) {
+            // Scroll to top to show game complete message
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            await markGameComplete(gameId);
+          } else {
+            // After any round: Show score review phase
+            setCurrentPhase("score-review");
 
-        // Scroll to top when entering score review phase
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Scroll to top when entering score review phase
+            window.scrollTo({ top: 0, behavior: 'smooth' });
 
-        await updateGameRound(gameId, {
-          currentPhase: "score-review",
-        });
-      }
+            await updateGameRound(gameId, {
+              currentPhase: "score-review",
+            });
+          }
+        }
+      );
     } catch (error) {
       console.error("Error saving completed round:", error);
     } finally {
@@ -417,10 +420,6 @@ export default function GamePlayPage({
 
   async function handleStartNextRound() {
     if (!gameId || !setup) return;
-
-    // Defensive: cancel any pending debounced save so a late results/bidding
-    // write can't clobber this round-transition write out of order.
-    debouncedSaveRef.current.cancel();
 
     const nextRoundNumber = completedRounds.length + 1;
     const newRound = createNewRound(nextRoundNumber);
@@ -434,11 +433,17 @@ export default function GamePlayPage({
 
     try {
       setIsSaving(true);
-      await updateGameRound(gameId, {
-        inProgressRound: newRound,
-        currentPhase: "bidding",
-        biddingPhase: "blind-declaration-and-entry",
-      });
+      // Cancel any pending debounced save so a late write can't clobber this
+      // round-transition write out of order.
+      await commitPhaseTransition(
+        () => debouncedSaveRef.current.cancel(),
+        () =>
+          updateGameRound(gameId, {
+            inProgressRound: newRound,
+            currentPhase: "bidding",
+            biddingPhase: "blind-declaration-and-entry",
+          })
+      );
     } catch (error) {
       console.error("Error starting next round:", error);
     } finally {
