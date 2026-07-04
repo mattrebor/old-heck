@@ -33,6 +33,59 @@ jobs:
           CI: true
           NODE_ENV: test
 
+  # ==================== PR: E2E on Firebase Emulator ====================
+  # Runs the full Playwright suite against the local Firebase emulator on every
+  # PR. Isolated and ephemeral (emulators boot and tear down inside the job),
+  # needs no secrets, and never touches real Firebase data. This is the gate
+  # that would have caught the bidding-flow regression before it hit main.
+  e2e-emulator:
+    name: E2E Tests (Emulator)
+    if: github.event_name == 'pull_request'
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.12'
+          cache: 'npm'
+
+      - name: Setup Java (Firestore emulator runtime)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E tests against Firebase emulator
+        run: npm run test:e2e:local
+        env:
+          CI: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-emulator
+          path: playwright-report/
+          retention-days: 30
+
+      - name: Upload test failures (screenshots and videos)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-failures-emulator
+          path: test-results/
+          retention-days: 30
+
   # ==================== PR: Preview Deploy ====================
   preview:
     name: Deploy PR Preview

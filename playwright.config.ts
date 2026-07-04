@@ -18,8 +18,11 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* Run serially on CI and whenever using the Firebase emulator: the E2E
+   * suite shares a small set of emulator auth users (alice/bob/charlie), so
+   * parallel workers race to create the same accounts. Serial keeps both the
+   * local `test:e2e:local` run and CI deterministic. */
+  workers: process.env.CI || process.env.VITE_USE_FIREBASE_EMULATOR === 'true' ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
     ['html'],
@@ -82,8 +85,11 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
+    // In emulator mode, start Vite with `--mode emulator` so it loads the
+    // committed demo config from `.env.emulator` and points the app at the
+    // local Auth/Firestore emulators (no real credentials, no real data).
     command: process.env.VITE_USE_FIREBASE_EMULATOR === 'true'
-      ? 'cross-env VITE_USE_FIREBASE_EMULATOR=true npm run dev'
+      ? 'cross-env VITE_USE_FIREBASE_EMULATOR=true npm run dev -- --mode emulator'
       : 'npm run dev',
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
